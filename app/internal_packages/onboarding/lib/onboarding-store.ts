@@ -59,10 +59,10 @@ class OnboardingStore extends MailspringStore {
       // switching environments.
       this._pageStack = ['account-choose'];
     } else if (hasAccounts) {
-      // Should only happen when the user has "signed out" of their Mailspring ID,
-      // but already has accounts synced. Or is upgrading from a very old build.
-      // We used to show "Welcome Back", but now just jump to sign in.
-      this._pageStack = ['authenticate'];
+      // WS1-E: Mailspring ID concept removed; previously this branch went to
+      // 'authenticate' which loaded id.getmailspring.com/onboarding in a
+      // webview. We now jump straight to add-another-account.
+      this._pageStack = ['account-choose'];
     } else {
       // Standard new user onboarding flow.
       this._pageStack = ['welcome'];

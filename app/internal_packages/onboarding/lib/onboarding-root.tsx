@@ -14,7 +14,7 @@ import AccountSettingsPageO365 from './page-account-settings-o365';
 import AccountSettingsPageIMAP from './page-account-settings-imap';
 import AccountOnboardingSuccess from './page-account-onboarding-success';
 import InitialPreferencesPage from './page-initial-preferences';
-import InitialSubscriptionPage from './page-initial-subscription';
+// InitialSubscriptionPage removed in WS1-E (no Pro tier in Actuna Mail).
 import AccountSettingsPageOutlook from './page-account-settings-outlook';
 
 const PageComponents = {
@@ -29,7 +29,7 @@ const PageComponents = {
   'account-settings-imap': AccountSettingsPageIMAP,
   'account-onboarding-success': AccountOnboardingSuccess,
   'initial-preferences': InitialPreferencesPage,
-  'initial-subscription': InitialSubscriptionPage,
+  // 'initial-subscription' removed in WS1-E (no Pro tier).
 };
 
 interface OnboardingRootState {

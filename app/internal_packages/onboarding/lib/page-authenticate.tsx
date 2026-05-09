@@ -1,8 +1,15 @@
 import React from 'react';
-import qs from 'querystring';
-import { PropTypes, MailspringAPIRequest, IdentityAuthResponse } from 'mailspring-exports';
-import { Webview } from 'mailspring-component-kit';
+import { PropTypes } from 'mailspring-exports';
 import * as OnboardingActions from './onboarding-actions';
+
+// WS1-E: replaces upstream Mailspring's authenticate page, which loaded
+// id.getmailspring.com/onboarding in a webview before the user clicked
+// "Skip" (per analysis/01-... finding T3.D — the leak that contradicted
+// SECURITY.md statement #3). Actuna Mail has no Mailspring ID, so this
+// page is unreachable from the normal flow (OnboardingStore now sends
+// returning users to 'account-choose'). The component is retained as a
+// safety net: if any code path resurrects it, it skips through with a
+// {skipped: true} response and does not contact any external server.
 
 export default class AuthenticatePage extends React.Component {
   static displayName = 'AuthenticatePage';
@@ -11,36 +18,18 @@ export default class AuthenticatePage extends React.Component {
     account: PropTypes.object,
   };
 
-  _src() {
-    return `${MailspringAPIRequest.rootURLForServer('identity')}/onboarding?${qs.stringify({
-      version: AppEnv.getVersion(),
-      skipSupported: true,
-    })}`;
+  componentDidMount() {
+    // No external authentication needed; auto-progress.
+    OnboardingActions.identityJSONReceived({ skipped: true });
   }
-
-  _onDidFinishLoad = async (webview: Electron.WebviewTag) => {
-    const receiveUserInfo = `
-      var a = document.querySelector('#identity-result');
-      result = a ? a.innerText : null;
-    `;
-    const result = await webview.executeJavaScript(receiveUserInfo, false);
-    this.setState({ ready: true, webviewLoading: false });
-    if (result !== null) {
-      const parsed = JSON.parse(atob(result)) as IdentityAuthResponse;
-      OnboardingActions.identityJSONReceived(parsed);
-    }
-
-    const openExternalLink = `
-      var el = document.querySelector('.open-external');
-      if (el) {el.addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})}
-    `;
-    webview.executeJavaScript(openExternalLink);
-  };
 
   render() {
     return (
       <div className="page authenticate">
-        <Webview src={this._src()} onDidFinishLoad={this._onDidFinishLoad} />
+        <div style={{ padding: 40, textAlign: 'center' }}>
+          {/* Plain text only; no webview, no remote fetch. */}
+          Skipping the legacy Mailspring ID step…
+        </div>
       </div>
     );
   }
