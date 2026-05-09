@@ -306,6 +306,15 @@ const start = () => {
   app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
   app.commandLine.appendSwitch('js-flags', '--harmony');
 
+  // WS2-A defense in depth: even though error-logger.js no longer calls
+  // crashReporter.start(...), explicitly disable Crashpad / Breakpad at
+  // the Chromium level. This guarantees that no minidump can be queued
+  // by the platform's native crash handler. Pair with the gutting of
+  // app/src/error-logger.js _startCrashReporter.
+  app.commandLine.appendSwitch('disable-crashpad');
+  app.commandLine.appendSwitch('disable-breakpad');
+  app.commandLine.appendSwitch('disable-features', 'CrashReporting');
+
   const options = parseCommandLine(process.argv);
   global.errorLogger = setupErrorLogger(options);
   const configDirPath = setupConfigDir(options);

@@ -9,7 +9,13 @@ if (process.type === 'renderer') {
 }
 
 var appVersion = app.getVersion();
-var SentryErrorReporter = require('./error-logger-extensions/sentry-error-reporter');
+// SentryErrorReporter import removed in WS2-A: Actuna Mail does not
+// transmit errors to Sentry or any other third-party service. Errors
+// are logged to the local console / file only. The file
+// error-logger-extensions/sentry-error-reporter.js is left in place
+// but rewritten as a no-op stub so it cannot send envelopes even if
+// re-instantiated. See COMPLIANCE.md (GDPR Art. 5(1)(c), 6, 13, 25,
+// 32, 44+, KNF Rec. D, NIS2 Art. 21(c)).
 
 // A globally available ErrorLogger that can report errors to various
 // sources and enhance error functionality.
@@ -33,19 +39,19 @@ module.exports = ErrorLogger = (function () {
     this.inDevMode = args.inDevMode;
     this.resourcePath = args.resourcePath;
 
-    this._startCrashReporter();
+    // WS2-A: crashReporter and Sentry initialization removed.
+    // - crashReporter previously sent minidumps (process memory snapshots,
+    //   potentially containing passwords, tokens, draft text) to
+    //   id.getmailspring.com/report-crash. See finding #3.
+    // - Sentry envelopes were sent to o70907.ingest.us.sentry.io, including
+    //   stack traces, plugin IDs, and a SHA-256 of the device's MAC address
+    //   as user.id. See finding #1.
 
     this._extendErrorObject();
 
     this._extendNativeConsole();
 
-    this.extensions = [
-      new SentryErrorReporter({
-        inSpecMode: args.inSpecMode,
-        inDevMode: args.inDevMode,
-        resourcePath: args.resourcePath,
-      }),
-    ];
+    this.extensions = [];
 
     if (this.inSpecMode) {
       return;
@@ -103,22 +109,14 @@ module.exports = ErrorLogger = (function () {
   ////////////////////////// PRIVATE METHODS //////////////////////////
   /////////////////////////////////////////////////////////////////////
 
-  ErrorLogger.prototype._startCrashReporter = function (args) {
-    if (process.type === 'renderer') {
-      return;
-    }
-    require('electron').crashReporter.start({
-      productName: 'Mailspring',
-      companyName: 'Mailspring',
-      submitURL: `https://id.getmailspring.com/report-crash?ver=${appVersion}&platform=${process.platform}`,
-      uploadToServer: true,
-      autoSubmit: true,
-      extra: {
-        ver: appVersion,
-        platform: process.platform,
-      },
-    });
-  };
+  // _startCrashReporter intentionally removed in WS2-A.
+  // The previous implementation called electron.crashReporter.start with
+  // submitURL: 'https://id.getmailspring.com/report-crash' and
+  // uploadToServer: true, which made the operating system's native crash
+  // handler post minidumps of process memory to Foundry servers in the
+  // United States on every crash. See README.md and SECURITY.md.
+  // Defense-in-depth: app/src/browser/main.js also sets the
+  // --disable-crashpad command line switch.
 
   ErrorLogger.prototype._extendNativeConsole = function (args) {
     console.debug = this._consoleDebug.bind(this);
