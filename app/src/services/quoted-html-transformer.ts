@@ -179,9 +179,13 @@ class QuotedHTMLTransformer {
     try {
       doc = domParser.parseFromString(text, 'text/html');
     } catch (error) {
-      const errText = `HTML Parser Error: ${error.toString()}`;
+      // WS2-C: sanitize the reported error so the email body fragment
+      // that DOMParser may have included in error.message does not leak
+      // through ErrorLogger. Per analysis/04 D6 this is one of three
+      // HIGH-PII reportError callsites.
+      const errText = 'HTML Parser Error';
       doc = domParser.parseFromString(errText, 'text/html');
-      AppEnv.reportError(error);
+      AppEnv.reportError(new Error('HTML parser failure (body sanitized)'));
     }
 
     // As far as we can tell, when this succeeds, doc /always/ has at least

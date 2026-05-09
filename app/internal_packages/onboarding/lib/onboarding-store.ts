@@ -150,7 +150,14 @@ class OnboardingStore extends MailspringStore {
     try {
       AccountStore.addAccount(account);
     } catch (e) {
-      AppEnv.reportError(e);
+      // WS2-C: sanitize the reportError input. Upstream passed the raw
+      // exception, whose message may include the user's IMAP credentials
+      // (server, username) — see analysis/04 D7. The user-facing error
+      // dialog still shows the full message; only the telemetry path is
+      // sanitized.
+      AppEnv.reportError(
+        new Error(`AccountStore.addAccount failed: ${e && e.constructor ? e.constructor.name : 'Error'}`)
+      );
       AppEnv.showErrorDialog({
         title: localized('Unable to Add Account'),
         message: localized(
