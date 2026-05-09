@@ -1,10 +1,18 @@
+// @ts-nocheck
+// WS1-D Sprint 3: Actuna Mail's IdentityStore is a no-op stub (no
+// polling, no /api/me, no fetchSingleSignOnURL). The original spec
+// reads the private `_identity` field and exercises Mailspring ID
+// auth flows that no longer exist. The whole `describe` block is
+// skipped via `xdescribe`; the file carries `@ts-nocheck` to keep
+// TypeScript typecheck green. A stub-aware spec lands in v0.2.
+
 import { Utils, KeyManager } from 'mailspring-exports';
 import { IdentityStore } from '../../src/flux/stores/identity-store';
 import * as MailspringAPIRequest from '../../src/flux/mailspring-api-request';
 
 const TEST_NYLAS_ID = 'icihsnqh4pwujyqihlrj70vh';
 
-describe('IdentityStore', function identityStoreSpec() {
+xdescribe('IdentityStore', function identityStoreSpec() {
   beforeEach(() => {
     this.identityJSON = {
       firstName: 'Mailspring 050',

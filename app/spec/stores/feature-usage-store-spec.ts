@@ -1,8 +1,19 @@
+// @ts-nocheck
+// WS2 Sprint 3: this spec file targets the upstream Mailspring
+// FeatureUsageStore which gated Pro-tier features against quotas served
+// by id.getmailspring.com. In Actuna Mail v0.1 the FeatureUsageStore is
+// a no-op stub (every feature unconditionally usable; no quota; no
+// remote events). The spec below references private fields and methods
+// (`_onModalClose`, displayUpgradeModal-driven flows) that no longer
+// exist. The whole `describe` block is skipped (`xdescribe`) and the
+// file carries `@ts-nocheck` so it does not fail TypeScript typecheck.
+// A replacement spec covering the stub contract lands in v0.2.
+
 import { Actions, TaskQueue } from 'mailspring-exports';
 import { FeatureUsageStore } from '../../src/flux/stores/feature-usage-store';
 import { IdentityStore } from '../../src/flux/stores/identity-store';
 
-describe('FeatureUsageStore', function featureUsageStoreSpec() {
+xdescribe('FeatureUsageStore', function featureUsageStoreSpec() {
   beforeEach(() => {
     this.fakeIdentity = {
       id: 'foo',
