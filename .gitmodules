@@ -1,3 +1,4 @@
 [submodule "mailsync"]
 	path = mailsync
-	url = https://github.com/Foundry376/Mailspring-Sync.git
+	url = https://github.com/WojRep/Mailspring-Sync.git
+	branch = compliance/v0.1
