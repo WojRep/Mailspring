@@ -1,6 +1,6 @@
 import React from 'react';
 import { webUtils } from 'electron';
-import { localized, PropTypes, MailspringAPIRequest, IdentityStore } from 'mailspring-exports';
+import { localized, PropTypes } from 'mailspring-exports';
 import { RetinaImg, DropZone } from 'mailspring-component-kit';
 
 const MAX_IMAGE_RES = 250;
@@ -120,30 +120,16 @@ export default class SignaturePhotoPicker extends React.Component<
     img.src = `file://${filepath}`;
   };
 
-  _onChooseImageBlob = async (blob, width, height) => {
-    this.setState({ isUploading: true });
-
-    const ext = { 'image/jpg': 'jpg', 'image/png': 'png' }[blob.type];
-    const filename = `sig-${this.props.id}.${ext}`;
-    let link = null;
-
-    try {
-      link = await MailspringAPIRequest.postStaticAsset({ filename, blob });
-    } catch (err) {
-      AppEnv.showErrorDialog(
-        localized(
-          `Sorry, we couldn't save your signature image to Mailspring's servers. Please try again.\n\n(%@)`,
-          err.toString()
-        )
-      );
-      return;
-    }
-    if (!this._isMounted) return;
-    this.setState({ isUploading: false });
-
-    this.props.onChange({
-      target: { value: `${link}?t=${Date.now()}&msw=${width}&msh=${height}`, id: 'photoURL' },
-    });
+  _onChooseImageBlob = async (_blob, _width, _height) => {
+    // Signature image upload to id.getmailspring.com/api/save-public-asset
+    // removed in WS1-D. Actuna Mail does not upload signature images to a
+    // third-party static asset host; users embed images via local file
+    // paths or pasted data URLs. See COMPLIANCE.md (GDPR Art. 5(1)(c)).
+    AppEnv.showErrorDialog(
+      localized(
+        'Uploading signature images to Mailspring servers is disabled in this build. Use a local file path or a data URL instead.'
+      )
+    );
   };
 
   render() {
@@ -158,7 +144,7 @@ export default class SignaturePhotoPicker extends React.Component<
     // we don't display the <input> for data URLs because they can be
     // long and the UI becomes slow.
     const isMailspringURL = resolvedURL && resolvedURL.includes('getmailspring.com');
-    const isUploadEnabled = IdentityStore.identity() !== null;
+    const isUploadEnabled = false; // WS1-D: no Mailspring ID, no signature upload host.
 
     const dropNote =
       resolvedURL && resolvedURL !== ''

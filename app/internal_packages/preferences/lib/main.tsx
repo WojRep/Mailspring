@@ -25,14 +25,7 @@ export function activate() {
       order: 2,
     })
   );
-  PreferencesUIStore.registerPreferencesTab(
-    new PreferencesUIStore.TabItem({
-      tabId: 'Subscription',
-      displayName: localized('Subscription'),
-      componentClassFn: () => require('./tabs/preferences-identity').default,
-      order: 3,
-    })
-  );
+  // Subscription tab removed in WS1-D: no Mailspring ID / Pro tier in Actuna Mail.
   PreferencesUIStore.registerPreferencesTab(
     new PreferencesUIStore.TabItem({
       tabId: 'Appearance',

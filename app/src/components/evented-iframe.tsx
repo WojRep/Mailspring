@@ -10,7 +10,6 @@ import {
   PropTypes,
   Utils,
   localized,
-  IdentityStore,
   MailspringAPIRequest,
   SearchableComponentStore,
 } from 'mailspring-exports';
@@ -227,15 +226,9 @@ export class EventedIFrame extends React.Component<
 
       e.preventDefault();
 
-      // If this is a link to our billing site, attempt single sign on instead of
-      // just following the link directly
-      if (rawHref.startsWith(rootURLForServer('identity'))) {
-        const path = rawHref.split(rootURLForServer('identity')).pop();
-        IdentityStore.fetchSingleSignOnURL(path, { source: 'SingleSignOnEmail' }).then((href) => {
-          AppEnv.windowEventHandler.openLink({ href, metaKey: e.metaKey });
-        });
-        return;
-      }
+      // SSO branch to id.getmailspring.com removed in WS1-D: no Mailspring ID
+      // in Actuna Mail. Links to id.getmailspring.com (if any survive in
+      // forwarded emails) are opened as ordinary external links.
 
       // It's important to send the raw `href` here instead of the target.
       // The `target` comes from the document context of the iframe, which
