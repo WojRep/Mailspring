@@ -1,118 +1,155 @@
-# 💌 Mailspring
+# Actuna Mail
 
-**Mailspring is a new version of Nylas Mail maintained by one of the original authors. It's faster, leaner, and shipping today!** It replaces the JavaScript sync code in Nylas Mail with a new C++ sync engine based on [Mailcore2](https://github.com/MailCore/mailcore2). It uses roughly half the RAM and CPU of Nylas Mail and idles with almost zero "CPU Wakes", which translates to great battery life. It also has an entirely revamped composer and other great new features.
+> Email client for the EU. Privacy promises that hold up under audit.
 
-Mailspring's UI is open source (GPLv3) and written in TypeScript with [Electron](https://github.com/atom/electron) and [React](https://facebook.github.io/react/) - it's built on a plugin architecture and was designed to be easy to extend. Check out [CONTRIBUTING.md](https://github.com/Foundry376/Mailspring/blob/master/CONTRIBUTING.md) to get started!
+**Actuna Mail** is a desktop email client for macOS, Windows, and Linux, built for individuals and organizations operating under European data protection law. It is a fork of [Foundry376/Mailspring](https://github.com/Foundry376/Mailspring) at version 1.21.0.
 
-Mailspring's sync engine is spawned by the Electron application and runs locally on your computer. [It is open source (GPLv3) and written in C++ and C.](https://github.com/Foundry376/Mailspring-Sync) For convenience, however, when you set up your development environment, Mailspring uses the latest version of the sync engine we've shipped for your platform so you don't need to pull sources or install its compile-time dependencies.
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE.md)
+[![Status: pre-alpha](https://img.shields.io/badge/Status-pre--alpha-orange.svg)](#status)
+[![Compliance: GDPR · AI Act · KNF · NIS2](https://img.shields.io/badge/Compliance-GDPR%20·%20AI%20Act%20·%20KNF%20·%20NIS2-green.svg)](COMPLIANCE.md)
 
-![Mailspring Screenshot](https://github.com/Foundry376/Mailspring/raw/master/screenshots/hero_graphic_mac%402x.png)
+---
 
-## Features
+## Why another fork of Mailspring?
 
-Mailspring comes packed with powerful features like Unified Inbox, Snooze, Send
-Later, Mail Rules, Templates and more. Mailspring Pro, which you can unlock
-with a monthly subscription, adds even more features for people who send a ton
-of email: link tracking, read receipts, mailbox analytics, contact and company
-profiles. **All of these features run in the client - Mailspring does not send
-your email credentials to the cloud.** For a full list of features, check out
-[getmailspring.com](https://getmailspring.com/).
+Mailspring is a fast, beautiful, open-source email client. We use it. We respect the work Foundry 376 has put into it. But there is a gap between what its [SECURITY.md](https://github.com/Foundry376/Mailspring/blob/master/SECURITY.md) promises and what its code does.
 
-## Download Mailspring
+Mailspring's SECURITY.md says, in three sentences:
 
-You can download compiled versions of Mailspring for Windows, Mac OS X, and
-Linux (deb, rpm and snap) from
-[https://getmailspring.com/download](https://getmailspring.com/download).
+1. *"your email credentials are stored securely in your system keychain"*
+2. *"Mailspring does not transmit, store or process your mail in the cloud"*
+3. *"choosing to skip Mailspring ID prevents your data from being transmitted off your machine entirely"*
 
-## Getting Help
+We audited Mailspring 1.21.0 line by line. Statement #1 is true. Statements #2 and #3 are not — at least, not as the user reads them. The default install of Mailspring contacts at minimum:
 
-You can find community-based help and discussion with other Mailspring users on our
-[Discourse community](https://community.getmailspring.com/).
+- **Sentry (USA)** — every error report, with stack traces, plugin IDs, and a SHA-256 of your MAC address as device fingerprint. Hardcoded DSN, no opt-out, no consent, no DPA.
+- **Native crash reporter (USA)** — minidumps of process memory, on every crash, sent to `id.getmailspring.com/report-crash`. Memory may include passwords, tokens, draft emails.
+- **`id.getmailspring.com/onboarding`** — webview that loads on first launch, **before** the user clicks "Skip".
+- **Newsletter signup** — `componentDidMount` calls `POST /newsletter`. No opt-in checkbox.
+- **Gravatar (Automattic, USA)** — `https://www.gravatar.com/avatar/<sha256(email)>` for every contact rendered. Each request leaks the corresponding contact's email to a third party.
+- **`logo.getmailspring.com`** — company logos in signatures, looked up by user's email domain.
+- **Plugin Metadata Sync** — `id.getmailspring.com/metadata/...` and a long-lived HTTP stream `/deltas/.../streaming?ih=<your-imap-host>`. For Pro features (snooze, send-later, tracking, sharing). Includes IP addresses of recipients (open/click tracking) and your IMAP host as a URL parameter.
+- **Identity polling** — `/api/me` every 10 minutes for the lifetime of the app.
+- **Send Feature Usage Event** — every Pro feature use, even on the Basic plan.
+
+Plus two more uncovered in our deeper C++ audit:
+
+- **`/api/resolve-dav-hosts`** — sends `{ domain, imapHost }` when adding accounts with CardDAV/CalDAV, **even with no Mailspring ID**.
+- **`/ping`** in install-check mode.
+
+That is **ten distinct egress channels** to servers in the United States. Several of them carry data of third parties (your contacts, your recipients) who never consented. Under GDPR Article 6 — and in Poland, under the Polish Personal Data Protection Act and the Office for Personal Data Protection (UODO) — that is at minimum a transparency failure (Articles 13, 25), and at points a lawful-basis failure (Articles 6, 7, 28, 32, 44+).
+
+We don't believe Foundry 376 set out to mislead anyone. The leaks have grown organically over years of feature development — Sentry was added for crash debugging, Gravatar for visual polish, Plugin Metadata Sync for the Pro tier. Each one made sense individually. The resulting whole no longer matches the SECURITY.md.
+
+We forked to deliver the experience the SECURITY.md describes — for users who have to.
+
+## Who is this for
+
+- Law firms, accounting firms, tax advisory practices in Poland and the EU operating under GDPR.
+- Financial-sector employees subject to **KNF Recommendation D / Recommendation Z**.
+- Operators of essential and important entities under **NIS2** (Polish Krajowy System Cyberbezpieczeństwa 2.0).
+- Organizations that want to use AI in email workflows without falling under **AI Act** Article 6 / Annex III scope unintentionally.
+- Privacy-conscious individuals who want a working email client whose privacy posture they can verify.
+
+## What we change vs upstream Mailspring
+
+In a single line: **we cut every default channel that ships your data, your metadata, or your contacts' data to a third party.** Specifics in [COMPLIANCE.md](COMPLIANCE.md). Branch: `compliance/v0.1`.
+
+| Channel | Status in Mailspring 1.21.0 | Status in Actuna Mail v0.1 |
+|---|---|---|
+| Sentry error reporting | Hardcoded, no opt-out | Removed |
+| Native crash reporter (`id.getmailspring.com/report-crash`) | Always on | Removed |
+| Auto-newsletter signup | Auto-subscribe in `componentDidMount` | Removed |
+| Gravatar lookup for every contact | Always on | Removed (local fallback) |
+| `logo.getmailspring.com` company logo | Always on in signatures | Removed |
+| Plugin Metadata Sync (Pro features) | Always on with Mailspring ID | Removed (no Mailspring ID concept) |
+| Identity polling `/api/me` every 10 min | Always on with ID | Removed |
+| `SendFeatureUsageEventTask` per feature use | Always on | Removed |
+| `/api/resolve-dav-hosts` (mailsync C++) | Auto on CardDAV/CalDAV setup | Removed (manual config) |
+| `/ping` install-check (mailsync C++) | On Test button | Removed |
+| Mailspring ID account & onboarding webview | Default flow | Completely removed |
+| Auto-update channel `updates.getmailspring.com` | Default | Disabled until our own channel ships |
+| 8 plugins requiring Mailspring ID | Default available | Removed (activity, link/open-tracking, participant-profile, send-reminders, thread-sharing, thread-snooze, translation) |
+| `composer-grammar-check` (sends drafts to LanguageTool via Foundry) | Default off, opt-in | Removed |
+
+What we **keep**:
+
+- All mail core functionality: IMAP, SMTP, CalDAV, CardDAV.
+- Gmail, Microsoft 365, iCloud, Outlook, Yahoo, generic IMAP support.
+- OAuth flows (`accounts.google.com`, `login.microsoftonline.com`, `graph.microsoft.com`).
+- Local SQLite database, full-text search, threading, conversation view.
+- Mailspring's UI, themes, unified inbox, snooze (local), templates (local), spell check (local).
+- Plugin SDK for users who want to extend, as long as plugins respect Actuna's egress policy.
+
+Actuna Mail's binary is GPL-3.0, the same license as Mailspring. The work to harden it for compliance is a small fraction of Mailspring's overall codebase — credit for the email client itself goes to [Foundry 376](https://github.com/Foundry376) and the contributors of Mailspring.
+
+## Architecture
+
+Actuna Mail follows a three-layer architecture:
+
+```
+┌─────────────────────────────────────────────────┐
+│  Actuna Mail (this repository)         GPL-3.0  │
+│  - Sterilized fork of Mailspring 1.21.0         │
+│  - No third-party data egress by default        │
+│  - Plugin SDK preserved                         │
+└──────────────────┬──────────────────────────────┘
+                   │ HTTP/IPC
+                   ▼
+┌─────────────────────────────────────────────────┐
+│  Actuna Mail Engine                  proprietary│
+│  - Local AI router (Claude / Codex CLI)         │
+│  - Polish prompt library                        │
+│  - License validation                           │
+│  - Optional opt-in telemetry                    │
+└──────────────────┬──────────────────────────────┘
+                   │ subprocess
+                   ▼
+       claude / codex CLI on the user's machine
+       (user's own subscription, not an API key)
+```
+
+The Engine layer is **not** part of this repository and **does not** import from this repository. It communicates over a stable HTTP/IPC interface, which keeps the GPL boundary clean.
+
+## Compliance posture
+
+Detailed in [COMPLIANCE.md](COMPLIANCE.md). Summary:
+
+| Framework | Coverage in v0.1 |
+|---|---|
+| **GDPR / RODO** (EU 2016/679 + PL ust. o ochr. dan. osob.) | Article 5 (data minimization), Article 6 (lawful basis), Article 7 (consent), Article 13/14 (transparency), Article 25 (privacy by design and default), Article 32 (security), Article 44+ (third-country transfers — Schrems II) |
+| **AI Act** (EU 2024/1689) | Article 50 (transparency for AI-generated content) — applies once Engine ships in v0.2 |
+| **KNF Recommendation D and Z** | Recommendation D (IT governance), Recommendation Z (outsourcing risk) |
+| **NIS2** (EU 2022/2555 + PL Krajowy System Cyberbezpieczeństwa 2.0) | Article 21 (risk-management measures, supply chain), Article 23 (incident reporting basis) |
+
+Storage encryption (SQLCipher for `MessageBody` and the FTS index) is on the roadmap for v0.2. Today's v0.1 inherits Mailspring's plain SQLite — protected by FileVault / BitLocker / LUKS at the volume level.
+
+## Status
+
+- **v0.1 (`compliance/v0.1`)** — sterilization patches. Pre-alpha. Build artifact not yet shipped.
+- **v0.2** — Actuna Engine integration (Claude / Codex routing), SQLCipher for `MessageBody` and FTS index.
+- **v0.3** — branding, packaging, code signing, notarization, own update channel.
+- **v1.0** — public launch.
+
+This repository contains the audit packs that drove every change. The audit lives in the parent project — see the audit notes referenced from [SECURITY.md](SECURITY.md).
 
 ## Contributing
 
-Mailspring is entirely open-source. Pull requests and contributions are
-welcome! There are three ways to contribute: building a plugin, building a
-theme, and submitting pull requests to the project itself. When you're getting
-started, you may want to join our
-[Discourse](https://community.getmailspring.com/) so you can ask questions and
-learn from other people doing development.
+We are not accepting external pull requests during pre-alpha. The audit work is reproducible from the documentation linked in [SECURITY.md](SECURITY.md) — independent verification is welcome at `tech@actuna.pl`.
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+## Credits and license
 
-### Running Mailspring from Source
+- This is a fork of [Foundry376/Mailspring](https://github.com/Foundry376/Mailspring), © Foundry 376 LLC, GPL-3.0. The underlying email client is the foundation of this work.
+- The mail sync engine [Foundry376/Mailspring-Sync](https://github.com/Foundry376/Mailspring-Sync) (vendored as a submodule) is also © Foundry 376, GPL-3.0.
+- All modifications in `compliance/v0.1` and beyond are © Actuna, licensed under GPL-3.0.
+- The full text of GPL-3.0 is in [LICENSE.md](LICENSE.md).
+- "Mailspring" is a trademark of Foundry 376 LLC. We do not use the Mailspring name or logo on Actuna Mail builds. The references in this README are descriptive, in compliance with nominative fair use.
 
-To install all dependencies and run Mailspring from its source code,
-run the following commands from the root directory of the Mailspring repository:
+## Contact
 
-```
-export npm_config_arch=x64 # If you are on an M1 / Apple Silicon Mac
-npm install
-npm start
-```
+- Audit and compliance: `tech@actuna.pl`
+- Responsible disclosure: see [SECURITY.md](SECURITY.md)
 
-You can attach command line parameters by separating them using a double hyphen:
+---
 
-```
-npm start -- --help
-```
-
-### Building Mailspring
-
-To build Mailspring, you need to run the following command from the root directory
-of the Mailspring repository:
-
-```
-npm run-script build
-```
-
-### Building A Plugin
-
-Plugins lie at the heart of Mailspring and give it its powerful features.
-Building your own plugins allows you to integrate the app with other tools,
-experiment with new workflows, and more. Follow the [Getting Started
-guide](https://Foundry376.github.io/Mailspring/) to write your first plugin in
-five minutes.
-
-- To create your own theme, check out the
-  [Mailspring-Theme-Starter](https://github.com/Foundry376/Mailspring-Theme-Starter).
-
-- To create your own plugin, check out the
-  [Mailspring-Plugin-Starter](https://github.com/Foundry376/Mailspring-Plugin-Starter).
-
-A plugin "store" like the Chrome Web Store is coming soon, and will make it
-easy for other users to discover plugins you create. (Right now, users need to
-"sideload" the plugins into the app by downloading them and copying them into
-place.)
-
-You can share and browse Mailspring Plugins, and discuss plugin development
-with other developers, on our
-[Discourse](https://community.getmailspring.com/).
-
-### Building a Theme
-
-The Mailspring user interface is styled using CSS, which means it's easy to
-modify and extend. Mailspring comes stock with a few beautiful themes, and
-there are many more which have been built by community developers. To start
-creating a theme, [clone the theme starter](https://github.com/Foundry376/Mailspring-Theme-Starter)!
-
-If you are updating an existing Nylas theme for Mailspring here is a
-[step by step tutorial](https://community.getmailspring.com/t/updating-an-n1-nylas-mail-theme-for-mailspring/195).
-Notice: as part of the update process you will probably need to [import mailspring base variables](https://github.com/Foundry376/Mailspring/issues/326#issuecomment-343757775).
-
-You can share and browse Mailspring Themes, and discuss theme development with other developers, on our [Discourse](https://community.getmailspring.com/).
-
-### Localizing / Translating
-
-Mailspring (1.5.0 and above) supports localization. If you're a fluent speaker of
-another language, we'd love your help improving translations. Check out the
-[LOCALIZATION](https://github.com/Foundry376/Mailspring/blob/master/LOCALIZATION.md)
-guide for more information. You can discuss localization and translation with
-other developers on our [Discourse](https://community.getmailspring.com/).
-
-### Contributing to Mailspring Core
-
-Pull requests are always welcome - check out
-[CONTRIBUTING](https://github.com/Foundry376/Mailspring/blob/master/CONTRIBUTING.md)
-for more information about setting up the development environment, running
-tests locally, and submitting pull requests.
+*Mailspring is a great email client. Actuna Mail is the version of Mailspring that the SECURITY.md said we already had.*
