@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import URL from 'url';
+// WS2-B: crypto + url imports dropped — Gravatar/logo.getmailspring URL
+// construction removed.
 import { localized } from 'mailspring-exports';
 import ReactDOMServer from 'react-dom/server';
 import Templates from './templates';
@@ -113,19 +113,20 @@ export const ResolveSignatureData = (data) => {
     }
   }
 
+  // WS2-B: signature 'gravatar' option removed. Upstream Mailspring
+  // emitted a Gravatar URL for every signature with photoURL='gravatar';
+  // every recipient who renders the signature triggers a Gravatar lookup,
+  // leaking the sender's email hash to Automattic. See finding #4.
   if (data.photoURL === 'gravatar') {
-    const hash = crypto
-      .createHash('sha256')
-      .update((data.email || '').toLowerCase().trim())
-      .digest('hex');
-    data.photoURL = `https://www.gravatar.com/avatar/${hash}/?s=160&msw=160&msh=160`;
+    data.photoURL = '';
   }
 
+  // WS2-B: signature 'company' option removed. Upstream Mailspring
+  // resolved a logo via logo.getmailspring.com/company-logo/<domain>,
+  // which leaked the sender's email domain to Foundry on every signature
+  // render. See README.md and COMPLIANCE.md.
   if (data.photoURL === 'company') {
-    const domain =
-      (data.websiteURL && URL.parse(data.websiteURL).hostname) ||
-      (data.email && data.email.split('@').pop());
-    data.photoURL = `https://logo.getmailspring.com/company-logo/${domain}?msw=128&msh=128`;
+    data.photoURL = '';
   }
 
   if (data.photoURL === 'custom') {
