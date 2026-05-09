@@ -68,8 +68,8 @@ lazyLoad('FixedPopover', 'fixed-popover');
 lazyLoad('DatePickerPopover', 'date-picker-popover');
 lazyLoad('Modal', 'modal');
 lazyLoad('Webview', 'webview');
-lazyLoad('FeatureUsedUpModal', 'feature-used-up-modal');
-lazyLoad('BillingModal', 'billing-modal');
+// FeatureUsedUpModal, BillingModal removed in WS1-C (no Pro tier).
+// OpenIdentityPageButton retained until WS1-D removes preferences-identity tab.
 lazyLoad('OpenIdentityPageButton', 'open-identity-page-button');
 lazyLoad('Flexbox', 'flexbox');
 lazyLoad('RetinaImg', 'retina-img');

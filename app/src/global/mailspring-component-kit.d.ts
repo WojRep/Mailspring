@@ -7,8 +7,7 @@ export const FixedPopover: typeof import('../components/fixed-popover').default;
 export const DatePickerPopover: typeof import('../components/date-picker-popover').default;
 export const Modal: typeof import('../components/modal').default;
 export const Webview: typeof import('../components/webview').default;
-export const FeatureUsedUpModal: typeof import('../components/feature-used-up-modal').default;
-export const BillingModal: typeof import('../components/billing-modal').default;
+// FeatureUsedUpModal, BillingModal removed in WS1-C (no Pro tier).
 export const OpenIdentityPageButton: typeof import('../components/open-identity-page-button').default;
 export * from '../components/flexbox';
 

@@ -116,7 +116,7 @@ lazyLoadAndRegisterTask(`GetMessageRFC2822Task`, 'get-message-rfc2822-task');
 lazyLoadAndRegisterTask(`GetManyRFC2822Task`, 'get-many-rfc2822-task');
 lazyLoadAndRegisterTask(`ExpungeAllInFolderTask`, 'expunge-all-in-folder-task');
 lazyLoadAndRegisterTask(`ChangeRoleMappingTask`, 'change-role-mapping-task');
-lazyLoadAndRegisterTask(`SendFeatureUsageEventTask`, 'send-feature-usage-event-task');
+// SendFeatureUsageEventTask removed in WS1-C: no Pro tier in Actuna Mail.
 lazyLoadAndRegisterTask(`DestroyContactTask`, 'destroy-contact-task');
 lazyLoadAndRegisterTask(`SyncbackContactTask`, 'syncback-contact-task');
 lazyLoadAndRegisterTask(`DestroyContactGroupTask`, 'destroy-contactgroup-task');
