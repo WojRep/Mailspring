@@ -156,12 +156,17 @@ export class MailsyncProcess extends EventEmitter {
       CONFIG_DIR_PATH: this.configDirPath,
       GMAIL_CLIENT_ID: GMAIL_CLIENT_ID,
       GMAIL_CLIENT_SECRET: GMAIL_CLIENT_SECRET,
-      IDENTITY_SERVER: 'unknown',
+      // WS2-D: pass an empty IDENTITY_SERVER. The mailsync C++ side
+      // checks for empty in NetworkRequestUtils.cpp (WS2-F) and
+      // short-circuits any Foundry endpoint, including
+      // /api/resolve-dav-hosts which previously fired for new
+      // CardDAV/CalDAV setups even with no Mailspring ID. See
+      // analysis/06-mailsync-cpp-audit.md D4 and D6.
+      IDENTITY_SERVER: '',
     };
-    if (process.type === 'renderer') {
-      const rootURLForServer = require('./flux/mailspring-api-request').rootURLForServer;
-      env.IDENTITY_SERVER = rootURLForServer('identity');
-    }
+    // WS2-D: removed the renderer-side override that previously set
+    // IDENTITY_SERVER from rootURLForServer('identity'), which resolved
+    // to https://id.getmailspring.com.
 
     const args = [`--mode`, mode];
     if (this.verbose) {
