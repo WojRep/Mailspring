@@ -17,12 +17,17 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = args => {
-  let dirname = 'Mailspring';
+  // WS3-Branding: config dir renamed Mailspring -> ActunaMail per user
+  // directive 2026-05-09 ("Czy mozesz zmienić nazwe aplikacji na ActunaMail?").
+  // Note: existing users with a Mailspring config in
+  // ~/Library/Application Support/Mailspring will be treated as fresh
+  // installs by Actuna Mail. v0.2 may add a one-time migration helper.
+  let dirname = 'ActunaMail';
   if (args.devMode) {
-    dirname = 'Mailspring-dev';
+    dirname = 'ActunaMail-dev';
   }
   if (args.specMode) {
-    dirname = 'Mailspring-spec';
+    dirname = 'ActunaMail-spec';
   }
 
   // Check if a custom config dir was provided via --config-dir-path
@@ -66,7 +71,7 @@ const declareOptions = argv => {
   const optimist = require('optimist');
   const options = optimist(argv);
   options.usage(
-    `Mailspring\n\nUsage: mailspring [options] [recipient] [attachment]\n\nRun Mailspring: The open source extensible email client\n\n\`mailspring mailto:johndoe@example.com\` to compose an e-mail to johndoe@example.com.\n\`mailspring ./attachment.txt\` to compose an e-mail with a text file attached.\n\`mailspring --dev\` to start the client in dev mode.\n\`mailspring --test\` to run unit tests.`
+    `ActunaMail\n\nUsage: actunamail [options] [recipient] [attachment]\n\nRun ActunaMail: privacy-first, EU-compliant email client (fork of Mailspring 1.21.0)\n\n\`actunamail mailto:user@example.com\` to compose an e-mail.\n\`actunamail ./attachment.txt\` to compose an e-mail with a text file attached.\n\`actunamail --dev\` to start the client in dev mode.\n\`actunamail --test\` to run unit tests.`
   );
   options
     .alias('d', 'dev')
@@ -249,19 +254,18 @@ const handleStartupEventWithSquirrel = () => {
 
 const start = () => {
   if (process.platform === 'win32') {
-    // Must be set before setAppUserModelId so RegisterActivator writes it
-    // into the Start Menu shortcut. Without this, action/reply notification
-    // events are silently dropped (COM server is never registered).
+    // WS3-Branding: Toast Activator CLSID retained from upstream because
+    // it is registered in the Start Menu shortcut by Squirrel.Windows; a
+    // future v0.3 build pipeline will re-register a new CLSID specific
+    // to Actuna Mail when our own Authenticode certificate is set up.
     app.setToastActivatorCLSID('{E6AD16B0-2830-48E7-9DB7-439152FA917B}');
-    app.setAppUserModelId('com.squirrel.mailspring.mailspring');
+    app.setAppUserModelId('com.actuna.mail');
   }
 
   // Set the app name explicitly for Linux to ensure the system tray icon
-  // gets a unique ID. Without this, all Electron apps share the same
-  // StatusNotifierItem ID on Linux, causing their tray visibility settings
-  // to be synchronized. See: https://github.com/electron/electron/issues/40936
+  // gets a unique ID.
   if (process.platform === 'linux') {
-    app.setName('Mailspring');
+    app.setName('ActunaMail');
   }
 
 

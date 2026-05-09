@@ -1,14 +1,14 @@
 {
-  "name": "mailspring",
-  "productName": "Mailspring",
-  "desktopName": "Mailspring.desktop",
-  "version": "1.21.0",
+  "name": "actunamail",
+  "productName": "ActunaMail",
+  "desktopName": "ActunaMail.desktop",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/foundry376/mailspring.git"
+    "url": "git://github.com/WojRep/ActunaMail.git"
   },
   "commitHash": "COMMIT_INSERTED_DURING_PACKAGING",
-  "description": "The best email app for people and teams at work",
+  "description": "Privacy-first, EU-compliant email client. Fork of Foundry376/Mailspring 1.21.0.",
   "license": "GPL-3.0",
   "main": "./src/browser/main.js",
   "dependencies": {

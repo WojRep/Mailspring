@@ -221,8 +221,8 @@ function buildPackagerOptions() {
       win32: path.resolve(appDir, 'build', 'resources', 'win', 'mailspring-square.ico'),
       linux: undefined,
     }[platform],
-    name: { darwin: 'Mailspring', win32: 'Mailspring', linux: 'mailspring' }[platform],
-    appCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
+    name: { darwin: 'ActunaMail', win32: 'ActunaMail', linux: 'actunamail' }[platform],
+    appCopyright: `Based on Mailspring (C) 2014-2026 Foundry 376, LLC (GPL-3.0). Actuna Mail modifications (C) 2026 Actuna.`,
     derefSymlinks: false,
     asar: {
       unpack:
@@ -300,7 +300,7 @@ function buildPackagerOptions() {
             // cannot match to a profile scoped to that binary.
             // Note: electron-osx-sign passes the .app bundle path (not the
             // inner executable path) when signing the top-level app bundle.
-            const isMainExecutable = filePath.endsWith('/Mailspring.app');
+            const isMainExecutable = filePath.endsWith('/ActunaMail.app');
             return {
               hardenedRuntime: true,
               entitlements: path.resolve(
@@ -333,7 +333,7 @@ function buildPackagerOptions() {
     //   CFBundleDisplayName, CFBundleExecutable, CFBundleIdentifier, CFBundleName
     // See https://github.com/electron-userland/electron-packager/blob/master/mac.js#L50
     extendInfo: path.resolve(appDir, 'build', 'resources', 'mac', 'extra.plist'),
-    appBundleId: 'com.mailspring.mailspring',
+    appBundleId: 'com.actuna.mail',
     afterCopy: [
       runCopyPlatformSpecificResources,
       runWriteCommitHashIntoPackage,
@@ -367,15 +367,15 @@ async function runPackager() {
 }
 
 async function createMacZip() {
-  const zipPath = path.join(outputDir, 'Mailspring.zip');
+  const zipPath = path.join(outputDir, 'ActunaMail.zip');
   if (fs.existsSync(zipPath)) {
     fs.unlinkSync(zipPath);
   }
   const arch = process.env.OVERRIDE_TO_INTEL ? 'x64' : process.arch;
-  const cwd = path.join(outputDir, `Mailspring-darwin-${arch}`);
+  const cwd = path.join(outputDir, `ActunaMail-darwin-${arch}`);
   await spawn({
     cmd: 'zip',
-    args: ['-9', '-y', '-r', '-9', '-X', zipPath, 'Mailspring.app'],
+    args: ['-9', '-y', '-r', '-9', '-X', zipPath, 'ActunaMail.app'],
     opts: { cwd },
   });
   console.log(`>> Created ${zipPath}`);
