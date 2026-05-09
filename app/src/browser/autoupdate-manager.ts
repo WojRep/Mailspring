@@ -34,99 +34,35 @@ export default class AutoUpdateManager extends EventEmitter {
     this.config = config;
     this.specMode = specMode;
     this.preferredChannel = preferredChannel;
+    this.feedURL = ''; // WS2-E: no feed URL.
 
-    this.updateFeedURL();
-    this.config.onDidChange('identity.id', this.updateFeedURL);
-
-    setTimeout(() => this.setupAutoUpdater(), 0);
+    // WS2-E: auto-update channel disabled.
+    // Upstream Mailspring polled updates.getmailspring.com on startup
+    // and every 30 minutes thereafter, leaking app version, platform,
+    // arch, and the user's identity.id (or 'anonymous'). The state of
+    // the auto-update channel is set to UnsupportedState so the menu
+    // entry shows "Updater unsupported" instead of pretending to check.
+    // Actuna Mail's own update channel ships in v0.3 (per
+    // README.md "Status" section). Until then updates are manual.
+    this.state = UnsupportedState;
   }
 
+  // WS2-E: updateFeedURL stubbed.
+  // Upstream Mailspring constructed a feed URL at
+  //   https://updates.getmailspring.com/check/<platform>/<arch>/<version>/<identity.id>/<channel>
+  // which leaked app + identity metadata to Foundry on every check.
+  // Actuna Mail keeps the method on the class for API compatibility but
+  // assigns an empty feedURL so no upstream request can be issued.
   updateFeedURL = () => {
-    const params = {
-      platform: process.platform,
-      arch: process.arch,
-      version: this.version,
-      id: this.config.get('identity.id') || 'anonymous',
-      channel: this.preferredChannel,
-    };
-
-    // If we're on the x64 Mac build, but the machine has an Apple-branded
-    // processor, switch the user to the arm64 build.
-    if (params.platform === 'darwin' && process.arch === 'x64') {
-      const cpus = os.cpus();
-      if (cpus.length && cpus[0].model.startsWith('Apple ')) {
-        params.arch = 'arm64';
-      }
-    }
-
-    let host = `updates.getmailspring.com`;
-    if (this.config.get('env') === 'staging') {
-      host = `updates-staging.getmailspring.com`;
-    }
-
-    this.feedURL = `https://${host}/check/${params.platform}/${params.arch}/${params.version}/${params.id}/${params.channel}`;
-    if (autoUpdater) {
-      autoUpdater.setFeedURL(this.feedURL);
-    }
+    this.feedURL = '';
   };
 
   setupAutoUpdater() {
-    if (process.platform === 'win32') {
-      const Impl = require('./autoupdate-impl-win32').default;
-      autoUpdater = new Impl();
-    } else if (process.platform === 'linux') {
-      const Impl = require('./autoupdate-impl-base').default;
-      autoUpdater = new Impl();
-    } else {
-      autoUpdater = require('electron').autoUpdater;
-    }
-
-    autoUpdater.on('error', (error) => {
-      if (this.specMode) return;
-      console.error(`Error Downloading Update: ${error.message}`);
-      this.setState(ErrorState);
-    });
-
-    autoUpdater.setFeedURL(this.feedURL);
-
-    autoUpdater.on('checking-for-update', () => {
-      this.setState(CheckingState);
-    });
-
-    autoUpdater.on('update-not-available', () => {
-      this.setState(NoUpdateAvailableState);
-    });
-
-    autoUpdater.on('update-available', () => {
-      this.setState(DownloadingState);
-    });
-
-    autoUpdater.on('update-downloaded', (event, releaseNotes, releaseVersion) => {
-      this.releaseNotes = releaseNotes;
-      this.releaseVersion = releaseVersion;
-      this.setState(UpdateAvailableState);
-      this.emitUpdateAvailableEvent();
-    });
-
-    if (autoUpdater.supportsUpdates && !autoUpdater.supportsUpdates()) {
-      this.setState(UnsupportedState);
-      return;
-    }
-
-    //check immediately at startup
-    this.check({ hidePopups: true });
-
-    //check every 30 minutes
-    setInterval(
-      () => {
-        if ([UpdateAvailableState, UnsupportedState].includes(this.state)) {
-          console.log('Skipping update check... update ready to install, or updater unavailable.');
-          return;
-        }
-        this.check({ hidePopups: true });
-      },
-      1000 * 60 * 30
-    );
+    // WS2-E: setupAutoUpdater is intentionally a no-op. We do not
+    // initialize Electron's autoUpdater, do not register its event
+    // handlers, and do not start the 30-minute polling interval. The
+    // state was set to UnsupportedState in the constructor so any
+    // observers see "updater unavailable".
   }
 
   emitUpdateAvailableEvent() {
@@ -160,16 +96,17 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   check({ hidePopups }: { hidePopups?: boolean } = {}) {
-    this.updateFeedURL();
+    // WS2-E: no remote check. Show "no update available" dialog if the
+    // user explicitly invokes the check, so the menu item still gives
+    // feedback. Silent (hidePopups) calls are no-ops.
     if (!hidePopups) {
-      autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
-      autoUpdater.once('error', this.onUpdateError);
+      this.onUpdateNotAvailable();
     }
-    autoUpdater.checkForUpdates();
   }
 
   install() {
-    autoUpdater.quitAndInstall();
+    // WS2-E: there is no auto-update install path in v0.1. Updates are
+    // applied manually by replacing the application bundle.
   }
 
   dialogIcon() {
@@ -184,19 +121,24 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   onUpdateNotAvailable = () => {
-    autoUpdater.removeListener('error', this.onUpdateError);
+    // WS2-E: no autoUpdater event listeners are registered, so nothing
+    // to remove here. The dialog still informs the user.
     dialog.showMessageBox({
       type: 'info',
       buttons: [localized('OK')],
       icon: this.dialogIcon(),
       message: localized('No update available.'),
       title: localized('No update available.'),
-      detail: localized(`You're running the latest version of Mailspring (%@).`, this.version),
+      detail: localized(
+        `You're running Actuna Mail v%@. Auto-update is disabled in this build; download new versions manually.`,
+        this.version
+      ),
     });
   };
 
-  onUpdateError = (event, message) => {
-    autoUpdater.removeListener('update-not-available', this.onUpdateNotAvailable);
+  onUpdateError = (_event: any, message: string) => {
+    // WS2-E: kept for API compatibility; no autoUpdater is initialized,
+    // so this is unreachable by event but still callable.
     dialog.showMessageBox({
       type: 'warning',
       buttons: [localized('OK')],
