@@ -5,7 +5,7 @@ import fs from 'fs';
 import { RetinaImg, Flexbox, ConfigPropContainer } from 'mailspring-component-kit';
 import { localized, AccountStore, Account } from 'mailspring-exports';
 import * as OnboardingActions from './onboarding-actions';
-import NewsletterSignup from './newsletter-signup';
+// NewsletterSignup removed in WS1-F (no auto-subscribe; GDPR Art. 7(2)).
 
 // NOTE: Temporarily copied from preferences module
 class AppearanceModeOption extends React.Component<{
@@ -148,12 +148,11 @@ class InitialPreferencesOptions extends React.Component<
               </option>
             ))}
           </select>
-          <div style={{ paddingTop: 20 }}>
-            <NewsletterSignup
-              emailAddress={this.props.account.emailAddress}
-              name={this.props.account.name}
-            />
-          </div>
+          {/* NewsletterSignup removed in WS1-F: no auto-subscribe to a
+              third-party newsletter. Per GDPR Art. 7(2) consent must be
+              freely given and clearly distinguishable from other matters;
+              the upstream behaviour POSTed /newsletter from componentDidMount
+              with no opt-in checkbox at all. */}
         </div>
       </div>
     );
