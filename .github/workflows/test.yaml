@@ -1,47 +1,33 @@
-name: Test
+# Disabled in Actuna Mail (compliance/v0.1).
+#
+# Original upstream behavior was the most dangerous of all five workflows:
+# triggers were `push: branches:[master]` and an unrestricted `pull_request:`
+# (no path filter, no branch filter). On any PR opened against any branch
+# of this fork, the workflow would: run `npm ci` (executing arbitrary
+# postinstall scripts from npm dependencies), run lint, typecheck, and
+# Jasmine tests under xvfb on a GitHub-hosted runner.
+#
+# Risks if re-enabled while we are mid-sterilization:
+#   - Failing tests (we are mid-refactor) would spam noise on every commit.
+#   - Postinstall scripts of any compromised npm dependency would run on
+#     our CI runner, with potential access to GITHUB_TOKEN scope.
+#   - Test output may include lines from removed/refactored modules,
+#     leaking partial state of work in progress.
+#
+# Re-enable in v0.3 with:
+#   - explicit branch list (compliance/v*, main),
+#   - npm ci --ignore-scripts,
+#   - explicit timeout, concurrency limit,
+#   - a matching COMPLIANCE.md audit entry.
+
+name: test-disabled
 
 on:
-  push:
-    branches: [master]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
-
+  noop:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install system dependencies
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y \
-            xvfb \
-            dbus-x11 \
-            libgbm1 \
-            libnss3 \
-            libasound2 \
-            libatk1.0-0 \
-            libatk-bridge2.0-0 \
-            libgtk-3-0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run lint
-        run: npm run lint
-
-      - name: Run Typecheck
-        run: npm run typecheck
-
-      - name: Run tests
-        run: dbus-launch --exit-with-session xvfb-run -a npm test
-        timeout-minutes: 20
+      - run: echo "This workflow is disabled. See header comment."
