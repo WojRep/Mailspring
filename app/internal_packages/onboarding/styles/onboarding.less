@@ -511,10 +511,29 @@
   }
 
   img.icons {
+    // v0.2: Actuna brand image is a dominant centred logo (A monogram
+    // with EU stars, envelope, shield). The upstream layout placed the
+    // icon strip absolute at top:0/left:0 with natural pixel size, so
+    // the new logo covered the "Welcome to Actuna Mail" hero text.
+    // Bottom-centre it with a hard size cap and dial down opacity so
+    // the headline reads cleanly. Backlog 02 issue 1.
     position: absolute;
-    top: 0;
-    left: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 55%;
+    max-height: 55%;
+    opacity: 0.45;
     pointer-events: none;
+  }
+
+  // v0.2: ensure the hero text always sits above the (now-bottom)
+  // logo image so it cannot be visually obscured.
+  .hero-text,
+  .sub-text,
+  .steps-container > div > p {
+    position: relative;
+    z-index: 2;
   }
 }
 
@@ -525,6 +544,10 @@
     background-color: #ececec;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 1px 1px solid rgba(255, 255, 255, 0.25);
+    // v0.2: footer must never be squeezed out by flex:1 content above.
+    // Backlog 02 issue 3 (Wstecz / Następna buttons clipped).
+    flex-shrink: 0;
+    padding-bottom: 8px;
 
     .btn-next,
     .btn-prev {

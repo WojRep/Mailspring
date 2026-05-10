@@ -1,57 +1,43 @@
 import { localized, React } from 'mailspring-exports';
 import * as OnboardingActions from './onboarding-actions';
 
+// v0.2: tutorial steps rewritten for Actuna Mail.
+// Upstream Mailspring's tutorial advertised three Pro features (people
+// profiles via participant-profile, open/click tracking via activity +
+// open-tracking + link-tracking, snooze via thread-snooze + send-later).
+// All of those plugins were removed in WS1-A and the messaging
+// contradicted Actuna's compliance posture. The new steps describe
+// what Actuna Mail actually does and why.
 const Steps = [
   {
     seen: false,
-    id: 'people',
-    title: localized('Compose with context'),
-    image: 'feature-people@2x.png',
+    id: 'privacy',
+    title: localized('Privacy by default'),
     description: localized(
-      'Mailspring shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.'
+      'Actuna Mail does not contact Sentry, Gravatar, Foundry, or any analytics service when it starts. ' +
+        'Your contacts, your drafts, and your error reports stay on your machine. ' +
+        'No identity poll, no tracking pixels, no auto-subscribed newsletter.'
     ),
-    x: 96.6,
-    y: 1.3,
-    xDot: 93.5,
-    yDot: 5.4,
   },
   {
     seen: false,
-    id: 'activity',
-    title: localized('Track opens and clicks'),
-    image: 'feature-activity@2x.png',
+    id: 'compliance',
+    title: localized('Built for the EU'),
     description: localized(
-      'With activity tracking, you’ll know as soon as someone reads your message. Sending to a group? Mailspring shows you which recipients opened your email so you can follow up with precision.'
+      'Compliance posture mapped article-by-article to GDPR, the AI Act, KNF Recommendation D and Z, and NIS2. ' +
+        'Every external endpoint that Actuna Mail v0.1 may reach is listed in SECURITY.md — there are no surprises in tcpdump.'
     ),
-    x: 12.8,
-    y: 1,
-    xDot: 15,
-    yDot: 5.1,
   },
   {
     seen: false,
-    id: 'snooze',
-    title: localized('Send on your own schedule'),
-    image: 'feature-snooze@2x.png',
+    id: 'open-source',
+    title: localized('Open source, audit-driven'),
     description: localized(
-      'Snooze emails to return at any time that suits you. Schedule messages to send at the ideal time. Mailspring makes it easy to control the fabric of spacetime!'
+      'Actuna Mail is GPL-3.0 and forked from Foundry376/Mailspring 1.21.0. ' +
+        'Each removal of an upstream telemetry channel is an atomic commit on the compliance/v0.1 branch you can review. ' +
+        'Independent verification at tech@actuna.pl.'
     ),
-    x: 5.5,
-    y: 23.3,
-    xDot: 10,
-    yDot: 25.9,
   },
-  // {
-  //   seen: false,
-  //   id: 'composer',
-  //   title: 'Eliminate hacky extensions',
-  //   image: 'feature-composer@2x.png',
-  //   description: "Embed calendar invitations, propose meeting times, use quick reply templates, send mass emails with mail merge, and more—all directly from Mailspring’s powerful composer.",
-  //   x: 60.95,
-  //   y: 66,
-  //   xDot: 60.3,
-  //   yDot: 65.0,
-  // },
 ];
 
 export default class TutorialPage extends React.Component<
@@ -97,17 +83,12 @@ export default class TutorialPage extends React.Component<
     if (nextItem) {
       this.setState({ current: nextItem, seen: nextSeen });
     } else {
-      OnboardingActions.moveToPage('authenticate');
-    }
-  };
-
-  _onMouseOverOverlay = (event) => {
-    const item = Steps.find((i) => i.id === event.target.id);
-    if (item) {
-      if (!this.state.seen.includes(item)) {
-        this.state.seen.push(item);
-      }
-      this.setState({ current: item });
+      // v0.2: skip the legacy 'authenticate' page entirely. WS1-E
+      // already replaced it with a stub but going there still flashes
+      // a "Skipping the legacy Mailspring ID step…" placeholder. Send
+      // the user straight to account-choose, which is the next real
+      // step in the flow.
+      OnboardingActions.moveToPage('account-choose');
     }
   };
 
@@ -117,32 +98,12 @@ export default class TutorialPage extends React.Component<
     return (
       <div className={`page tutorial appeared-${appeared}`}>
         <div className="tutorial-container">
-          <div className="left">
-            <div className="screenshot">
-              {Steps.map((step) => (
-                <div
-                  key={step.id}
-                  id={step.id}
-                  className={`overlay ${seen.includes(step) ? 'seen' : ''} ${
-                    current === step ? 'expanded' : ''
-                  }`}
-                  style={{ left: `${step.xDot}%`, top: `${step.yDot}%` }}
-                  onMouseOver={this._onMouseOverOverlay}
-                >
-                  <div
-                    className="overlay-content"
-                    style={{ backgroundPosition: `${step.x}% ${step.y}%` }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="right">
-            <img
-              src={`mailspring://onboarding/assets/${current.image}`}
-              style={{ zoom: 0.5, margin: 'auto' }}
-              alt=""
-            />
+          {/* v0.2: removed the left-hand "screenshot with overlays" panel.
+              The overlays pointed at features the tutorial used to
+              advertise (people profiles, activity tracking, snooze in
+              the sidebar). Those features were removed in WS1-A and the
+              overlays no longer correspond to anything in the UI. */}
+          <div className="right" style={{ width: '100%', maxWidth: 720, margin: '0 auto' }}>
             <h2>{current.title}</h2>
             <p>{current.description}</p>
           </div>
@@ -152,7 +113,7 @@ export default class TutorialPage extends React.Component<
             {localized('Back')}
           </button>
           <button key="next" className="btn btn-large btn-next" onClick={this._onNextUnseen}>
-            {seen.length < Steps.length ? localized('Next') : localized('Get Started')}
+            {seen.length < Steps.length - 1 ? localized('Next') : localized('Get Started')}
           </button>
         </div>
       </div>

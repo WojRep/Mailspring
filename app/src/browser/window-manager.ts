@@ -278,7 +278,10 @@ export default class WindowManager {
       toolbar: false,
       resizable: false,
       width: 900,
-      height: 600,
+      // v0.2: increased from 600 to 720 so the tutorial wizard footer
+      // (Wstecz / Następna buttons) is not clipped on macOS with
+      // window chrome insets. Backlog 02 issue 3.
+      height: 720,
     };
 
     const primaryDisplay = screen.getPrimaryDisplay();
