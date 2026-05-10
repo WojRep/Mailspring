@@ -271,7 +271,7 @@ const start = () => {
 
   protocol.registerSchemesAsPrivileged([
     {
-      scheme: 'mailspring',
+      scheme: 'actunamail',
       privileges: {
         secure: true,
         supportFetchAPI: true,

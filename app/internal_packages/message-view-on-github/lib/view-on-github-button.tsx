@@ -162,7 +162,7 @@ export default class ViewOnGithubButton extends React.Component<
         >
           <RetinaImg
             mode={RetinaImg.Mode.ContentIsMask}
-            url="mailspring://message-view-on-github/assets/github@2x.png"
+            url="actunamail://message-view-on-github/assets/github@2x.png"
           />
         </button>
       </KeyCommandsRegion>

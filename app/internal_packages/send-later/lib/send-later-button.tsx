@@ -92,7 +92,7 @@ class SendLaterButton extends Component<SendLaterButtonProps, SendLaterButtonSta
           rechargeText: `${localized(
             `You can schedule sending of %1$@ emails each %2$@ with Mailspring Basic.`
           )} ${localized('Upgrade to Pro today!')}`,
-          iconUrl: 'mailspring://send-later/assets/ic-send-later-modal@2x.png',
+          iconUrl: 'actunamail://send-later/assets/ic-send-later-modal@2x.png',
         });
       } catch (error) {
         if (error instanceof FeatureUsageStore.NoProAccessError) {

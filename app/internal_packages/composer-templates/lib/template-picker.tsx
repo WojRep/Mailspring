@@ -131,7 +131,7 @@ class TemplatePicker extends React.Component<{
         aria-label={localized('Quick Reply')}
       >
         <RetinaImg
-          url="mailspring://composer-templates/assets/icon-composer-templates@2x.png"
+          url="actunamail://composer-templates/assets/icon-composer-templates@2x.png"
           mode={RetinaImg.Mode.ContentIsMask}
           aria-hidden="true"
         />

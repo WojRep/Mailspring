@@ -2,10 +2,11 @@ import { protocol } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
-// Handles requests with 'mailspring' protocol.
+// Handles requests with 'actunamail' protocol (ticket 12d, 2026-05-10
+// — renamed from upstream 'mailspring' for branding consistency).
 //
 // It's created by {Application} upon instantiation and is used to create a
-// custom resource loader for 'mailspring://' URLs.
+// custom resource loader for 'actunamail://' URLs.
 //
 // The following directories are searched in order:
 //   * <config-dir>/assets
@@ -13,7 +14,15 @@ import path from 'path';
 //   * <config-dir>/packages
 //   * RESOURCE_PATH/node_modules
 //
-export default class MailspringProtocolHandler {
+// Future namespace plan (not yet implemented):
+//   actunamail://onboarding/...   — UI assets (current usage)
+//   actunamail://ui/...           — internal navigation / deep-links
+//   actunamail://ai/...           — GenAI/LLM integration deep-links
+//                                   (compliance: opt-in only, redaction-aware
+//                                    logging via Mandarynka logger, local
+//                                    inference by default per AI Act Art. 5/52)
+//
+export default class ActunaMailProtocolHandler {
   loadPaths: string[] = [];
 
   constructor({ configDirPath, resourcePath, safeMode }) {
@@ -28,7 +37,7 @@ export default class MailspringProtocolHandler {
 
   // Creates the 'Mailspring' custom protocol handler.
   registerProtocol() {
-    const scheme = 'mailspring';
+    const scheme = 'actunamail';
 
     protocol.handle(scheme, (request) => {
       const relativePath = path.normalize(request.url.substr(scheme.length + 1));
