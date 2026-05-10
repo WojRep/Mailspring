@@ -457,13 +457,35 @@ async function runPackager() {
   try {
     const appPaths = await packager(opts);
     console.log(`---> Done Successfully. Built into: ${appPaths}`);
-    if (process.platform === 'darwin' && !process.env.SIGN_BUILD) {
-      // Faza A: ad-hoc bottom-up sign for local builds without
-      // Apple Developer ID. SIGN_BUILD path uses electron-packager's
-      // own osxSign which produces a fully-notarizable signature.
+    if (process.platform === 'darwin') {
       const paths = Array.isArray(appPaths) ? appPaths : [appPaths];
       for (const p of paths) {
-        await signAppBundleAdHoc(path.join(p, 'ActunaMail.app'));
+        const appBundle = path.join(p, 'ActunaMail.app');
+        // WS3-Build: relocate mailsync from
+        //   <bundle>/Contents/Resources/app.asar.unpacked/mailsync
+        // to
+        //   <bundle>/Contents/Resources/app.asar.unpacked/mailspring/mailsync
+        // Upstream Mailspring-Sync's main.cpp self-check refuses to run
+        // unless the lowercased executable path contains "mailspring".
+        // Rather than patch that check out (which would diverge from
+        // upstream and complicate future merges), we honour it by
+        // adding a "mailspring" directory in the bundle path. The
+        // mailsync-process.ts binaryPath is updated to match.
+        const unpackedDir = path.join(appBundle, 'Contents', 'Resources', 'app.asar.unpacked');
+        const oldMailsync = path.join(unpackedDir, 'mailsync');
+        const mailspringDir = path.join(unpackedDir, 'mailspring');
+        const newMailsync = path.join(mailspringDir, 'mailsync');
+        if (fs.existsSync(oldMailsync)) {
+          console.log(`---> Relocating mailsync into mailspring/ subdir for upstream compat`);
+          fs.mkdirSync(mailspringDir, { recursive: true });
+          fs.renameSync(oldMailsync, newMailsync);
+        }
+        if (!process.env.SIGN_BUILD) {
+          // Faza A: ad-hoc bottom-up sign for local builds without
+          // Apple Developer ID. SIGN_BUILD path uses electron-packager's
+          // own osxSign for a fully-notarizable signature.
+          await signAppBundleAdHoc(appBundle);
+        }
       }
     }
   } finally {
