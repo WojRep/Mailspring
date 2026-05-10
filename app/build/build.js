@@ -298,8 +298,6 @@ function buildPackagerOptions() {
             // with only the basic com.apple.security.* entitlements — amfid
             // will reject any helper that carries restricted entitlements it
             // cannot match to a profile scoped to that binary.
-            // Note: electron-osx-sign passes the .app bundle path (not the
-            // inner executable path) when signing the top-level app bundle.
             const isMainExecutable = filePath.endsWith('/ActunaMail.app');
             return {
               hardenedRuntime: true,
@@ -313,6 +311,10 @@ function buildPackagerOptions() {
             };
           },
         }
+      // WS3-Build (Faza A): osxSign disabled for local builds without
+      // Apple Developer ID. signAppBundleAdHoc() runs after packager
+      // and produces a consistent ad-hoc signature across all nested
+      // Mach-O binaries (so dyld doesn't reject with "different Team IDs").
       : undefined,
     osxNotarize: process.env.APPLE_ID
       ? {
@@ -345,29 +347,98 @@ function buildPackagerOptions() {
   };
 }
 
-async function signAppPaths(appPaths) {
-  // WS3-Build Faza A: ad-hoc sign the .app + all nested binaries
-  // (Electron Helper, mailsync, ShipIt, chrome_crashpad_handler).
-  // electron-packager does not sign by default and macOS arm64 kills
-  // unsigned binaries with SIGKILL on launch. The plan
-  // analysis/09-apple-developer-id-roadmap.md describes the Faza B
-  // upgrade to a real "Developer ID Application: Actuna" cert; until
-  // that cert exists, this function uses ad-hoc.
+async function signAppBundleAdHoc(appPath) {
+  // WS3-Build Faza A: ad-hoc sign every Mach-O inside the .app bottom-up.
   //
-  // Override identity via env var, e.g. for Faza B:
-  //   ACTUNA_CODESIGN_IDENTITY="Developer ID Application: Actuna" npm run build
+  // Why not `codesign --deep --force --sign -`?
+  //   --deep with ad-hoc identity '-' produces inconsistent CDHashes
+  //   between the main binary and nested frameworks. macOS arm64 dyld
+  //   rejects on launch with "have different Team IDs". Apple's docs
+  //   note that --deep is deprecated for hierarchical signing.
+  //
+  // Strategy:
+  //   1. Strip every existing signature recursively (Foundry/upstream
+  //      Electron signatures cannot coexist with our ad-hoc bundle).
+  //   2. Sign every Mach-O binary individually, deepest first.
+  //   3. Sign every Helper.app bundle.
+  //   4. Sign every .framework bundle.
+  //   5. Sign the main .app bundle last.
+  //
+  // Result: every signed object carries identity '-' with no team ID,
+  // so dyld sees consistent (empty) Team IDs across the bundle.
+  //
+  // Faza B (real Apple Developer ID) is delegated to electron-packager's
+  // built-in osxSign config above (gated by SIGN_BUILD env var).
   const identity = process.env.ACTUNA_CODESIGN_IDENTITY || '-';
-  for (const appPath of appPaths) {
-    console.log(`---> Codesigning ${appPath} (identity: ${identity})`);
+  console.log(`---> Ad-hoc signing ${appPath} (identity: ${identity})`);
+
+  // Step 1: list every Mach-O file (executables, dylibs, bundles).
+  const find = await spawn({
+    cmd: 'find',
+    args: [appPath, '-type', 'f'],
+  });
+  const allFiles = find.stdout.split('\n').filter(Boolean);
+
+  const machOFiles = [];
+  for (const f of allFiles) {
+    try {
+      const file = await spawn({ cmd: 'file', args: ['-b', f] });
+      if (/Mach-O/.test(file.stdout)) machOFiles.push(f);
+    } catch (e) { /* skip unreadable */ }
+  }
+
+  // Step 2: strip and re-sign each binary, deepest first (sort by path
+  // depth descending so nested-most paths come first).
+  const machODeepFirst = machOFiles
+    .slice()
+    .sort((a, b) => b.split('/').length - a.split('/').length);
+  for (const bin of machODeepFirst) {
+    try {
+      await spawn({ cmd: 'codesign', args: ['--remove-signature', bin] });
+    } catch (e) { /* may already be unsigned */ }
     await spawn({
       cmd: 'codesign',
-      args: ['-s', identity, '--force', '--deep', '--options', 'runtime', appPath],
-    });
-    await spawn({
-      cmd: 'codesign',
-      args: ['--verify', '--verbose', appPath],
+      args: ['-s', identity, '--force', '--timestamp=none', bin],
     });
   }
+
+  // Step 3: sign Helper.app bundles (parents of Helper Mach-O binaries).
+  // Find them via -d (directory) -name "*.app".
+  const helperApps = await spawn({
+    cmd: 'find',
+    args: [path.join(appPath, 'Contents', 'Frameworks'), '-type', 'd', '-name', '*.app'],
+  });
+  for (const helper of helperApps.stdout.split('\n').filter(Boolean)) {
+    await spawn({
+      cmd: 'codesign',
+      args: ['-s', identity, '--force', '--timestamp=none', helper],
+    });
+  }
+
+  // Step 4: sign .framework bundles.
+  const frameworks = await spawn({
+    cmd: 'find',
+    args: [path.join(appPath, 'Contents', 'Frameworks'), '-type', 'd', '-name', '*.framework'],
+  });
+  // Sort deepest first (no nesting expected for top-level frameworks but be safe).
+  const fwSorted = frameworks.stdout.split('\n').filter(Boolean)
+    .sort((a, b) => b.split('/').length - a.split('/').length);
+  for (const fw of fwSorted) {
+    await spawn({
+      cmd: 'codesign',
+      args: ['-s', identity, '--force', '--timestamp=none', fw],
+    });
+  }
+
+  // Step 5: main .app bundle last.
+  await spawn({
+    cmd: 'codesign',
+    args: ['-s', identity, '--force', '--timestamp=none', appPath],
+  });
+
+  // Verify
+  await spawn({ cmd: 'codesign', args: ['--verify', '--verbose', appPath] });
+  console.log(`---> Ad-hoc signing complete: ${appPath}`);
 }
 
 async function runPackager() {
@@ -386,12 +457,14 @@ async function runPackager() {
   try {
     const appPaths = await packager(opts);
     console.log(`---> Done Successfully. Built into: ${appPaths}`);
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' && !process.env.SIGN_BUILD) {
+      // Faza A: ad-hoc bottom-up sign for local builds without
+      // Apple Developer ID. SIGN_BUILD path uses electron-packager's
+      // own osxSign which produces a fully-notarizable signature.
       const paths = Array.isArray(appPaths) ? appPaths : [appPaths];
-      // electron-packager returns directory paths like ".../ActunaMail-darwin-arm64";
-      // codesign needs the .app bundle inside.
-      const appBundlePaths = paths.map(p => path.join(p, 'ActunaMail.app'));
-      await signAppPaths(appBundlePaths);
+      for (const p of paths) {
+        await signAppBundleAdHoc(path.join(p, 'ActunaMail.app'));
+      }
     }
   } finally {
     clearInterval(ongoing);
