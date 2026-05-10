@@ -26,7 +26,13 @@ const Steps = [
     seen: false,
     id: 'compliance',
     title: localized('Built for the EU'),
-    image: 'feature-people@2x.png',
+    // v0.2.c: no image. Upstream `feature-people@2x.png` shows
+    // a contact card with LinkedIn/Twitter/Facebook icons (Amy
+    // Heath) — that asset was made for the participant-profile
+    // plugin and does not match a compliance message. We do not
+    // ship a generic EU/audit icon, so the slide is text-only
+    // until a brand-appropriate graphic is available.
+    image: null,
     description: localized(
       'Compliance posture mapped article-by-article to GDPR, the AI Act, KNF Recommendation D and Z, and NIS2. ' +
         'Every external endpoint Actuna Mail may reach is listed in SECURITY.md — no surprises in tcpdump.'
@@ -98,11 +104,13 @@ export default class TutorialPage extends React.Component<
               were removed in WS1-A, so it is gone. The right panel
               becomes the primary canvas, capped at 720px wide. */}
           <div className="right" style={{ width: '100%', maxWidth: 720, margin: '0 auto' }}>
-            <img
-              src={`mailspring://onboarding/assets/${current.image}`}
-              style={{ zoom: 0.5, margin: 'auto', display: 'block' }}
-              alt=""
-            />
+            {current.image && (
+              <img
+                src={`mailspring://onboarding/assets/${current.image}`}
+                style={{ zoom: 0.5, margin: 'auto', display: 'block' }}
+                alt=""
+              />
+            )}
             <h2>{current.title}</h2>
             <p>{current.description}</p>
           </div>
