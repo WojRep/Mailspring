@@ -6,6 +6,7 @@ import PageTopBar from './page-top-bar';
 
 import WelcomePage from './page-welcome';
 import TutorialPage from './page-tutorial';
+import CompliancePage from './page-compliance';
 import AuthenticatePage from './page-authenticate';
 import AccountChoosePage from './page-account-choose';
 import AccountSettingsPage from './page-account-settings';
@@ -20,6 +21,7 @@ import AccountSettingsPageOutlook from './page-account-settings-outlook';
 const PageComponents = {
   welcome: WelcomePage,
   tutorial: TutorialPage,
+  compliance: CompliancePage,
   authenticate: AuthenticatePage,
   'account-choose': AccountChoosePage,
   'account-settings': AccountSettingsPage,

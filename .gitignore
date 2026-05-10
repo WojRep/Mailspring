@@ -80,3 +80,6 @@ client_secret.json
 /test-results
 /playwright-report
 /playwright/test-results/
+##### Local backup files
+**/*.bak
+**/*.bak.*

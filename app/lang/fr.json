@@ -713,7 +713,7 @@
   "Sorry, the draft you tried to send could not be found. Please try again.": "Désolé, le brouillon que vous avez essayé d'envoyer n'a pas pu être trouvé. Veuillez réessayer.",
   "Sorry, the file you selected does not look like an image. Please choose a file with one of the following extensions: %@": "Désolé, le fichier que vous avez sélectionné ne ressemble pas à une image. Veuillez choisir un fichier avec l’une des extensions suivantes: %@",
   "Sorry, this account does not appear to have an inbox folder so this feature is disabled.": "Désolé, ce compte ne semble pas avoir de dossier de boîte de réception. Cette fonctionnalité est donc désactivée.",
-  "Sorry, this event does not have an organizer or the organizer's address is not a valid email address: {}": "Désolé, cet événement n'a pas d'organisateur ou l'adresse de l'organisateur n'est pas une adresse email valide: {}",
+  "Sorry, this event does not have an organizer or the organizer's address is not a valid email address: %@": "Désolé, cet événement n'a pas d'organisateur ou l'adresse de l'organisateur n'est pas une adresse email valide: %@",
   "Sorry, this folder does not exist.": "Désolé, ce dossier n'existe pas.",
   "Sorry, we can't interpret %@ as a valid date.": "Désolé, nous ne pouvons pas interpréter %@ comme une date valide.",
   "Sorry, we can't parse %@ as a valid date.": "Désolé, nous ne pouvons pas analyser %@ comme une date valide.",

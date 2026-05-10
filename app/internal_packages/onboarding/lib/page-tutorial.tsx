@@ -68,12 +68,7 @@ export default class TutorialPage extends React.Component<
     if (nextItem) {
       this.setState({ current: nextItem, seen: nextSeen });
     } else {
-      // v0.2: skip the legacy 'authenticate' page entirely. WS1-E
-      // already replaced it with a stub but going there still flashes
-      // a "Skipping the legacy Mailspring ID step…" placeholder. Send
-      // the user straight to account-choose, which is the next real
-      // step in the flow.
-      OnboardingActions.moveToPage('account-choose');
+      OnboardingActions.moveToPage('compliance');
     }
   };
 
@@ -105,7 +100,7 @@ export default class TutorialPage extends React.Component<
             {localized('Back')}
           </button>
           <button key="next" className="btn btn-large btn-next" onClick={this._onNextUnseen}>
-            {seen.length < Steps.length - 1 ? localized('Next') : localized('Get Started')}
+            {localized('Next')}
           </button>
         </div>
       </div>

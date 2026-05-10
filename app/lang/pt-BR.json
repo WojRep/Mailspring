@@ -720,7 +720,7 @@
   "Sorry, the draft you tried to send could not be found. Please try again.": "Desculpe, o rascunho que você tentou enviar não foi encontrado. Tente novamente.",
   "Sorry, the file you selected does not look like an image. Please choose a file with one of the following extensions: %@": "Desculpe, o arquivo que você selecionou não se parece com uma imagem. Por favor, escolha um arquivo com uma das seguintes extensões: %@",
   "Sorry, this account does not appear to have an inbox folder so this feature is disabled.": "Desculpe, essa conta não parece ter uma pasta de caixa de entrada, portanto, esse recurso está desativado.",
-  "Sorry, this event does not have an organizer or the organizer's address is not a valid email address: {}": "Desculpe, este evento não tem um organizador ou o endereço do organizador não é um endereço de e-mail válido: {}",
+  "Sorry, this event does not have an organizer or the organizer's address is not a valid email address: %@": "Desculpe, este evento não tem um organizador ou o endereço do organizador não é um endereço de e-mail válido: %@",
   "Sorry, this folder does not exist.": "Desculpe, esta pasta não existe.",
   "Sorry, we can't interpret %@ as a valid date.": "Desculpe, não podemos interpretar %@ como uma data válida.",
   "Sorry, we can't parse %@ as a valid date.": "Desculpe, não podemos analisar %@ como uma data válida.",

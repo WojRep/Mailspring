@@ -249,7 +249,7 @@ export function localizedReactFragment(en, ...subs) {
       parts.push(translated.substr(0, match.index));
     }
     if (match[1]) {
-      parts.push(subs[match[1] / 1]);
+      parts.push(subs[match[1] - 1]);
     } else {
       parts.push(subs[used++]);
     }

@@ -721,7 +721,7 @@
   "Sorry, the draft you tried to send could not be found. Please try again.": "抱歉，找不到您嘗試寄送的草稿。請再試一次。",
   "Sorry, the file you selected does not look like an image. Please choose a file with one of the following extensions: %@": "抱歉，您選擇的檔案看起來不像是圖片。請選擇具有以下副檔名之一的檔案：%@",
   "Sorry, this account does not appear to have an inbox folder so this feature is disabled.": "抱歉，此帳號似乎沒有收件匣資料夾，因此此功能已停用。",
-  "Sorry, this event does not have an organizer or the organizer's address is not a valid email address: {}": "抱歉，此事件沒有主辦人，或主辦人的地址不是有效的電子郵件地址：{}",
+  "Sorry, this event does not have an organizer or the organizer's address is not a valid email address: %@": "抱歉，此事件沒有主辦人，或主辦人的地址不是有效的電子郵件地址：%@",
   "Sorry, this folder does not exist.": "抱歉，此資料夾不存在。",
   "Sorry, we can't interpret %@ as a valid date.": "抱歉，我們無法將 %@ 解譯為有效的日期。",
   "Sorry, we can't parse %@ as a valid date.": "抱歉，我們無法將 %@ 解析為有效的日期。",
