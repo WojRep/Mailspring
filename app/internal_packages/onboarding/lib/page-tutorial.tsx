@@ -1,20 +1,23 @@
 import { localized, React } from 'mailspring-exports';
 import * as OnboardingActions from './onboarding-actions';
 
-// v0.2: tutorial steps rewritten for Actuna Mail.
-// Upstream Mailspring's tutorial advertised three Pro features (people
-// profiles via participant-profile, open/click tracking via activity +
-// open-tracking + link-tracking, snooze via thread-snooze + send-later).
-// All of those plugins were removed in WS1-A and the messaging
-// contradicted Actuna's compliance posture. The new steps describe
-// what Actuna Mail actually does and why.
+// v0.2.b: two Actuna-relevant slides with illustrative graphics.
+// Upstream Mailspring's tutorial advertised three Pro features that
+// were removed in WS1-A (participant-profile, activity / open-tracking /
+// link-tracking, thread-snooze / send-later); their messaging
+// contradicted the compliance posture. The replacement copy describes
+// what Actuna Mail actually does. A third slide about GPL-3.0 / the
+// upstream fork relationship is intentionally omitted at this stage —
+// that information stays in COMPLIANCE.md and SECURITY.md for auditors
+// but is not surfaced in the first-run wizard.
 const Steps = [
   {
     seen: false,
     id: 'privacy',
     title: localized('Privacy by default'),
+    image: 'lock@2x.png',
     description: localized(
-      'Actuna Mail does not contact Sentry, Gravatar, Foundry, or any analytics service when it starts. ' +
+      'Actuna Mail does not contact Sentry, Gravatar, or any analytics service when it starts. ' +
         'Your contacts, your drafts, and your error reports stay on your machine. ' +
         'No identity poll, no tracking pixels, no auto-subscribed newsletter.'
     ),
@@ -23,19 +26,10 @@ const Steps = [
     seen: false,
     id: 'compliance',
     title: localized('Built for the EU'),
+    image: 'feature-people@2x.png',
     description: localized(
       'Compliance posture mapped article-by-article to GDPR, the AI Act, KNF Recommendation D and Z, and NIS2. ' +
-        'Every external endpoint that Actuna Mail v0.1 may reach is listed in SECURITY.md — there are no surprises in tcpdump.'
-    ),
-  },
-  {
-    seen: false,
-    id: 'open-source',
-    title: localized('Open source, audit-driven'),
-    description: localized(
-      'Actuna Mail is GPL-3.0 and forked from Foundry376/Mailspring 1.21.0. ' +
-        'Each removal of an upstream telemetry channel is an atomic commit on the compliance/v0.1 branch you can review. ' +
-        'Independent verification at tech@actuna.pl.'
+        'Every external endpoint Actuna Mail may reach is listed in SECURITY.md — no surprises in tcpdump.'
     ),
   },
 ];
@@ -98,12 +92,17 @@ export default class TutorialPage extends React.Component<
     return (
       <div className={`page tutorial appeared-${appeared}`}>
         <div className="tutorial-container">
-          {/* v0.2: removed the left-hand "screenshot with overlays" panel.
-              The overlays pointed at features the tutorial used to
-              advertise (people profiles, activity tracking, snooze in
-              the sidebar). Those features were removed in WS1-A and the
-              overlays no longer correspond to anything in the UI. */}
+          {/* v0.2.b: single centred panel with illustrative image +
+              title + description. The upstream "screenshot with
+              hotspot overlays" left panel pointed at features that
+              were removed in WS1-A, so it is gone. The right panel
+              becomes the primary canvas, capped at 720px wide. */}
           <div className="right" style={{ width: '100%', maxWidth: 720, margin: '0 auto' }}>
+            <img
+              src={`mailspring://onboarding/assets/${current.image}`}
+              style={{ zoom: 0.5, margin: 'auto', display: 'block' }}
+              alt=""
+            />
             <h2>{current.title}</h2>
             <p>{current.description}</p>
           </div>

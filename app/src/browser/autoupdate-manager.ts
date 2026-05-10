@@ -121,8 +121,8 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   onUpdateNotAvailable = () => {
-    // WS2-E: no autoUpdater event listeners are registered, so nothing
-    // to remove here. The dialog still informs the user.
+    // WS2-E + v0.2.b: no autoUpdater event listeners are registered.
+    // Dialog informs the user without disclosing the build version.
     dialog.showMessageBox({
       type: 'info',
       buttons: [localized('OK')],
@@ -130,8 +130,7 @@ export default class AutoUpdateManager extends EventEmitter {
       message: localized('No update available.'),
       title: localized('No update available.'),
       detail: localized(
-        `You're running Actuna Mail v%@. Auto-update is disabled in this build; download new versions manually.`,
-        this.version
+        `Auto-update is disabled in this build. Download new versions manually.`
       ),
     });
   };
