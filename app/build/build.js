@@ -461,25 +461,13 @@ async function runPackager() {
       const paths = Array.isArray(appPaths) ? appPaths : [appPaths];
       for (const p of paths) {
         const appBundle = path.join(p, 'ActunaMail.app');
-        // WS3-Build: relocate mailsync from
-        //   <bundle>/Contents/Resources/app.asar.unpacked/mailsync
-        // to
-        //   <bundle>/Contents/Resources/app.asar.unpacked/mailspring/mailsync
-        // Upstream Mailspring-Sync's main.cpp self-check refuses to run
-        // unless the lowercased executable path contains "mailspring".
-        // Rather than patch that check out (which would diverge from
-        // upstream and complicate future merges), we honour it by
-        // adding a "mailspring" directory in the bundle path. The
-        // mailsync-process.ts binaryPath is updated to match.
-        const unpackedDir = path.join(appBundle, 'Contents', 'Resources', 'app.asar.unpacked');
-        const oldMailsync = path.join(unpackedDir, 'mailsync');
-        const mailspringDir = path.join(unpackedDir, 'mailspring');
-        const newMailsync = path.join(mailspringDir, 'mailsync');
-        if (fs.existsSync(oldMailsync)) {
-          console.log(`---> Relocating mailsync into mailspring/ subdir for upstream compat`);
-          fs.mkdirSync(mailspringDir, { recursive: true });
-          fs.renameSync(oldMailsync, newMailsync);
-        }
+        // ActunaMail (ticket 12c, 2026-05-10): the legacy "relocate mailsync
+        // into mailspring/ subdir" workaround is removed. Upstream's
+        // anti-fork self-check (main.cpp:757-765 — required substring
+        // "mailspring" in lowercased executable path) was excised in the
+        // mailsync compliance/v0.2 branch, so the binary now lives at the
+        // natural app.asar.unpacked/mailsync path. mailsync-process.ts
+        // updated in lockstep.
         if (!process.env.SIGN_BUILD) {
           // Faza A: ad-hoc bottom-up sign for local builds without
           // Apple Developer ID. SIGN_BUILD path uses electron-packager's

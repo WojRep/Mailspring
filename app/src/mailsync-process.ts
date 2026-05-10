@@ -100,16 +100,13 @@ export class MailsyncProcess extends EventEmitter {
     this.verbose = verbose;
     this.resourcePath = resourcePath;
     this.configDirPath = configDirPath;
-    // WS3-Build (Faza A): mailsync binary lives in
-    // <resources>/app.asar.unpacked/mailspring/mailsync (after build.js
-    // post-package step relocates it). The "mailspring" directory in
-    // the runtime path satisfies upstream Mailspring-Sync's anti-fork
-    // self-check at MailSync/main.cpp:762, which exits 2 if the
-    // executable's lowercased path does not contain "mailspring".
-    // We chose to honour the check (keeping mailsync source untouched)
-    // rather than patch it out, so a future upstream merge stays clean.
+    // mailsync binary lives at <resources>/app.asar.unpacked/mailsync.
+    // Ticket 12c (2026-05-10) excised the upstream Mailspring-Sync
+    // anti-fork self-check (main.cpp:757-765 — substring "mailspring"
+    // required in executable path), so the legacy "mailspring/" subdir
+    // workaround is gone. build.js no longer relocates the binary.
     this.binaryPath = path
-      .join(resourcePath, 'mailspring', 'mailsync')
+      .join(resourcePath, 'mailsync')
       .replace('app.asar', 'app.asar.unpacked');
   }
 
