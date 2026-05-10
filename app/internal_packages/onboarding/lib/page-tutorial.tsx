@@ -1,15 +1,14 @@
 import { localized, React } from 'mailspring-exports';
 import * as OnboardingActions from './onboarding-actions';
 
-// v0.2.b: two Actuna-relevant slides with illustrative graphics.
-// Upstream Mailspring's tutorial advertised three Pro features that
-// were removed in WS1-A (participant-profile, activity / open-tracking /
-// link-tracking, thread-snooze / send-later); their messaging
-// contradicted the compliance posture. The replacement copy describes
-// what Actuna Mail actually does. A third slide about GPL-3.0 / the
-// upstream fork relationship is intentionally omitted at this stage —
-// that information stays in COMPLIANCE.md and SECURITY.md for auditors
-// but is not surfaced in the first-run wizard.
+// v0.2.d: single tutorial slide combining the privacy and EU
+// compliance message under "Privacy by default". Upstream Mailspring's
+// tutorial originally had three Pro-feature slides (participant-profile,
+// activity / open-tracking / link-tracking, thread-snooze / send-later);
+// all three plugins were removed in WS1-A. The replacement copy first
+// shipped as two slides ("Privacy by default" + "Built for the EU"),
+// and was consolidated to one on user direction so the first-run
+// wizard stays short and the message lands in a single read.
 const Steps = [
   {
     seen: false,
@@ -19,23 +18,9 @@ const Steps = [
     description: localized(
       'Actuna Mail does not contact Sentry, Gravatar, or any analytics service when it starts. ' +
         'Your contacts, your drafts, and your error reports stay on your machine. ' +
-        'No identity poll, no tracking pixels, no auto-subscribed newsletter.'
-    ),
-  },
-  {
-    seen: false,
-    id: 'compliance',
-    title: localized('Built for the EU'),
-    // v0.2.c: no image. Upstream `feature-people@2x.png` shows
-    // a contact card with LinkedIn/Twitter/Facebook icons (Amy
-    // Heath) — that asset was made for the participant-profile
-    // plugin and does not match a compliance message. We do not
-    // ship a generic EU/audit icon, so the slide is text-only
-    // until a brand-appropriate graphic is available.
-    image: null,
-    description: localized(
-      'Compliance posture mapped article-by-article to GDPR, the AI Act, KNF Recommendation D and Z, and NIS2. ' +
-        'Every external endpoint Actuna Mail may reach is listed in SECURITY.md — no surprises in tcpdump.'
+        'No identity poll, no tracking pixels, no auto-subscribed newsletter. ' +
+        'Compliance posture mapped article-by-article to GDPR, the AI Act, KNF Recommendation D and Z, and NIS2 — ' +
+        'every external endpoint Actuna Mail may reach is listed in SECURITY.md.'
     ),
   },
 ];
