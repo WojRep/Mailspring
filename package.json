@@ -1,12 +1,12 @@
 {
-  "name": "mailspring-root",
+  "name": "actunamail-root",
   "version": "0.0.1",
-  "description": "Packages required to develop and build Mailspring",
-  "author": "Mailspring",
+  "description": "Packages required to develop and build ActunaMail (privacy-first, EU-compliant fork of Mailspring 1.21.0).",
+  "author": "Actuna — developer: Wojciech Repiński",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Foundry376/Mailspring.git"
+    "url": "git+https://github.com/WojRep/ActunaMail.git"
   },
   "engines": {
     "node": ">=16.17",
