@@ -173,6 +173,49 @@ export class MailsyncProcess extends EventEmitter {
       // CardDAV/CalDAV setups even with no Mailspring ID. See
       // analysis/06-mailsync-cpp-audit.md D4 and D6.
       IDENTITY_SERVER: '',
+      // v0.2.f: localized SMTP test-email content. Mailcore2 patched
+      // (Vendor/mailcore2/src/core/smtp/MCSMTPSession.cpp) to read
+      // these env vars with fallback to the original Mailspring text
+      // when not set, so a stock mailsync still works.
+      ACTUNA_TEST_SUBJECT: localized('ActunaMail SMTP test — account configuration verification'),
+      ACTUNA_TEST_FROM_NAME: 'ActunaMail',
+      ACTUNA_TEST_USER_AGENT: 'ActunaMail',
+      ACTUNA_TEST_BODY: [
+        localized(
+          'This is a test message sent by ActunaMail to verify your SMTP server configuration. ' +
+          'Receiving this message confirms that outbound email is working.'
+        ),
+        '',
+        localized('ActunaMail is an EU-compliant email client built on the following principles:'),
+        '',
+        '  • ' + localized(
+          'GDPR (Regulation (EU) 2016/679) — your contacts, drafts, and metadata stay on ' +
+          'your machine. ActunaMail does not contact analytics, telemetry, or any third-party ' +
+          'identity service at startup.'
+        ),
+        '  • ' + localized(
+          'EU AI Act (Regulation (EU) 2024/1689) — when AI-assisted features are introduced, ' +
+          'they run on your machine or on infrastructure under your control. No prompts, drafts, ' +
+          'or message bodies are sent to third-party model providers.'
+        ),
+        '  • ' + localized(
+          'NIS2 Directive (Directive (EU) 2022/2555) — the security configuration of your ' +
+          'mail account remains under your control. The client does not report incidents to ' +
+          'external SIEM or SOC services without your explicit configuration.'
+        ),
+        '  • ' + localized(
+          'KNF Recommendations D and Z — applicable for entities of the Polish financial sector. ' +
+          'ActunaMail\'s egress profile is documented in SECURITY.md and verified via runtime ' +
+          'traffic inspection.'
+        ),
+        '',
+        localized(
+          'A complete list of every external endpoint ActunaMail may contact is published in ' +
+          'SECURITY.md and COMPLIANCE.md in the project repository.'
+        ),
+        '',
+        '— ActunaMail (https://github.com/WojRep/ActunaMail)',
+      ].join('\r\n'),
     };
     // WS2-D: removed the renderer-side override that previously set
     // IDENTITY_SERVER from rootURLForServer('identity'), which resolved

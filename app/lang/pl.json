@@ -882,5 +882,13 @@
   "then": "następnie",
   "these instructions": "te instrukcje",
   "threads": "wątki",
-  "week": "tydzień"
+  "week": "tydzień",
+  "ActunaMail SMTP test — account configuration verification": "Test SMTP ActunaMail — weryfikacja konfiguracji konta",
+  "This is a test message sent by ActunaMail to verify your SMTP server configuration. Receiving this message confirms that outbound email is working.": "To wiadomość testowa wysłana przez ActunaMail w celu weryfikacji konfiguracji serwera SMTP. Otrzymanie tej wiadomości potwierdza, że wysyłka poczty działa poprawnie.",
+  "ActunaMail is an EU-compliant email client built on the following principles:": "ActunaMail to klient pocztowy zgodny z prawem UE, zbudowany w oparciu o następujące zasady:",
+  "GDPR (Regulation (EU) 2016/679) — your contacts, drafts, and metadata stay on your machine. ActunaMail does not contact analytics, telemetry, or any third-party identity service at startup.": "RODO (Rozporządzenie (UE) 2016/679) — Twoje kontakty, wersje robocze wiadomości i metadane pozostają na Twoim urządzeniu. ActunaMail przy starcie nie kontaktuje się z żadną usługą analityczną, telemetryczną ani serwisem tożsamości stron trzecich.",
+  "EU AI Act (Regulation (EU) 2024/1689) — when AI-assisted features are introduced, they run on your machine or on infrastructure under your control. No prompts, drafts, or message bodies are sent to third-party model providers.": "Akt UE w sprawie sztucznej inteligencji (Rozporządzenie (UE) 2024/1689) — funkcje wspomagane przez AI, gdy zostaną wprowadzone, działają na Twoim urządzeniu lub w infrastrukturze pod Twoją kontrolą. Żadne polecenia, wersje robocze ani treści wiadomości nie są przesyłane do dostawców modeli stron trzecich.",
+  "NIS2 Directive (Directive (EU) 2022/2555) — the security configuration of your mail account remains under your control. The client does not report incidents to external SIEM or SOC services without your explicit configuration.": "Dyrektywa NIS2 (Dyrektywa (UE) 2022/2555) — konfiguracja bezpieczeństwa Twojego konta pocztowego pozostaje pod Twoją kontrolą. Klient nie zgłasza incydentów do zewnętrznych usług SIEM ani SOC bez Twojej wyraźnej konfiguracji.",
+  "KNF Recommendations D and Z — applicable for entities of the Polish financial sector. ActunaMail's egress profile is documented in SECURITY.md and verified via runtime traffic inspection.": "Rekomendacje KNF D oraz Z — mają zastosowanie dla podmiotów polskiego sektora finansowego. Profil egress ActunaMail jest udokumentowany w pliku SECURITY.md i zweryfikowany przez inspekcję ruchu sieciowego w środowisku uruchomieniowym.",
+  "A complete list of every external endpoint ActunaMail may contact is published in SECURITY.md and COMPLIANCE.md in the project repository.": "Pełna lista wszystkich zewnętrznych endpointów, z którymi ActunaMail może się kontaktować, jest opublikowana w plikach SECURITY.md oraz COMPLIANCE.md w repozytorium projektu."
 }
