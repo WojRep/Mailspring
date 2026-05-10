@@ -345,6 +345,31 @@ function buildPackagerOptions() {
   };
 }
 
+async function signAppPaths(appPaths) {
+  // WS3-Build Faza A: ad-hoc sign the .app + all nested binaries
+  // (Electron Helper, mailsync, ShipIt, chrome_crashpad_handler).
+  // electron-packager does not sign by default and macOS arm64 kills
+  // unsigned binaries with SIGKILL on launch. The plan
+  // analysis/09-apple-developer-id-roadmap.md describes the Faza B
+  // upgrade to a real "Developer ID Application: Actuna" cert; until
+  // that cert exists, this function uses ad-hoc.
+  //
+  // Override identity via env var, e.g. for Faza B:
+  //   ACTUNA_CODESIGN_IDENTITY="Developer ID Application: Actuna" npm run build
+  const identity = process.env.ACTUNA_CODESIGN_IDENTITY || '-';
+  for (const appPath of appPaths) {
+    console.log(`---> Codesigning ${appPath} (identity: ${identity})`);
+    await spawn({
+      cmd: 'codesign',
+      args: ['-s', identity, '--force', '--deep', '--options', 'runtime', appPath],
+    });
+    await spawn({
+      cmd: 'codesign',
+      args: ['--verify', '--verbose', appPath],
+    });
+  }
+}
+
 async function runPackager() {
   const opts = buildPackagerOptions();
   console.log('---> Running packager with options:');
@@ -361,6 +386,13 @@ async function runPackager() {
   try {
     const appPaths = await packager(opts);
     console.log(`---> Done Successfully. Built into: ${appPaths}`);
+    if (process.platform === 'darwin') {
+      const paths = Array.isArray(appPaths) ? appPaths : [appPaths];
+      // electron-packager returns directory paths like ".../ActunaMail-darwin-arm64";
+      // codesign needs the .app bundle inside.
+      const appBundlePaths = paths.map(p => path.join(p, 'ActunaMail.app'));
+      await signAppPaths(appBundlePaths);
+    }
   } finally {
     clearInterval(ongoing);
   }
