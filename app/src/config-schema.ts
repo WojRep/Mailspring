@@ -75,7 +75,11 @@ export default {
           },
           use24HourClock: {
             type: 'boolean',
-            default: false,
+            // ActunaMail v0.2: default TRUE for PL/EU baseline (ticket 09).
+            // The Polish and most-of-Europe convention is 24-hour clock.
+            // Existing user choices are respected — only new installs get
+            // this default. Upstream Mailspring shipped false (US 12-hour).
+            default: true,
             title: localized('Use 24-hour clock'),
           },
           menubarStyle: {
@@ -146,7 +150,12 @@ export default {
           },
           detailedHeaders: {
             type: 'boolean',
-            default: false,
+            // ActunaMail v0.2: default TRUE (ticket 09). The
+            // compliance-conscious audience (KNF-regulated, privacy-aware)
+            // benefits from seeing full RFC 5322 headers including
+            // Received: chains by default. Existing user choices are
+            // respected — only new installs get this default.
+            default: true,
             title: localized('Show full message headers by default'),
           },
           detailedNames: {
