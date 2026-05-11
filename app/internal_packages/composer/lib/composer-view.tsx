@@ -21,6 +21,7 @@ import {
   ComposerEditorPlaintext,
   ComposerSupport,
   RovingTabIndexToolbar,
+  Tooltip,
 } from 'actunamail-component-kit';
 import { ComposerHeader } from './composer-header';
 import { SendActionButton } from './send-action-button';
@@ -519,27 +520,31 @@ const DropToAttachCover = (props: { visible: boolean }) => (
 );
 
 const AttachFileButton = (props: { onClick: () => void }) => (
-  <button
-    tabIndex={-1}
-    className="btn btn-toolbar btn-attach"
-    style={{ order: 0 }}
-    title={localized('Attach File')}
-    onClick={props.onClick}
-  >
-    <RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} />
-  </button>
+  <Tooltip content={localized('Attach File')}>
+    <button
+      tabIndex={-1}
+      className="btn btn-toolbar btn-attach"
+      style={{ order: 0 }}
+      aria-label={localized('Attach File')}
+      onClick={props.onClick}
+    >
+      <RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} />
+    </button>
+  </Tooltip>
 );
 
 const DeleteButton = (props: { onClick: () => void }) => (
-  <button
-    tabIndex={-1}
-    className="btn btn-toolbar btn-trash"
-    style={{ order: 100 }}
-    title={localized('Delete Draft')}
-    onClick={props.onClick}
-  >
-    <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
-  </button>
+  <Tooltip content={localized('Delete Draft')}>
+    <button
+      tabIndex={-1}
+      className="btn btn-toolbar btn-trash"
+      style={{ order: 100 }}
+      aria-label={localized('Delete Draft')}
+      onClick={props.onClick}
+    >
+      <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
+    </button>
+  </Tooltip>
 );
 // Note: tabIndex={-1} on individual buttons is intentional - the RovingTabIndexToolbar
 // wrapper manages which button has tabIndex={0} at any given time.

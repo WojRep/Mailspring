@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { RetinaImg, BindGlobalCommands, RovingTabIndexToolbar } from 'actunamail-component-kit';
+import { RetinaImg, BindGlobalCommands, RovingTabIndexToolbar, Tooltip } from 'actunamail-component-kit';
 import {
   localized,
   Actions,
@@ -44,10 +44,10 @@ export class ArchiveButton extends React.Component<{ items: Thread[] }> {
 
     return (
       <BindGlobalCommands commands={{ 'core:archive-item': () => this._onArchive() }}>
+        <Tooltip content={localized('Archive')}>
         <button
           tabIndex={-1}
           className="btn btn-toolbar"
-          title={localized('Archive')}
           aria-label={localized('Archive')}
           onClick={this._onArchive}
         >
@@ -57,6 +57,7 @@ export class ArchiveButton extends React.Component<{ items: Thread[] }> {
             aria-hidden="true"
           />
         </button>
+        </Tooltip>
       </BindGlobalCommands>
     );
   }
@@ -91,10 +92,10 @@ export class TrashButton extends React.Component<{ items: Thread[] }> {
 
     return (
       <BindGlobalCommands commands={{ 'core:delete-item': () => this._onRemove() }}>
+        <Tooltip content={localized('Move to Trash')}>
         <button
           tabIndex={-1}
           className="btn btn-toolbar"
-          title={localized('Move to Trash')}
           aria-label={localized('Move to Trash')}
           onClick={this._onRemove}
         >
@@ -104,6 +105,7 @@ export class TrashButton extends React.Component<{ items: Thread[] }> {
             aria-hidden="true"
           />
         </button>
+        </Tooltip>
       </BindGlobalCommands>
     );
   }
@@ -242,10 +244,10 @@ export class MarkAsSpamButton extends React.Component<{ items: Thread[] }> {
           key="not-spam"
           commands={{ 'core:report-not-spam': () => this._onNotSpam() }}
         >
+          <Tooltip content={localized('Not Spam')}>
           <button
             tabIndex={-1}
             className="btn btn-toolbar"
-            title={localized('Not Spam')}
             aria-label={localized('Not Spam')}
             onClick={this._onNotSpam}
           >
@@ -255,6 +257,7 @@ export class MarkAsSpamButton extends React.Component<{ items: Thread[] }> {
               aria-hidden="true"
             />
           </button>
+          </Tooltip>
         </BindGlobalCommands>
       );
     }
@@ -268,10 +271,10 @@ export class MarkAsSpamButton extends React.Component<{ items: Thread[] }> {
         key="spam"
         commands={{ 'core:report-as-spam': () => this._onMarkAsSpam() }}
       >
+        <Tooltip content={localized('Mark as Spam')}>
         <button
           tabIndex={-1}
           className="btn btn-toolbar"
-          title={localized('Mark as Spam')}
           aria-label={localized('Mark as Spam')}
           onClick={this._onMarkAsSpam}
         >
@@ -281,6 +284,7 @@ export class MarkAsSpamButton extends React.Component<{ items: Thread[] }> {
             aria-hidden="true"
           />
         </button>
+        </Tooltip>
       </BindGlobalCommands>
     );
   }
