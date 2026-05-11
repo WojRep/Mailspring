@@ -1,0 +1,65 @@
+@import 'base/ui-variables';
+
+// Ticket 43a — UX hover discoverability.
+//
+// Cross-cutting interactivity rules: cursor affordance + touch target
+// minimum size + active state visual feedback.
+//
+// Cross-platform notes:
+//   - Cursor: pointer is browser/OS-native; each platform renders its
+//     own pointer cursor (Win arrow→hand, Mac arrow→pointing finger).
+//   - Touch devices ignore cursor: rules entirely — safe forward-looking.
+//   - Min-height/min-width prepare us for future mobile (Apple HIG 44pt,
+//     Material 48dp). Today 36px gives comfort on desktop without
+//     visual disruption.
+
+// ---------- cursor affordance ----------
+
+button:not([disabled]),
+[role='button']:not([aria-disabled='true']),
+a[href],
+[data-clickable='true'],
+.btn,
+.clickable {
+  cursor: pointer;
+}
+
+button[disabled],
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+// ---------- touch target minimum size (Fitts's Law) ----------
+//
+// 36px is the desktop comfort threshold. On future mobile (Capacitor/
+// PWA/Tauri mobile/RN day) bump to 44px via @media (pointer: coarse).
+
+button,
+[role='button'] {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+@media (pointer: coarse) {
+  // Touch devices — promote to Apple HIG 44pt / Material 48dp.
+  button,
+  [role='button'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+// ---------- active state visual feedback ----------
+//
+// Subtle press feedback for both mouse click and touch tap. The transform
+// scale gives a tactile sensation without layout shift (scale doesn't
+// trigger reflow). 0.97 is the sweet spot — noticeable but not jarring.
+
+button:active:not([disabled]),
+[role='button']:active:not([aria-disabled='true']),
+a[href]:active,
+.btn:active,
+.clickable:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease-out;
+}
