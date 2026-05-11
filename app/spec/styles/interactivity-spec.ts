@@ -66,36 +66,37 @@ describe('interactivity CSS (cursor + touch + active feedback)', () => {
     });
   });
 
-  describe('touch target minimum size — SCOPED to .btn-toolbar (post-hotfix 2026-05-11)', () => {
-    it('applies min-height >= 36px to button.btn-toolbar', () => {
-      const btn = document.createElement('button');
-      btn.className = 'btn-toolbar';
-      btn.textContent = 'Tap me';
-      host.appendChild(btn);
-      const style = getComputedStyle(btn);
-      expect(parseFloat(style.minHeight)).toBeGreaterThanOrEqual(36);
-    });
+  describe('touch target minimum size — REMOVED (v0.2.t hotfix)', () => {
+    // History:
+    //   v0.2.m 43a:   global `button { min-height: 36px; min-width: 36px }`
+    //                 → caused sidebar unread badges + disclosure triangles
+    //                 to inflate into 36×36 squares ("kółka artefakty").
+    //   v0.2.s hotfix: scoped rule to .btn-toolbar / .btn-large only
+    //                 → caused toolbar buttons to overflow message subject
+    //                 area in narrow windows ("pasek nie miejsci ikon").
+    //   v0.2.t hotfix: rule removed entirely. Mailspring's native button
+    //                 sizes (~28-30px) are adequate for mouse pointer
+    //                 interaction on desktop. Forward-looking touch
+    //                 target sizing deferred to mobile day.
+    //
+    // Regression guards: ensure no min-size is forced on any button anymore.
 
-    it('applies min-width >= 36px to button.btn-toolbar', () => {
-      const btn = document.createElement('button');
-      btn.className = 'btn-toolbar';
-      btn.textContent = 'Tap me';
-      host.appendChild(btn);
-      const style = getComputedStyle(btn);
-      expect(parseFloat(style.minWidth)).toBeGreaterThanOrEqual(36);
-    });
-
-    // Regression guard: hotfix removed the global rule because it inflated
-    // small inline UI elements (sidebar unread badges, disclosure triangles)
-    // into 36×36 squares. Bare buttons must NOT inherit the rule.
-    it('does NOT apply 36px min-size to a bare <button> (no .btn-toolbar class)', () => {
+    it('does NOT force min-size on bare <button>', () => {
       const btn = document.createElement('button');
       btn.textContent = 'Plain';
       host.appendChild(btn);
       const style = getComputedStyle(btn);
-      // Plain buttons get whatever default — 0px is the typical UA default,
-      // anything below 36 is acceptable here. The assertion is that the
-      // rule did NOT promote it.
+      expect(parseFloat(style.minHeight) || 0).toBeLessThan(36);
+    });
+
+    it('does NOT force min-size on button.btn-toolbar (Mailspring native sizing wins)', () => {
+      const btn = document.createElement('button');
+      btn.className = 'btn-toolbar';
+      btn.textContent = 'Toolbar';
+      host.appendChild(btn);
+      const style = getComputedStyle(btn);
+      // Mailspring's buttons.less may apply its own height, but it must not
+      // be ≥36 due to OUR rule. Anything below 36 is acceptable here.
       expect(parseFloat(style.minHeight) || 0).toBeLessThan(36);
     });
   });

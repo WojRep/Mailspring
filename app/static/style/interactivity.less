@@ -39,35 +39,23 @@ button[disabled],
   cursor: not-allowed;
 }
 
-// ---------- touch target minimum size — SCOPED ONLY to toolbar buttons ----------
+// ---------- touch target minimum size — REMOVED 2026-05-11 ----------
 //
-// 2026-05-11 hotfix: the original rule was global on every <button>, which
-// reformatted small inline UI elements (sidebar unread-count badges,
-// disclosure triangles, account-row mini-buttons) into 36×36 squares,
-// producing "kółka artefakt" in the sidebar (user feedback w/ screenshot).
+// History:
+//   - 43a (v0.2.m): global rule `button { min-height: 36px; min-width: 36px }`
+//   - v0.2.s hotfix: scoped to `.btn-toolbar` + `.btn-large` only
+//   - v0.2.t hotfix (this): removed entirely
 //
-// New scope: only buttons explicitly marked as toolbar (.btn-toolbar) +
-// the main composer .btn class. Other buttons keep their natural size.
-// Touch-device promotion (@media pointer: coarse) intentionally also
-// scoped — small inline buttons on touch are common enough that forcing
-// 44×44 globally would break dropdown chevrons, ticker-style controls.
-
-button.btn-toolbar,
-button.btn-large,
-[role='button'].btn-toolbar {
-  min-height: 36px;
-  min-width: 36px;
-}
-
-@media (pointer: coarse) {
-  // Touch devices — promote toolbar buttons only to Apple HIG 44pt.
-  button.btn-toolbar,
-  button.btn-large,
-  [role='button'].btn-toolbar {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
+// Reason for removal: Mailspring's native button styling has carefully-tuned
+// width/height in buttons.less (.btn-toolbar is typically ~28-30px). Forcing
+// 36×36 made the right-side message toolbar wider than the natural Mailspring
+// layout assumed, which squeezed the message subject area and produced
+// overlap in narrow windows (user feedback: "pasek nie miejsci ikon").
+//
+// Forward-looking touch target sizing is deferred to mobile day (Capacitor/
+// PWA/Tauri Mobile/RN). On desktop, the existing Mailspring sizes are
+// adequate for mouse pointer interaction. Cursor: pointer affordance below
+// is the part that genuinely improves desktop UX.
 
 // ---------- active state visual feedback — SCOPED to .btn class ----------
 //
