@@ -20,6 +20,7 @@ export const EmptyListState: typeof import('../components/empty-list-state').def
 export * from '../components/list-tabular';
 // export const ListTabular: typeof import('../components/list-tabular').default;
 export const Notification: typeof import('../components/notification').default;
+export const Tooltip: typeof import('../components/tooltip').Tooltip;
 export * from '../components/evented-iframe';
 export * from '../components/button-dropdown';
 export * from '../components/multiselect-list';

@@ -63,3 +63,36 @@ a[href]:active,
   transform: scale(0.97);
   transition: transform 0.1s ease-out;
 }
+
+// ---------- Tooltip (ticket 43b — floating-ui + facade) ----------
+//
+// Styled tooltip rendered via FloatingPortal. The class is applied by
+// app/src/components/tooltip.tsx — never hand-coded directly. For dark
+// theme aware variables we rely on @ui-variables loaded by index.less.
+
+.actuna-tooltip {
+  z-index: 10000;
+  max-width: 280px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: rgba(40, 40, 40, 0.95);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  // Subtle fade-in on appearance (floating-ui mounts/unmounts the node,
+  // so we don't need explicit enter/exit transitions for delay correctness).
+  animation: actuna-tooltip-fade 0.15s ease-out;
+}
+
+@keyframes actuna-tooltip-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

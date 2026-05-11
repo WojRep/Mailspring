@@ -79,6 +79,7 @@ lazyLoad('SyncingListState', 'syncing-list-state');
 lazyLoad('EmptyListState', 'empty-list-state');
 lazyLoad('ListTabular', 'list-tabular');
 lazyLoad('Notification', 'notification');
+lazyLoadFrom('Tooltip', 'tooltip');
 lazyLoad('EventedIFrame', 'evented-iframe');
 lazyLoad('ButtonDropdown', 'button-dropdown');
 lazyLoad('MultiselectList', 'multiselect-list');
