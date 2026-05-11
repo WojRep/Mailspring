@@ -1,7 +1,7 @@
 import React from 'react';
 import { Editor } from 'slate';
-import { RetinaImg } from 'mailspring-component-kit';
-import { localized, SanitizeTransformer } from 'mailspring-exports';
+import { RetinaImg } from 'actunamail-component-kit';
+import { localized, SanitizeTransformer } from 'actunamail-exports';
 import { ComposerEditorPlugin } from './types';
 
 export const UNEDITABLE_TYPE = 'uneditable';

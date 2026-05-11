@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 
 // Actuna Mail does not have a Pro tier, a Foundry-backed identity, or a
 // quota system. The original FeatureUsageStore from Mailspring upstream

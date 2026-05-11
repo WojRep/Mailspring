@@ -9,7 +9,7 @@ import {
   TaskFactory,
   MailboxPerspective,
   Actions,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import SearchQuerySubscription from './search-query-subscription';
 
 class SearchMailboxPerspective extends MailboxPerspective {

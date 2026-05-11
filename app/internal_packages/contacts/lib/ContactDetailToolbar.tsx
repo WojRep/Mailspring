@@ -5,7 +5,7 @@ import {
   ListDataSource,
   RetinaImg,
   BindGlobalCommands,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 import { Store, ContactsPerspective } from './Store';
 import {
   localized,
@@ -13,7 +13,7 @@ import {
   Actions,
   Contact,
   ChangeContactGroupMembershipTask,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import { showGPeopleReadonlyNotice } from './GoogleSupport';
 import { exportContactsToFile } from './VCFImportExport';
 

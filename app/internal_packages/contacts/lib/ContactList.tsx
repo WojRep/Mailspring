@@ -1,7 +1,7 @@
 import React, { CSSProperties, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { webUtils } from 'electron';
-import { Contact, localized, CanvasUtils, AccountStore } from 'mailspring-exports';
+import { Contact, localized, CanvasUtils, AccountStore } from 'actunamail-exports';
 import {
   FocusContainer,
   MultiselectList,
@@ -9,7 +9,7 @@ import {
   RetinaImg,
   ListensToFluxStore,
   ListDataSource,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 import { ContactsPerspective, Store } from './Store';
 import { writeContactsToTempVCF, importContactsFromPaths } from './VCFImportExport';
 import { ContactListContextMenu } from './ContactListContextMenu';

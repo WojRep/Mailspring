@@ -1,8 +1,8 @@
 import fs from 'fs';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Flexbox, EditableList, ComposerEditor, ComposerSupport } from 'mailspring-component-kit';
-import { Actions, localized, localizedReactFragment } from 'mailspring-exports';
+import { Flexbox, EditableList, ComposerEditor, ComposerSupport } from 'actunamail-component-kit';
+import { Actions, localized, localizedReactFragment } from 'actunamail-exports';
 import { Value } from 'slate';
 
 import TemplateStore from './template-store';

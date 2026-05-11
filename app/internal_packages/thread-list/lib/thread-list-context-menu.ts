@@ -13,7 +13,7 @@ import {
   AccountStore,
   TaskQueue,
   EmlUtils,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 type TemplateItem =
   | {

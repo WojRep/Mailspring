@@ -1,8 +1,8 @@
-import { Actions, ICSEventHelpers, CalendarUtils, SyncbackEventTask } from 'mailspring-exports';
+import { Actions, ICSEventHelpers, CalendarUtils, SyncbackEventTask } from 'actunamail-exports';
 import { Event as MailspringEvent } from '../src/flux/models/event';
 
 // Import the functions under test directly from the source file.
-// We use a relative path because the plugin is not registered in mailspring-exports.
+// We use a relative path because the plugin is not registered in actunamail-exports.
 import {
   modifySimpleEvent,
   createOccurrenceException,

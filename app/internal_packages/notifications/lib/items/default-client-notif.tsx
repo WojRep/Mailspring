@@ -1,6 +1,6 @@
 import React from 'react';
-import { localized, DefaultClientHelper } from 'mailspring-exports';
-import { Notification } from 'mailspring-component-kit';
+import { localized, DefaultClientHelper } from 'actunamail-exports';
+import { Notification } from 'actunamail-component-kit';
 import { IDisposable } from 'rx-core';
 
 const SETTINGS_KEY = 'mailto.prompted-about-default';

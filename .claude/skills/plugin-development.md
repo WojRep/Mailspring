@@ -54,5 +54,5 @@ When working on plugin functionality, these are the primary files to understand:
 
 - Use `npm start` to run in dev mode (uses `Mailspring-dev` config directory)
 - Hot reload with `Ctrl+R` / `Cmd+R`
-- Access `$m` in dev console for `mailspring-exports`
+- Access `$m` in dev console for `actunamail-exports`
 - User plugins go in `~/.config/Mailspring-dev/packages/` during development

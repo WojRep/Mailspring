@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import { localized } from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+import { localized } from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import {
   UnsubscribeOption,
   UnsubscribeResult,

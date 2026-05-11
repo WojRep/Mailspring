@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment-timezone';
-import { Rx, Event, DatabaseStore, localized, Calendar, Actions } from 'mailspring-exports';
-import { RetinaImg, KeyCommandsRegion, BindGlobalCommands } from 'mailspring-component-kit';
+import { Rx, Event, DatabaseStore, localized, Calendar, Actions } from 'actunamail-exports';
+import { RetinaImg, KeyCommandsRegion, BindGlobalCommands } from 'actunamail-component-kit';
 import { EventOccurrence, occurrencesForEvents } from './calendar-data-source';
 import { Disposable } from 'rx-core';
 

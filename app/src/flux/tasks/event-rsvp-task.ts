@@ -9,7 +9,7 @@ import {
   DatabaseStore,
   Message,
   Actions,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 export class EventRSVPTask extends Task {
   ics: string;

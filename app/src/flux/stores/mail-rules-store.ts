@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import _ from 'underscore';
 import * as Utils from '../models/utils';
 import * as Actions from '../actions';
@@ -11,7 +11,7 @@ import { localized } from '../../intl';
 
 import { Template } from '../../components/scenario-editor-models';
 import { ConditionMode, ConditionTemplates, ActionTemplates } from '../../mail-rules-templates';
-import { DatabaseChangeRecord } from 'mailspring-exports';
+import { DatabaseChangeRecord } from 'actunamail-exports';
 
 const RulesJSONKey = 'MailRules-V2';
 const AutoSinceJSONKey = 'MailRules-Auto-Since';

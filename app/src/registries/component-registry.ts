@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { SheetToolbarDeclaration } from '../flux/stores/workspace-store';
 
 type LocationDescriptor = { id: string } | SheetToolbarDeclaration;

@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import path from 'path';
 import fs from 'fs';
-import { RetinaImg, Flexbox, ConfigPropContainer } from 'mailspring-component-kit';
-import { localized, AccountStore, Account } from 'mailspring-exports';
+import { RetinaImg, Flexbox, ConfigPropContainer } from 'actunamail-component-kit';
+import { localized, AccountStore, Account } from 'actunamail-exports';
 import * as OnboardingActions from './onboarding-actions';
 // NewsletterSignup removed in WS1-F (no auto-subscribe; GDPR Art. 7(2)).
 

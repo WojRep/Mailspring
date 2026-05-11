@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { AccountStore } from './account-store';
 import WorkspaceStore from './workspace-store';
 import { MailboxPerspective } from '../../mailbox-perspective';

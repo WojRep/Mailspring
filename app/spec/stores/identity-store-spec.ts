@@ -6,9 +6,9 @@
 // skipped via `xdescribe`; the file carries `@ts-nocheck` to keep
 // TypeScript typecheck green. A stub-aware spec lands in v0.2.
 
-import { Utils, KeyManager } from 'mailspring-exports';
+import { Utils, KeyManager } from 'actunamail-exports';
 import { IdentityStore } from '../../src/flux/stores/identity-store';
-import * as MailspringAPIRequest from '../../src/flux/mailspring-api-request';
+import * as MailspringAPIRequest from '../../src/flux/actunamail-api-request';
 
 const TEST_NYLAS_ID = 'icihsnqh4pwujyqihlrj70vh';
 

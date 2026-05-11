@@ -6,9 +6,9 @@ import {
   MailImportantIcon,
   InjectedComponent,
   InjectedComponentSet,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 
-import { localized, FocusedPerspectiveStore, Utils, DateUtils } from 'mailspring-exports';
+import { localized, FocusedPerspectiveStore, Utils, DateUtils } from 'actunamail-exports';
 
 import { ThreadArchiveQuickAction, ThreadTrashQuickAction } from './thread-list-quick-actions';
 import ThreadListParticipants from './thread-list-participants';

@@ -6,7 +6,7 @@ import DatabaseStore from '../flux/stores/database-store';
 import { QuerySubscription } from '../flux/models/query-subscription';
 import { Model } from '../flux/models/model';
 import ModelQuery from '../flux/models/query';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { Category } from '../flux/models/category';
 import { QueryResultSet } from '../flux/models/query-result-set';
 

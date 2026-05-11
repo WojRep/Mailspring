@@ -5,7 +5,7 @@ import React from 'react';
 let stubIsRegistered = null;
 let stubRegister = () => {};
 const patched = proxyquire('../lib/items/default-client-notif', {
-  'mailspring-exports': {
+  'actunamail-exports': {
     DefaultClientHelper: class {
       constructor() {
         this.isRegisteredForURLScheme = (urlScheme, callback) => {

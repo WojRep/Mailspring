@@ -7,8 +7,8 @@ import {
   FeatureUsageStore,
   Message,
   DraftEditingSession,
-} from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import classnames from 'classnames';
 import _ from 'underscore';
 

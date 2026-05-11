@@ -8,8 +8,8 @@ import {
   IdentityStore,
   MailsyncProcess,
   localized,
-} from 'mailspring-exports';
-import MailspringProviderSettings from './mailspring-provider-settings.json';
+} from 'actunamail-exports';
+import MailspringProviderSettings from './actunamail-provider-settings.json';
 import MailcoreProviderSettings from './mailcore-provider-settings.json';
 import dns from 'dns';
 import {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, localized } from 'mailspring-exports';
+import { Actions, localized } from 'actunamail-exports';
 
 export function CalendarEmptyState() {
   const onOpenAccountPreferences = () => {

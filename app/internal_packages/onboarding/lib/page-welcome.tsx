@@ -1,5 +1,5 @@
-import { localized, React } from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+import { localized, React } from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import * as OnboardingActions from './onboarding-actions';
 
 export default class WelcomePage extends React.Component {

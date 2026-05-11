@@ -6,7 +6,7 @@ import {
   Folder,
   Label,
   Event as MailspringEvent,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 // ---------------------------------------------------------------------------
 // Helpers

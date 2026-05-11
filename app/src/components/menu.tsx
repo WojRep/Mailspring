@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import _ from 'underscore';
 import React, { HTMLProps } from 'react';
 import ReactDOM from 'react-dom';
-import { PropTypes, DOMUtils } from 'mailspring-exports';
+import { PropTypes, DOMUtils } from 'actunamail-exports';
 
 export interface MenuItemProps {
   id?: string;

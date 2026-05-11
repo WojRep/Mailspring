@@ -1,4 +1,4 @@
-import { Category } from 'mailspring-exports';
+import { Category } from 'actunamail-exports';
 
 export type CategoryData =
   | {

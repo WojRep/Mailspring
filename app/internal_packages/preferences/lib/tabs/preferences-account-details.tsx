@@ -3,14 +3,14 @@ import fs from 'fs';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { shell, ipcRenderer } from 'electron';
-import { EditableList } from 'mailspring-component-kit';
+import { EditableList } from 'actunamail-component-kit';
 import {
   localized,
   RegExpUtils,
   KeyManager,
   Account,
   AccountAutoaddress,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 interface AutoaddressControlProps {
   autoaddress: AccountAutoaddress;

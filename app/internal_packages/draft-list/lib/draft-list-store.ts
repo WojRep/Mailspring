@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import {
   Rx,
   Message,
@@ -10,8 +10,8 @@ import {
   FocusedPerspectiveStore,
   DatabaseStore,
   QueryResultSet,
-} from 'mailspring-exports';
-import { ListTabular, ListDataSource } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { ListTabular, ListDataSource } from 'actunamail-component-kit';
 
 class DraftListStore extends MailspringStore {
   constructor() {

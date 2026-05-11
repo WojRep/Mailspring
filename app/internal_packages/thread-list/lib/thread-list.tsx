@@ -8,7 +8,7 @@ import {
   EmptyListState,
   FluxContainer,
   SyncingListState,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 
 import {
   Actions,
@@ -25,7 +25,7 @@ import {
   Thread,
   TaskFactory,
   localized,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import * as ThreadListColumns from './thread-list-columns';
 import ThreadListScrollTooltip from './thread-list-scroll-tooltip';

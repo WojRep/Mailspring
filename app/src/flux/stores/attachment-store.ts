@@ -2,7 +2,7 @@ import os from 'os';
 import _fs from 'fs';
 import path from 'path';
 import { shell } from 'electron';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import DraftStore from './draft-store';
 import * as Actions from '../actions';
 import { File } from '../models/file';

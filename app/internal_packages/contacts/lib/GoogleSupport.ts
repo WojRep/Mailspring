@@ -1,4 +1,4 @@
-import { AccountStore, localized } from 'mailspring-exports';
+import { AccountStore, localized } from 'actunamail-exports';
 
 const CONTACTS_OAUTH_SCOPE_ADDED = new Date(1581867440474);
 

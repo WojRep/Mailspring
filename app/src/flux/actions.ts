@@ -1,5 +1,5 @@
 import Reflux from 'reflux';
-import { Listenable } from 'mailspring-store';
+import { Listenable } from 'actunamail-store';
 
 const ActionScopeWindow = 'window';
 const ActionScopeGlobal = 'global';

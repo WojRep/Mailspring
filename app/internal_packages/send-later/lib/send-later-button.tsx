@@ -8,8 +8,8 @@ import {
   FeatureUsageStore,
   Message,
   DraftEditingSession,
-} from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 
 import SendLaterPopover from './send-later-popover';
 import { PLUGIN_ID } from './send-later-constants';

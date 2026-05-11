@@ -9,7 +9,7 @@ import {
   Message,
   MessageStore,
   MailspringTestUtils,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import MessageParticipants from '../lib/message-participants';
 import MessageItemContainer from '../lib/message-item-container';

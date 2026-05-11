@@ -7,7 +7,7 @@ import {
   CategoryStore,
   TaskFactory,
   MailboxPerspective,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import {
   ToggleStarredButton,
   ToggleUnreadButton,

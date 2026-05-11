@@ -1,7 +1,7 @@
 /* eslint global-require:0 */
 import * as Attributes from '../attributes';
 import { ModelWithMetadata } from './model-with-metadata';
-import { MailsyncProcessExit } from 'mailspring-exports';
+import { MailsyncProcessExit } from 'actunamail-exports';
 
 let CategoryStore = null;
 let Contact = null;

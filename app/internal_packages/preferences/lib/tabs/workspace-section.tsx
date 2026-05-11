@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { localized, DefaultClientHelper, SystemStartService } from 'mailspring-exports';
+import { localized, DefaultClientHelper, SystemStartService } from 'actunamail-exports';
 import { shell } from 'electron';
 
 import ConfigSchemaItem from './config-schema-item';

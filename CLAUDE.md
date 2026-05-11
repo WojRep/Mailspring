@@ -42,7 +42,7 @@ Mailspring is an Electron-based email client written in TypeScript with React. I
   - `components/` - Reusable React UI components
   - `services/` - Application services (search, sanitization, etc.)
   - `registries/` - Extension registries (components, extensions, database objects)
-  - `global/` - Global exports (`mailspring-exports`, `mailspring-component-kit`)
+  - `global/` - Global exports (`actunamail-exports`, `actunamail-component-kit`)
 
 - **`app/internal_packages/`** - Built-in plugins implementing features (composer, message-list, thread-list, preferences, themes, etc.)
 
@@ -53,8 +53,8 @@ Mailspring is an Electron-based email client written in TypeScript with React. I
 ### Core Modules
 
 **Global exports for plugins:**
-- `mailspring-exports` - Core APIs: Actions, Stores, Models, Tasks, Utils, database access
-- `mailspring-component-kit` - Reusable UI components
+- `actunamail-exports` - Core APIs: Actions, Stores, Models, Tasks, Utils, database access
+- `actunamail-component-kit` - Reusable UI components
 
 **Flux Architecture:**
 - **Models** (`flux/models/`) - Data models: Message, Thread, Contact, Account, Folder, Label, etc.
@@ -201,7 +201,7 @@ UI Updates ← QuerySubscription ← DatabaseStore.trigger() ← stdout deltas
 
 - Hot reload is available via `CTRL+R` (Windows/Linux) or `CMD+R` (macOS)
 - Dev tools accessible via Menu > Developer > Toggle Developer Tools
-- In dev tools console, `$m` provides access to `mailspring-exports` for debugging
+- In dev tools console, `$m` provides access to `actunamail-exports` for debugging
 - Dev mode data is stored separately (e.g., `~/.config/Mailspring-dev/` on Linux)
 
 ## Claude Hooks

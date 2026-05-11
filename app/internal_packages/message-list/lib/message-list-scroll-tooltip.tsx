@@ -1,5 +1,5 @@
 import React from 'react';
-import { localized, PropTypes, Utils } from 'mailspring-exports';
+import { localized, PropTypes, Utils } from 'actunamail-exports';
 
 export class MessageListScrollTooltip extends React.Component<
   { viewportCenter: number; totalHeight: number },

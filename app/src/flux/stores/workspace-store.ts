@@ -6,7 +6,7 @@
 import _ from 'underscore';
 import { webFrame } from 'electron';
 import * as Actions from '../actions';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { Disposable } from 'event-kit';
 
 let Sheet = {} as SheetSet;

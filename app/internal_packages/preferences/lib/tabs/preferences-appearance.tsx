@@ -1,5 +1,5 @@
-import { RetinaImg, RovingTabIndexToolbar } from 'mailspring-component-kit';
-import { localized } from 'mailspring-exports';
+import { RetinaImg, RovingTabIndexToolbar } from 'actunamail-component-kit';
+import { localized } from 'actunamail-exports';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { isWaylandSession } from '../../../../src/browser/is-wayland';

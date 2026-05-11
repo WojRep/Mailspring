@@ -1,5 +1,5 @@
 import React from 'react';
-import { localized, Utils, PropTypes } from 'mailspring-exports';
+import { localized, Utils, PropTypes } from 'actunamail-exports';
 
 export class SyncbackActivity extends React.Component<{ tasks: any[] }> {
   static propTypes = {

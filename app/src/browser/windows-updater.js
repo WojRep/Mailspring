@@ -124,7 +124,7 @@ function createRegistryEntries({ allowEscalation, registerDefaultIfPossible }, c
   }
 
   fs.readFile(
-    path.join(appFolder, 'resources', 'mailspring-mailto-registration.reg'),
+    path.join(appFolder, 'resources', 'actunamail-mailto-registration.reg'),
     (err, data) => {
       if (err || !data) {
         callback(err);
@@ -158,7 +158,7 @@ function createRegistryEntries({ allowEscalation, registerDefaultIfPossible }, c
           spawnArgs.concat(['import', escapeBackticks(importTempPath)]),
           spawnErr => {
             if (isWindows7 && registerDefaultIfPossible) {
-              const defaultReg = path.join(appFolder, 'resources', 'mailspring-mailto-default.reg');
+              const defaultReg = path.join(appFolder, 'resources', 'actunamail-mailto-default.reg');
               spawn(
                 spawnPath,
                 spawnArgs.concat(['import', escapeBackticks(defaultReg)]),
@@ -188,7 +188,7 @@ exports.existsSync = () => fs.existsSync(updateDotExe);
 function registerAppUserModelId(callback) {
   const aumid = 'com.squirrel.mailspring.mailspring';
   const displayName = 'Mailspring';
-  const iconPath = path.join(appFolder, 'resources', 'mailspring-square.ico');
+  const iconPath = path.join(appFolder, 'resources', 'actunamail-square.ico');
 
   let regPath = 'reg.exe';
   if (process.env.SystemRoot) {
@@ -232,8 +232,8 @@ exports.registerAppUserModelId = registerAppUserModelId;
 function copyVisualElements() {
   try {
     const files = [
-      'mailspring-75px.png',
-      'mailspring-150px.png',
+      'actunamail-75px.png',
+      'actunamail-150px.png',
       'mailspring.VisualElementsManifest.xml',
     ];
     for (const file of files) {
@@ -292,7 +292,7 @@ exports.handleSquirrelInstall = app => {
     'Desktop',
     'Mailspring.lnk'
   );
-  const iconPath = path.join(appFolder, 'resources', 'mailspring-square.ico');
+  const iconPath = path.join(appFolder, 'resources', 'actunamail-square.ico');
 
   const shortcutOptions = {
     target: updateDotExe,

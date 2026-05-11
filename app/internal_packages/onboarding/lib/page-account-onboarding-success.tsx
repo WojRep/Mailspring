@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { localized, Account } from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+import { localized, Account } from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import AccountProviders from './account-providers';
 
 class AccountOnboardingSuccess extends Component<{ account: Account }> {

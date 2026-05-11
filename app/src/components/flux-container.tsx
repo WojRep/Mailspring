@@ -1,5 +1,5 @@
 import React from 'react';
-import { PropTypes, Utils } from 'mailspring-exports';
+import { PropTypes, Utils } from 'actunamail-exports';
 
 type FluxContainerProps<T> = {
   stores: any[];

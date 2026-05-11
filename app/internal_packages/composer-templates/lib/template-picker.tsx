@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { localized, PropTypes, Actions, Message } from 'mailspring-exports';
-import { Menu, RetinaImg } from 'mailspring-component-kit';
+import { localized, PropTypes, Actions, Message } from 'actunamail-exports';
+import { Menu, RetinaImg } from 'actunamail-component-kit';
 import TemplateStore from './template-store';
 
 class TemplatePopover extends React.Component<{ headerMessageId: string }> {

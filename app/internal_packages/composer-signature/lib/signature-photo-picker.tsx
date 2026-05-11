@@ -1,7 +1,7 @@
 import React from 'react';
 import { webUtils } from 'electron';
-import { localized, PropTypes } from 'mailspring-exports';
-import { RetinaImg, DropZone } from 'mailspring-component-kit';
+import { localized, PropTypes } from 'actunamail-exports';
+import { RetinaImg, DropZone } from 'actunamail-component-kit';
 
 const MAX_IMAGE_RES = 250;
 

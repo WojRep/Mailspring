@@ -1,4 +1,4 @@
-import { SoundRegistry } from 'mailspring-exports';
+import { SoundRegistry } from 'actunamail-exports';
 
 export function activate() {
   SoundRegistry.register('send', 'actunamail://custom-sounds/CUSTOM_UI_Send_v1.ogg');

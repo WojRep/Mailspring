@@ -5,9 +5,9 @@ import {
   ContactGroup,
   ContactBook,
   MutableQuerySubscription,
-} from 'mailspring-exports';
-import MailspringStore from 'mailspring-store';
-import { ListTabular } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import MailspringStore from 'actunamail-store';
+import { ListTabular } from 'actunamail-component-kit';
 
 class ContactsWindowStore extends MailspringStore {
   _perspective: ContactsPerspective = { type: 'unified' };

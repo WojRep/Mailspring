@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import fs from 'fs';
 import path from 'path';
 
-import { EventedIFrame } from 'mailspring-component-kit';
+import { EventedIFrame } from 'actunamail-component-kit';
 import Package from '../../../src/package';
 import LessCompileCache from '../../../src/compile-cache-less';
 

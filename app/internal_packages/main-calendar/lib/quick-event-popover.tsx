@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, Calendar, DatabaseStore, DateUtils, localized } from 'mailspring-exports';
+import { Actions, Calendar, DatabaseStore, DateUtils, localized } from 'actunamail-exports';
 import { Moment } from 'moment';
 import {
   getEditableCalendars,

@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { AccountStore } from './account-store';
 import CategoryStore from './category-store';
 import { Folder } from '../models/folder';

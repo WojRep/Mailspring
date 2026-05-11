@@ -1,5 +1,5 @@
 /* eslint global-require:0 */
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import FocusedPerspectiveStore from './focused-perspective-store';
 import ThreadCountsStore from './thread-counts-store';
 import CategoryStore from './category-store';

@@ -9,7 +9,7 @@ import {
   AccountStore,
   MailRulesStore,
   MailRulesTemplates,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import {
   Flexbox,
@@ -17,7 +17,7 @@ import {
   RetinaImg,
   ScrollRegion,
   ScenarioEditor,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 
 const { ActionTemplatesForAccount, ConditionTemplatesForAccount } = MailRulesTemplates;
 

@@ -1,4 +1,4 @@
-import { TaskQueue } from 'mailspring-exports';
+import { TaskQueue } from 'actunamail-exports';
 import { unmountAll } from './react-test-utils-extensions';
 
 class MasterAfterEach {

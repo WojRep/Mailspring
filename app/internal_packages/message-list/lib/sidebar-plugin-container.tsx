@@ -1,6 +1,6 @@
 import React from 'react';
-import { localized, PropTypes, FocusedContactsStore, Contact } from 'mailspring-exports';
-import { InjectedComponentSet } from 'mailspring-component-kit';
+import { localized, PropTypes, FocusedContactsStore, Contact } from 'actunamail-exports';
+import { InjectedComponentSet } from 'actunamail-component-kit';
 
 class FocusedContactStorePropsContainer extends React.Component<
   { children: React.ReactElement<any> },

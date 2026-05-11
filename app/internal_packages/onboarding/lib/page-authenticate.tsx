@@ -1,5 +1,5 @@
 import React from 'react';
-import { PropTypes } from 'mailspring-exports';
+import { PropTypes } from 'actunamail-exports';
 import * as OnboardingActions from './onboarding-actions';
 
 // WS1-E: replaces upstream Mailspring's authenticate page, which loaded

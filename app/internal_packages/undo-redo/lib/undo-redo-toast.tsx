@@ -6,8 +6,8 @@ import {
   DatabaseStore,
   Message,
   Actions,
-} from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import { CSSTransitionGroup } from 'react-transition-group';
 import { PLUGIN_ID } from '../../../internal_packages/send-later/lib/send-later-constants';
 

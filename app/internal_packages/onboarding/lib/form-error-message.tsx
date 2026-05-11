@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { shell } from 'electron';
 import React from 'react';
-import { PropTypes, RegExpUtils } from 'mailspring-exports';
+import { PropTypes, RegExpUtils } from 'actunamail-exports';
 
 interface FormErrorProps {
   message: string;

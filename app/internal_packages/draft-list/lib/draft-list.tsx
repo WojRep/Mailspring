@@ -1,11 +1,11 @@
 import React from 'react';
-import { Actions } from 'mailspring-exports';
+import { Actions } from 'actunamail-exports';
 import {
   FluxContainer,
   FocusContainer,
   EmptyListState,
   MultiselectList,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 import DraftListStore from './draft-list-store';
 import * as DraftListColumns from './draft-list-columns';
 

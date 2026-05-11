@@ -9,8 +9,8 @@ import {
   QuotedHTMLTransformer,
   AttachmentStore,
   Message,
-} from 'mailspring-exports';
-import { InjectedComponentSet, RetinaImg } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { InjectedComponentSet, RetinaImg } from 'actunamail-component-kit';
 
 import EmailFrame from './email-frame';
 import { BrowserWindow } from '@electron/remote';

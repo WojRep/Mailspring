@@ -6,8 +6,8 @@ import {
   SendActionsStore,
   SoundRegistry,
   Message,
-} from 'mailspring-exports';
-import { Menu, RetinaImg, ButtonDropdown } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { Menu, RetinaImg, ButtonDropdown } from 'actunamail-component-kit';
 
 interface SendActionButtonProps {
   tabIndex: number;

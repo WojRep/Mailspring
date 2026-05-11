@@ -11,7 +11,7 @@ import {
   ComposerExtension,
   ExtensionRegistry,
   FocusedContentStore,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import DraftFactory from '../../src/flux/stores/draft-factory';
 

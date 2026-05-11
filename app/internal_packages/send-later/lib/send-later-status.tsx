@@ -9,8 +9,8 @@ import {
   SyncbackMetadataTask,
   TaskQueue,
   SendDraftTask,
-} from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import { PLUGIN_ID } from './send-later-constants';
 
 const { DATE_FORMAT_SHORT } = DateUtils;

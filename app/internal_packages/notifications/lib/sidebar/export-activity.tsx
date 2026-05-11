@@ -1,5 +1,5 @@
 import React from 'react';
-import { localized, Utils, PropTypes, Actions, GetManyRFC2822Task } from 'mailspring-exports';
+import { localized, Utils, PropTypes, Actions, GetManyRFC2822Task } from 'actunamail-exports';
 
 export class ExportActivity extends React.Component<{ tasks: any[] }> {
   static propTypes = {

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ListensToFluxStore } from 'mailspring-component-kit';
-import { localized } from 'mailspring-exports';
+import { ListensToFluxStore } from 'actunamail-component-kit';
+import { localized } from 'actunamail-exports';
 
 import { Store, ContactsPerspective } from './Store';
 

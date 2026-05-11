@@ -6,7 +6,7 @@ import {
   Message,
   QueryResultSet,
   QuerySubscription,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 const _observableForThreadMessages = (id, initialModels) => {
   const subscription = new QuerySubscription<Message>(

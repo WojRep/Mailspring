@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 
-import { Contact } from 'mailspring-exports';
-import { KeyCommandsRegion, TokenizingTextField, Menu } from 'mailspring-component-kit';
+import { Contact } from 'actunamail-exports';
+import { KeyCommandsRegion, TokenizingTextField, Menu } from 'actunamail-component-kit';
 
 class CustomToken extends React.Component<{ token: any }> {
   render() {

@@ -8,7 +8,7 @@ import {
   SyncbackEventTask,
   TaskQueue,
   localized,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 // Cache of calendar colors synced from CalDAV servers
 const calendarColorCache: Map<string, string> = new Map();

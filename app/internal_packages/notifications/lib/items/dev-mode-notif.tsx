@@ -1,5 +1,5 @@
-import { localized, React } from 'mailspring-exports';
-import { Notification } from 'mailspring-component-kit';
+import { localized, React } from 'actunamail-exports';
+import { Notification } from 'actunamail-component-kit';
 
 export default class DevModeNotification extends React.Component<
   Record<string, unknown>,

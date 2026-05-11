@@ -10,8 +10,8 @@ import {
   EmlUtils,
   Thread,
   Message,
-} from 'mailspring-exports';
-import { RetinaImg, ButtonDropdown, Menu } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { RetinaImg, ButtonDropdown, Menu } from 'actunamail-component-kit';
 
 interface MessageControlsProps {
   thread: Thread;

@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { DraftEditingSession } from './draft-editing-session';
 import DraftFactory, { ReplyType, ReplyBehavior } from './draft-factory';
 import DatabaseStore from './database-store';

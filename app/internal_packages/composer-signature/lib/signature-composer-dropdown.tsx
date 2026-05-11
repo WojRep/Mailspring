@@ -8,8 +8,8 @@ import {
   Account,
   ISignatureSet,
   MessageWithEditorState,
-} from 'mailspring-exports';
-import { Menu, RetinaImg, ButtonDropdown } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { Menu, RetinaImg, ButtonDropdown } from 'actunamail-component-kit';
 
 import { applySignature, currentSignatureIdSlate, currentSignatureId } from './signature-utils';
 

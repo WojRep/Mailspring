@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
-import { MessageStore } from 'mailspring-exports';
+import MailspringStore from 'actunamail-store';
+import { MessageStore } from 'actunamail-exports';
 
 class GithubStore extends MailspringStore {
   _link: string = null;

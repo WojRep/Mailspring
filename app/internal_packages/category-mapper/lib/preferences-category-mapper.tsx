@@ -7,7 +7,7 @@ import {
   Actions,
   ChangeRoleMappingTask,
   Folder,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import CategorySelection from './category-selection';
 

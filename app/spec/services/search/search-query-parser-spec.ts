@@ -1,4 +1,4 @@
-import { SearchQueryAST, SearchQueryParser } from 'mailspring-exports';
+import { SearchQueryAST, SearchQueryParser } from 'actunamail-exports';
 
 const {
   SearchQueryToken,

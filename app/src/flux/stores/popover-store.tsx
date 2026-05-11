@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import * as Actions from '../actions';
 import FixedPopover from '../../components/fixed-popover';
 

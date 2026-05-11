@@ -2,7 +2,7 @@
 
 import _ from 'underscore';
 
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import KeyManager from '../../key-manager';
 import * as Actions from '../actions';
 import { Account } from '../models/account';

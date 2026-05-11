@@ -11,8 +11,8 @@ import {
   DraftEditingSession,
   ContactGroup,
   DatabaseStore,
-} from 'mailspring-exports';
-import { TokenizingTextField, Menu, InjectedComponentSet } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { TokenizingTextField, Menu, InjectedComponentSet } from 'actunamail-component-kit';
 
 const TokenRenderer = (props) => {
   const contact = props.token as Contact;

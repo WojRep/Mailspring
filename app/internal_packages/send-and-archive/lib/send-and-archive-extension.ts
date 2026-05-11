@@ -1,4 +1,4 @@
-import { Actions, Thread, DatabaseStore, TaskFactory, SendDraftTask } from 'mailspring-exports';
+import { Actions, Thread, DatabaseStore, TaskFactory, SendDraftTask } from 'actunamail-exports';
 
 export const name = 'SendAndArchiveExtension';
 

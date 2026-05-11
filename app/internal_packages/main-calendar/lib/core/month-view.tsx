@@ -1,7 +1,7 @@
 import React from 'react';
 import moment, { Moment } from 'moment-timezone';
-import { InjectedComponentSet } from 'mailspring-component-kit';
-import { MailspringCalendarViewProps } from './mailspring-calendar';
+import { InjectedComponentSet } from 'actunamail-component-kit';
+import { MailspringCalendarViewProps } from './actunamail-calendar';
 import { CalendarEventContainer } from './calendar-event-container';
 import { CalendarView } from './calendar-constants';
 import { HeaderControls } from './header-controls';

@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import DOMUtils from '../../dom-utils';
 import * as Actions from '../actions';
 import { MAX_MATCHES, CHAR_THRESHOLD } from '../../searchable-components/search-constants';

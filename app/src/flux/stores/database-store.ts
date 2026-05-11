@@ -7,7 +7,7 @@ import Sqlite3 from 'better-sqlite3';
 
 import { ExponentialBackoffScheduler } from '../../backoff-schedulers';
 import { Model } from '../models/model';
-import MailspringStore from '../../global/mailspring-store';
+import MailspringStore from '../../global/actunamail-store';
 import * as Utils from '../models/utils';
 import Query from '../models/query';
 

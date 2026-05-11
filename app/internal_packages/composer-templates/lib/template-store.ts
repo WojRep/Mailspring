@@ -6,9 +6,9 @@ import {
   Actions,
   QuotedHTMLTransformer,
   RegExpUtils,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import path from 'path';
 import fs from 'fs';
 

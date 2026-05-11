@@ -1,4 +1,4 @@
-import { Utils, localized } from 'mailspring-exports';
+import { Utils, localized } from 'actunamail-exports';
 import React, { Component, CSSProperties } from 'react';
 import { DropZone } from './drop-zone';
 import { RetinaImg } from './retina-img';

@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListensToObservable } from 'mailspring-component-kit';
-import { localized } from 'mailspring-exports';
+import { ListensToObservable } from 'actunamail-component-kit';
+import { localized } from 'actunamail-exports';
 import ThreadListStore from './thread-list-store';
 
 function getObservable() {

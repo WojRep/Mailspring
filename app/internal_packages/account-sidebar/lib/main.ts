@@ -1,4 +1,4 @@
-import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
 import AccountSidebar from './components/account-sidebar';
 
 export function activate(state) {

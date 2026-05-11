@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
-import { Utils, PropTypes } from 'mailspring-exports';
+import { Utils, PropTypes } from 'actunamail-exports';
 
 const StylesImpactedByZoom = [
   'top',

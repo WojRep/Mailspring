@@ -14,7 +14,7 @@ const lazyLoadWithGetter = (prop, getter) => {
   const key = `${prop}`;
 
   if (exports[key]) {
-    throw new Error(`Fatal error: Duplicate entry in mailspring-exports: ${key}`);
+    throw new Error(`Fatal error: Duplicate entry in actunamail-exports: ${key}`);
   }
   Object.defineProperty(exports, prop, {
     configurable: true,
@@ -57,7 +57,7 @@ lazyLoadWithGetter(`isRTL`, () => require('../intl').isRTL);
 lazyLoad(`Actions`, 'flux/actions');
 
 // API Endpoints
-lazyLoad(`MailspringAPIRequest`, 'flux/mailspring-api-request');
+lazyLoad(`MailspringAPIRequest`, 'flux/actunamail-api-request');
 lazyLoad(`MailsyncProcess`, 'mailsync-process');
 // The Database
 lazyLoad(`Matcher`, 'flux/attributes/matcher');
@@ -224,7 +224,7 @@ lazyLoad(`SystemStartService`, 'system-start-service');
 // Testing
 lazyLoadWithGetter(
   `MailspringTestUtils`,
-  () => require('../../spec/mailspring-test-utils').default
+  () => require('../../spec/actunamail-test-utils').default
 );
 
 process.nextTick(() => {

@@ -1,5 +1,5 @@
-import MailspringStore from 'mailspring-store';
-import { Actions, AccountStore, FocusedPerspectiveStore } from 'mailspring-exports';
+import MailspringStore from 'actunamail-store';
+import { Actions, AccountStore, FocusedPerspectiveStore } from 'actunamail-exports';
 
 import SearchMailboxPerspective from './search-mailbox-perspective';
 

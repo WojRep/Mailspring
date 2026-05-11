@@ -1,5 +1,5 @@
-import { localized, ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
-import { HasTutorialTip } from 'mailspring-component-kit';
+import { localized, ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import { HasTutorialTip } from 'actunamail-component-kit';
 
 import ModeToggle from './mode-toggle';
 

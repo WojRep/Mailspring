@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { Editor, Value, Block } from 'slate';
 
 import RegExpUtils from '../../regexp-utils';

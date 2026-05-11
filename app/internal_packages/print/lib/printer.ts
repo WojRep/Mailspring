@@ -1,4 +1,4 @@
-import { AccountStore, Actions, Thread } from 'mailspring-exports';
+import { AccountStore, Actions, Thread } from 'actunamail-exports';
 import PrintWindow from './print-window';
 
 class Printer {

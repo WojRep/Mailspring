@@ -1,4 +1,4 @@
-import { localized, React } from 'mailspring-exports';
+import { localized, React } from 'actunamail-exports';
 import * as OnboardingActions from './onboarding-actions';
 
 // Compliance details screen — shown after the tutorial pitch ("Privacy by

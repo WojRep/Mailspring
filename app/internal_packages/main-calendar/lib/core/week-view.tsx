@@ -2,7 +2,7 @@
 import moment, { Moment } from 'moment-timezone';
 import classnames from 'classnames';
 import React from 'react';
-import { ScrollRegion, InjectedComponentSet } from 'mailspring-component-kit';
+import { ScrollRegion, InjectedComponentSet } from 'actunamail-component-kit';
 import { HeaderControls } from './header-controls';
 import { EventOccurrence } from './calendar-data-source';
 import { EventGridBackground } from './event-grid-background';
@@ -19,7 +19,7 @@ import {
   TICKS_PER_DAY,
   tickGenerator,
 } from './week-view-helpers';
-import { MailspringCalendarViewProps } from './mailspring-calendar';
+import { MailspringCalendarViewProps } from './actunamail-calendar';
 import { getEventsWithDragPreview } from './calendar-drag-utils';
 
 const BUFFER_DAYS = 7; // in each direction

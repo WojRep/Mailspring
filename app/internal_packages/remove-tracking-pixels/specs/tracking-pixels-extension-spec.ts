@@ -1,7 +1,7 @@
 /* eslint no-irregular-whitespace: 0 */
 import fs from 'fs';
 import { removeTrackingPixels } from '../lib/main';
-import { Message } from 'mailspring-exports';
+import { Message } from 'actunamail-exports';
 
 const readFixture = (name) => {
   return fs.readFileSync(`${__dirname}/fixtures/${name}`).toString().trim();

@@ -1,6 +1,6 @@
 import React from 'react';
-import { PropTypes, Thread } from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+import { PropTypes, Thread } from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 
 const StaticEmptyIndicator = <div className="personal-level-icon" />;
 

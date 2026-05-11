@@ -1,6 +1,6 @@
 import React from 'react';
-import { localized, Utils } from 'mailspring-exports';
-import { InjectedComponentSet, ListTabular } from 'mailspring-component-kit';
+import { localized, Utils } from 'actunamail-exports';
+import { InjectedComponentSet, ListTabular } from 'actunamail-component-kit';
 
 function snippet(html) {
   if (!(html && typeof html === 'string')) {

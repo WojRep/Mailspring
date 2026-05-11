@@ -3,7 +3,7 @@ import {
   PreferencesUIStore,
   ExtensionRegistry,
   ComponentRegistry,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import SignatureComposerExtension from './signature-composer-extension';
 import SignatureComposerDropdown from './signature-composer-dropdown';

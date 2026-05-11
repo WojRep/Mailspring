@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { AccountStore } from './account-store';
 import WorkspaceStore from './workspace-store';
 import DatabaseStore from './database-store';

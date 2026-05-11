@@ -1,6 +1,6 @@
 import React from 'react';
-import { Utils, localized } from 'mailspring-exports';
-import { RetinaImg } from 'mailspring-component-kit';
+import { Utils, localized } from 'actunamail-exports';
+import { RetinaImg } from 'actunamail-component-kit';
 import { CalendarView } from './calendar-constants';
 
 export class HeaderControls extends React.Component<{

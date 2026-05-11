@@ -1,5 +1,5 @@
-import { Categories } from 'mailspring-observables';
-import MailspringStore from 'mailspring-store';
+import { Categories } from 'actunamail-observables';
+import MailspringStore from 'actunamail-store';
 import { AccountStore } from './account-store';
 import { Account } from '../models/account';
 import { Category } from '../models/category';

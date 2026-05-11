@@ -4,8 +4,8 @@ import {
   DropdownMenu,
   LabelColorizer,
   BoldedSearchResult,
-} from 'mailspring-component-kit';
-import { localized, Label, Utils, PropTypes, imapUtf7 } from 'mailspring-exports';
+} from 'actunamail-component-kit';
+import { localized, Label, Utils, PropTypes, imapUtf7 } from 'actunamail-exports';
 
 interface CategorySelectionProps {
   allowLabels: boolean;

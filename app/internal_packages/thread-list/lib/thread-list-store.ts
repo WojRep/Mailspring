@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 
 import {
   Rx,
@@ -8,8 +8,8 @@ import {
   WorkspaceStore,
   FocusedContentStore,
   FocusedPerspectiveStore,
-} from 'mailspring-exports';
-import { ListTabular, ListDataSource } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { ListTabular, ListDataSource } from 'actunamail-component-kit';
 import ThreadListDataSource from './thread-list-data-source';
 
 class ThreadListStore extends MailspringStore {

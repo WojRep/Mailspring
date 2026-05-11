@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 
 // Actuna Mail does not have a Mailspring ID concept. Per
 // analysis/05-remediation-plan.md and the user directive of 2026-05-09

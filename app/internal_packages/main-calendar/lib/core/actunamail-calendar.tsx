@@ -12,13 +12,13 @@ import {
   Event,
   SyncbackEventTask,
   ICSEventHelpers,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import {
   ScrollRegion,
   ResizableRegion,
   KeyCommandsRegion,
   MiniMonthView,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 import { CalendarMenuCommands } from '../calendar-menu-commands';
 import { DayView } from './day-view';
 import { WeekView } from './week-view';
@@ -842,7 +842,7 @@ export class MailspringCalendar extends React.Component<
         hasSelectedEvents={this.state.selectedEvents.length > 0}
       >
         <KeyCommandsRegion
-          className="mailspring-calendar"
+          className="actunamail-calendar"
           localHandlers={{
             'core:remove-from-view': this._onDeleteSelectedEvents,
             'calendar:move-event-up': () => this._onMoveSelectedEvent('up', false),

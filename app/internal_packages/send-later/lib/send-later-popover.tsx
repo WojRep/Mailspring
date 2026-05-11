@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { localized, DateUtils } from 'mailspring-exports';
-import { DatePickerPopover } from 'mailspring-component-kit';
+import { localized, DateUtils } from 'actunamail-exports';
+import { DatePickerPopover } from 'actunamail-component-kit';
 
 const SendLaterOptions = {
   [localized('In 1 hour')]: DateUtils.in1Hour,

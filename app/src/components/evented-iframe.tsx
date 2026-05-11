@@ -12,7 +12,7 @@ import {
   localized,
   MailspringAPIRequest,
   SearchableComponentStore,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import IFrameSearcher from '../searchable-components/iframe-searcher';
 import url from 'url';
 import _ from 'underscore';

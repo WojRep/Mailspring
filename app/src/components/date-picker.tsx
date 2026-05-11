@@ -1,8 +1,8 @@
 import moment from 'moment';
 import classnames from 'classnames';
 import React from 'react';
-import { PropTypes, DateUtils } from 'mailspring-exports';
-import { MiniMonthView } from 'mailspring-component-kit';
+import { PropTypes, DateUtils } from 'actunamail-exports';
+import { MiniMonthView } from 'actunamail-component-kit';
 
 type DatePickerProps = {
   value?: number;

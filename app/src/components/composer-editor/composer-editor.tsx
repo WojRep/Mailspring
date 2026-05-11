@@ -4,7 +4,7 @@ import * as Immutable from 'immutable';
 import { Editor, Value, Operation, Range, Block, Text } from 'slate';
 import { Editor as SlateEditorComponent, EditorProps, Plugin } from 'slate-react';
 import { clipboard as ElectronClipboard } from 'electron';
-import { InlineStyleTransformer, SanitizeTransformer } from 'mailspring-exports';
+import { InlineStyleTransformer, SanitizeTransformer } from 'actunamail-exports';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';

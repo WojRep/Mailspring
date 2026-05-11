@@ -5,7 +5,7 @@ import EditList from '@bengotow/slate-edit-list';
 import AutoReplace from 'slate-auto-replace';
 import When from 'slate-when';
 
-import { MessageWithEditorState } from 'mailspring-exports';
+import { MessageWithEditorState } from 'actunamail-exports';
 import { BuildToggleButton, IEditorToolbarConfigItem } from './toolbar-component-factories';
 import { ComposerEditorPlugin } from './types';
 

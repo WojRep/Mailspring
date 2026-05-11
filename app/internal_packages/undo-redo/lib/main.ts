@@ -1,4 +1,4 @@
-import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
 import UndoRedoToast from './undo-redo-toast';
 
 export function activate() {

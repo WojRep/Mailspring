@@ -8,7 +8,7 @@ import {
   SendDraftTask,
   GetManyRFC2822Task,
   Task,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import { SyncActivity } from './sync-activity';
 import { SyncbackActivity } from './syncback-activity';

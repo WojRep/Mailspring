@@ -1,7 +1,7 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import fs from 'fs';
 import path from 'path';
-import { Utils, MessageBodyProcessor, CategoryStore } from 'mailspring-exports';
+import { Utils, MessageBodyProcessor, CategoryStore } from 'actunamail-exports';
 import * as AutoloadImagesActions from './autoload-images-actions';
 
 class AutoloadImagesStore extends MailspringStore {

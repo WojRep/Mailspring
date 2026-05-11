@@ -1,5 +1,5 @@
 import React from 'react';
-import { localized, AccountStore, PropTypes, imapUtf7 } from 'mailspring-exports';
+import { localized, AccountStore, PropTypes, imapUtf7 } from 'actunamail-exports';
 
 interface SyncActivityProps {
   syncState: {

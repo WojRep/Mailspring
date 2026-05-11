@@ -4,7 +4,7 @@ import {
   PreferencesUIStore,
   WorkspaceStore,
   ComponentRegistry,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import PreferencesRoot from './preferences-root';
 

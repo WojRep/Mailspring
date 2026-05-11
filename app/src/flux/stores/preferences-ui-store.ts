@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import WorkspaceStore from './workspace-store';
 import FocusedPerspectiveStore from './focused-perspective-store';
 import * as Actions from '../actions';

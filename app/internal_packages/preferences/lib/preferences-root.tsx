@@ -7,8 +7,8 @@ import {
   KeyCommandsRegion,
   ListensToFluxStore,
   ConfigPropContainer,
-} from 'mailspring-component-kit';
-import { PreferencesUIStore } from 'mailspring-exports';
+} from 'actunamail-component-kit';
+import { PreferencesUIStore } from 'actunamail-exports';
 import PreferencesTabsBar from './preferences-tabs-bar';
 
 const stopPropagation = (e) => {

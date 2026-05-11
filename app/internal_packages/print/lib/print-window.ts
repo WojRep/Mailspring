@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import { localized } from 'mailspring-exports';
+import { localized } from 'actunamail-exports';
 import { escapeHTML } from 'underscore.string';
 
 const { app, BrowserWindow, dialog } = require('@electron/remote');

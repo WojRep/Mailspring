@@ -1,6 +1,6 @@
 import React from 'react';
-import { PropTypes, Utils, Contact } from 'mailspring-exports';
-import { AccountColorBar } from 'mailspring-component-kit';
+import { PropTypes, Utils, Contact } from 'actunamail-exports';
+import { AccountColorBar } from 'actunamail-component-kit';
 import { ThreadWithMessagesMetadata } from './types';
 
 class ThreadListParticipants extends React.Component<{ thread: ThreadWithMessagesMetadata }> {

@@ -1,4 +1,4 @@
-import { MessageViewExtension } from 'mailspring-exports';
+import { MessageViewExtension } from 'actunamail-exports';
 import AutoloadImagesStore from './autoload-images-store';
 
 export default class AutoloadImagesExtension extends MessageViewExtension {

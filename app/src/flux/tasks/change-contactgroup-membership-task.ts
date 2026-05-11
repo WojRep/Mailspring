@@ -3,7 +3,7 @@ import * as Attributes from '../attributes';
 import { Contact } from '../models/contact';
 import { ContactGroup } from '../models/contact-group';
 import { AttributeValues } from '../models/model';
-import { localized } from 'mailspring-exports';
+import { localized } from 'actunamail-exports';
 
 export class ChangeContactGroupMembershipTask extends Task {
   static attributes = {

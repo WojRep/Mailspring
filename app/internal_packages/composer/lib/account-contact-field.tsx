@@ -9,8 +9,8 @@ import {
   Contact,
   DraftEditingSession,
   Message,
-} from 'mailspring-exports';
-import { Menu, ButtonDropdown, InjectedComponentSet } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { Menu, ButtonDropdown, InjectedComponentSet } from 'actunamail-component-kit';
 
 interface AccountContactFieldProps {
   accounts: Account[];

@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import React, { Component } from 'react';
-import { localized, DateUtils } from 'mailspring-exports';
+import { localized, DateUtils } from 'actunamail-exports';
 import PropTypes from 'prop-types';
 
 type DateInputProps = {

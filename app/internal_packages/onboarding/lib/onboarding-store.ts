@@ -4,9 +4,9 @@ import {
   Account,
   IdentityStore,
   IdentityAuthResponse,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import { ipcRenderer } from 'electron';
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 
 import * as OnboardingActions from './onboarding-actions';
 

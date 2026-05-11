@@ -1,7 +1,7 @@
 import url from 'url';
 import querystring from 'querystring';
 import { ipcRenderer } from 'electron';
-import { localized, DatabaseStore, Thread, Matcher, Actions } from 'mailspring-exports';
+import { localized, DatabaseStore, Thread, Matcher, Actions } from 'actunamail-exports';
 
 const DATE_EPSILON = 60; // Seconds
 

@@ -1,4 +1,4 @@
-import { ComponentRegistry } from 'mailspring-exports';
+import { ComponentRegistry } from 'actunamail-exports';
 
 import GithubContactCardSection from './github-contact-card-section';
 

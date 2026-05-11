@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { Flexbox } from 'mailspring-component-kit';
-import { localized } from 'mailspring-exports';
+import { Flexbox } from 'actunamail-component-kit';
+import { localized } from 'actunamail-exports';
 import fs from 'fs';
 
 import { keyAndModifiersForEvent } from './mousetrap-keybinding-helpers';

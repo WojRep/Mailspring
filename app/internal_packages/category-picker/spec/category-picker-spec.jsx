@@ -17,9 +17,9 @@ import {
   MailboxPerspective,
   MailspringTestUtils,
   TaskQueue,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
-import { Categories } from 'mailspring-observables';
+import { Categories } from 'actunamail-observables';
 
 describe('MovePickerPopover', function() {
   beforeEach(() => (CategoryStore._categoryCache = {}));

@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import MailspringStore from 'mailspring-store';
-import { FocusedContactsStore } from 'mailspring-exports';
+import MailspringStore from 'actunamail-store';
+import { FocusedContactsStore } from 'actunamail-exports';
 
 // This package uses the Flux pattern - our Store is a small singleton that
 // observes other parts of the application and vends data to our React

@@ -4,8 +4,8 @@ import {
   localized,
   ComponentRegistry,
   WorkspaceStore,
-} from 'mailspring-exports';
-import { HasTutorialTip } from 'mailspring-component-kit';
+} from 'actunamail-exports';
+import { HasTutorialTip } from 'actunamail-component-kit';
 
 import ThreadSearchBar from './thread-search-bar';
 

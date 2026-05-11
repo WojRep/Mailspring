@@ -10,7 +10,7 @@ import {
   SyncbackContactGroupTask,
   ChangeContactGroupMembershipTask,
   localized,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 import { ContactsPerspective, Store, ContactsPerspectiveForGroup } from './Store';
 import {
   ScrollRegion,
@@ -19,7 +19,7 @@ import {
   ListensToFluxStore,
   ListensToObservable,
   IOutlineViewItem,
-} from 'mailspring-component-kit';
+} from 'actunamail-component-kit';
 import { isEqual } from 'underscore';
 import { showGPeopleReadonlyNotice } from './GoogleSupport';
 

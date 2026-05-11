@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import _ from 'underscore';
 
 const MTC_CHECK_INTERVAL = 1000 * 60 * 5;

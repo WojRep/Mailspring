@@ -1,6 +1,6 @@
 // WS2-B: crypto + url imports dropped — Gravatar/logo.getmailspring URL
 // construction removed.
-import { localized } from 'mailspring-exports';
+import { localized } from 'actunamail-exports';
 import ReactDOMServer from 'react-dom/server';
 import Templates from './templates';
 

@@ -1,4 +1,4 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import * as Actions from '../actions';
 import { Message } from '../models/message';
 import { Thread } from '../models/thread';
@@ -8,7 +8,7 @@ import FocusedPerspectiveStore from './focused-perspective-store';
 import FocusedContentStore from './focused-content-store';
 import * as ExtensionRegistry from '../../registries/extension-registry';
 import electron from 'electron';
-import { MessageViewExtension } from 'mailspring-exports';
+import { MessageViewExtension } from 'actunamail-exports';
 import { DatabaseChangeRecord } from './database-change-record';
 
 const FolderNamesHiddenByDefault = ['spam', 'trash'];

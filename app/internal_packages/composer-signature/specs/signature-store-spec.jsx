@@ -1,5 +1,5 @@
 /* eslint quote-props: 0 */
-import { SignatureStore } from 'mailspring-exports';
+import { SignatureStore } from 'actunamail-exports';
 
 let SIGNATURES = {
   '1': {

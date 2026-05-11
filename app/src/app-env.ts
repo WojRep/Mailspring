@@ -113,17 +113,17 @@ export default class AppEnvConstructor {
     this.windowEventHandler = new WindowEventHandler();
 
     // We extend observables with our own methods. This happens on
-    // require of mailspring-observables
-    require('mailspring-observables');
+    // require of actunamail-observables
+    require('actunamail-observables');
 
     // Mailspring exports is designed to provide a lazy-loaded set of globally
-    // accessible objects to all packages. Upon require, mailspring-exports will
+    // accessible objects to all packages. Upon require, actunamail-exports will
     // fill the StoreRegistry, and DatabaseObjectRegistries
     // with various constructors.
     //
     // We initialize all of the stores loaded into the StoreRegistry once
     // the window starts loading.
-    require('mailspring-exports');
+    require('actunamail-exports');
 
     const ActionBridge = require('./flux/action-bridge').default;
     this.actionBridge = new ActionBridge(ipcRenderer);
@@ -167,7 +167,7 @@ export default class AppEnvConstructor {
     const exists = fs.existsSync(shortcutPath);
     if (exists) {
       fs.unlink(shortcutPath, () => {});
-      const { SystemStartService } = require('mailspring-exports');
+      const { SystemStartService } = require('actunamail-exports');
       const service = new SystemStartService();
       service.configureToLaunchOnSystemStart();
     }
@@ -908,8 +908,8 @@ export default class AppEnvConstructor {
       detail: message,
     });
     if (result === 1) {
-      const { Actions } = require('mailspring-exports');
-      const { CodeSnippet } = require('mailspring-component-kit');
+      const { Actions } = require('actunamail-exports');
+      const { CodeSnippet } = require('actunamail-component-kit');
       Actions.openModal({
         component: CodeSnippet({ intro: message, code: detail, className: 'error-details' }),
         width: 500,

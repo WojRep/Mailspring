@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Flexbox, ScrollRegion } from 'mailspring-component-kit';
-import { localized } from 'mailspring-exports';
+import { Flexbox, ScrollRegion } from 'actunamail-component-kit';
+import { localized } from 'actunamail-exports';
 import ThemeOption, { toSelector } from './theme-option';
 import { Disposable } from 'event-kit';
 

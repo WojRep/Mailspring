@@ -1,5 +1,5 @@
-import { localized, Actions, AccountStore } from 'mailspring-exports';
-import MailspringStore from 'mailspring-store';
+import { localized, Actions, AccountStore } from 'actunamail-exports';
+import MailspringStore from 'actunamail-store';
 import _ from 'underscore';
 
 export interface IDefaultSignatures {

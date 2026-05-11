@@ -1,6 +1,6 @@
 import React from 'react';
-import { ImageAttachmentItem } from 'mailspring-component-kit';
-import { AttachmentStore } from 'mailspring-exports';
+import { ImageAttachmentItem } from 'actunamail-component-kit';
+import { AttachmentStore } from 'actunamail-exports';
 import { File as MailspringFile } from '../../flux/models/file';
 import { isQuoteNode } from './base-block-plugins';
 import { ComposerEditorPlugin } from './types';

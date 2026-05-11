@@ -12,7 +12,7 @@ import {
   AttachmentStore,
   SanitizeTransformer,
   InlineStyleTransformer,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import DraftFactory from '../../src/flux/stores/draft-factory';
 

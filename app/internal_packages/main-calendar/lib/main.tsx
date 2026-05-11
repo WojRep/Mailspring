@@ -1,7 +1,7 @@
 import React from 'react';
-import { WorkspaceStore, ComponentRegistry, localized } from 'mailspring-exports';
+import { WorkspaceStore, ComponentRegistry, localized } from 'actunamail-exports';
 import { QuickEventButton } from './quick-event-button';
-import { MailspringCalendar } from './core/mailspring-calendar';
+import { MailspringCalendar } from './core/actunamail-calendar';
 import { EventSearchBar } from './core/event-search-bar';
 
 const Notice = () =>

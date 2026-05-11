@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Modal } from 'mailspring-component-kit';
-import MailspringStore from 'mailspring-store';
+import { Modal } from 'actunamail-component-kit';
+import MailspringStore from 'actunamail-store';
 
 import * as Actions from '../actions';
 

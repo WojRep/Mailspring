@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { localized, Actions } from 'mailspring-exports';
-import { RetinaImg, RovingTabIndexToolbar } from 'mailspring-component-kit';
+import { localized, Actions } from 'actunamail-exports';
+import { RetinaImg, RovingTabIndexToolbar } from 'actunamail-component-kit';
 import Fields from './fields';
 
 interface ComposerHeaderActionsProps {

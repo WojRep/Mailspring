@@ -1,4 +1,4 @@
-import { ComponentRegistry } from 'mailspring-exports';
+import { ComponentRegistry } from 'actunamail-exports';
 import PersonalLevelIcon from './personal-level-icon';
 
 /*

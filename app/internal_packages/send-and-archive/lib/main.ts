@@ -1,4 +1,4 @@
-import { ExtensionRegistry } from 'mailspring-exports';
+import { ExtensionRegistry } from 'actunamail-exports';
 import * as SendAndArchiveExtension from './send-and-archive-extension';
 
 export function activate() {

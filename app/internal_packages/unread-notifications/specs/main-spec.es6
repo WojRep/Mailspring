@@ -8,7 +8,7 @@ import {
   AccountStore,
   SoundRegistry,
   NativeNotifications,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import { Notifier } from '../lib/main';
 

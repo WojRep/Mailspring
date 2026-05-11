@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { RetinaImg, BindGlobalCommands, RovingTabIndexToolbar } from 'mailspring-component-kit';
+import { RetinaImg, BindGlobalCommands, RovingTabIndexToolbar } from 'actunamail-component-kit';
 import {
   localized,
   Actions,
@@ -11,7 +11,7 @@ import {
   CategoryStore,
   FocusedContentStore,
   FocusedPerspectiveStore,
-} from 'mailspring-exports';
+} from 'actunamail-exports';
 
 import ThreadListStore from './thread-list-store';
 

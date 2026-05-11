@@ -1,10 +1,10 @@
-import MailspringStore from 'mailspring-store';
+import MailspringStore from 'actunamail-store';
 import { Contact } from '../models/contact';
 import RegExpUtils from '../../regexp-utils';
 import DatabaseStore from './database-store';
 import { AccountStore } from './account-store';
 import ComponentRegistry from '../../registries/component-registry';
-import { ContactGroup } from 'mailspring-exports';
+import { ContactGroup } from 'actunamail-exports';
 
 /**
 Public: ContactStore provides convenience methods for searching contacts and

@@ -9,7 +9,7 @@
 // file carries `@ts-nocheck` so it does not fail TypeScript typecheck.
 // A replacement spec covering the stub contract lands in v0.2.
 
-import { Actions, TaskQueue } from 'mailspring-exports';
+import { Actions, TaskQueue } from 'actunamail-exports';
 import { FeatureUsageStore } from '../../src/flux/stores/feature-usage-store';
 import { IdentityStore } from '../../src/flux/stores/identity-store';
 
