@@ -27,10 +27,26 @@ a[href],
 [data-clickable='true'],
 .btn,
 .clickable,
+// thread list rows (list-tabular-item.tsx:61)
 .list-item,
+// dropdown / context menu items
 .menu-item,
+// account row in account switcher
 .item-account,
-.account-sidebar .item {
+// account-switcher header (account-sidebar/components/account-switcher.tsx:56)
+.account-switcher,
+// outline-view sidebar items (Inbox, Sent, Spam, Drafts, custom folders, labels)
+// — outline-view-item.tsx:352 sets className "item" inside DropZone with onClick.
+// Either .outline-view or .nylas-outline-view is the ancestor (outline-view.tsx:377).
+.outline-view .item,
+.nylas-outline-view .item,
+// action buttons within outline-view items (rename / delete / collapse triggers)
+.item-action-button,
+// disclosure triangles + nylas section headers (e.g. "Mailboxes", "Katalogi")
+.nylas-section-header,
+.disclosure-triangle,
+// search-result rows
+.search-result {
   cursor: pointer;
 }
 
