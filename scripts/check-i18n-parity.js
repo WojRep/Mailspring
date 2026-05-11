@@ -8,7 +8,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const LANG_DIR = path.join(__dirname, '..', 'app', 'lang');
+// LANG_DIR_OVERRIDE allows the test harness (app/spec/services/
+// check-i18n-parity-spec.ts) to point the script at a temp fixture
+// without touching the real app/lang/*.json files. Production runs
+// (npm run lint-i18n) use the default app/lang path.
+const LANG_DIR = process.env.LANG_DIR_OVERRIDE || path.join(__dirname, '..', 'app', 'lang');
 const MAIN = ['en', 'pl'];
 const OPTIONAL = ['de', 'es', 'uk'];
 

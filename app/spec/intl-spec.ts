@@ -1,4 +1,4 @@
-import { localized, localizedReactFragment } from '../src/intl';
+import { localized, localizedReactFragment, isRTL } from '../src/intl';
 
 // Sprint 5 ticket 11: stub spec for intl.ts. The localizedReactFragment
 // placeholder math (subs[match[1] - 1]) was a bug fix — earlier code did
@@ -55,5 +55,74 @@ describe('intl', () => {
       expect(flat).not.toContain('%1$@');
       expect(flat).not.toContain('%2$@');
     });
+
+    it('handles reordered placeholders (%2$@ before %1$@)', () => {
+      // PL/DE/ES translations frequently reorder placeholders relative
+      // to the English source. The fix ensures that subs[N-1] stays
+      // correct regardless of textual position.
+      const result = localizedReactFragment('%2$@ comes before %1$@', 'alpha', 'beta');
+      const flat = JSON.stringify(result);
+      // "beta" (sub #2) appears before "alpha" (sub #1) in the rendered output
+      const betaIdx = flat.indexOf('beta');
+      const alphaIdx = flat.indexOf('alpha');
+      expect(betaIdx).toBeGreaterThan(-1);
+      expect(alphaIdx).toBeGreaterThan(-1);
+      expect(betaIdx).toBeLessThan(alphaIdx);
+    });
+
+    it('falls through to %@ positional substitution when no %N$@ present', () => {
+      const result = localizedReactFragment('%@ and %@', 'one', 'two');
+      const flat = JSON.stringify(result);
+      const oneIdx = flat.indexOf('one');
+      const twoIdx = flat.indexOf('two');
+      expect(oneIdx).toBeGreaterThan(-1);
+      expect(twoIdx).toBeGreaterThan(-1);
+      expect(oneIdx).toBeLessThan(twoIdx);
+    });
+  });
+
+  describe('localized() edge cases', () => {
+    it('returns input unchanged when no placeholders present', () => {
+      expect(localized('Plain text without substitutions')).toBe(
+        'Plain text without substitutions'
+      );
+    });
+
+    it('handles empty subs array', () => {
+      expect(localized('Hello world')).toBe('Hello world');
+    });
+
+    it('handles more subs than placeholders (extras ignored)', () => {
+      // The function uses %@ replace with subs[i++]; extras don't crash.
+      const result = localized('Just one: %@', 'first', 'second-ignored');
+      expect(result).toContain('first');
+      // The "second-ignored" sub is not consumed because translated has
+      // only one %@ — behaviour is "use as many subs as placeholders".
+    });
+
+    it('handles fewer subs than placeholders (undefined inserted)', () => {
+      const result = localized('%@ and %@', 'only-one');
+      // Second placeholder gets undefined → stringified as "undefined"
+      expect(result).toContain('only-one');
+      expect(result).toContain('undefined');
+    });
+  });
+
+  describe('isRTL detection', () => {
+    it('is a boolean exported from intl module', () => {
+      expect(typeof isRTL).toBe('boolean');
+    });
+
+    it('defaults to false in spec environment (no RTL locale init)', () => {
+      // Without initializeLocalization() being called with an RTL lang,
+      // isRTL stays at its default (false).
+      expect(isRTL).toBe(false);
+    });
+
+    // Note: testing the toggle to true requires invoking
+    // initializeLocalization({configDirPath: ...}) with a fixture
+    // config.json that selects an RTL language (he, ar, fa, etc.).
+    // That's an integration test surface, deferred to a future
+    // dedicated locale-switch spec.
   });
 });
