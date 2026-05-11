@@ -26,29 +26,19 @@ button:not([disabled]),
 a[href],
 [data-clickable='true'],
 .btn,
-.clickable,
-// thread list rows (list-tabular-item.tsx:61)
-.list-item,
-// dropdown / context menu items
-.menu-item,
-// account row in account switcher
-.item-account,
-// account-switcher header (account-sidebar/components/account-switcher.tsx:56)
-.account-switcher,
-// outline-view sidebar items (Inbox, Sent, Spam, Drafts, custom folders, labels)
-// — outline-view-item.tsx:352 sets className "item" inside DropZone with onClick.
-// Either .outline-view or .nylas-outline-view is the ancestor (outline-view.tsx:377).
-.outline-view .item,
-.nylas-outline-view .item,
-// action buttons within outline-view items (rename / delete / collapse triggers)
-.item-action-button,
-// disclosure triangles + nylas section headers (e.g. "Mailboxes", "Katalogi")
-.nylas-section-header,
-.disclosure-triangle,
-// search-result rows
-.search-result {
+.clickable {
   cursor: pointer;
 }
+
+// Ticket 44 — semantic a11y refactor in progress. After ticket 44a
+// (outline-view-item.tsx), sidebar Inbox/Sent/Drafts/etc. naturally
+// match the [role='button'] selector above — no class hack needed.
+//
+// Remaining class-based selectors (.list-item, .menu-item, etc.)
+// removed deliberately. Each component should be migrated to proper
+// semantic markup (role="button" + tabIndex + onKeyDown) per ticket 44
+// sub-fazy. Until then, the affected components have no pointer cursor
+// — that pressure visualises the work yet to do.
 
 button[disabled],
 [aria-disabled='true'] {

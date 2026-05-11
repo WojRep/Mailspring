@@ -8,6 +8,15 @@ interface DropZoneProps {
   style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  // Ticket 44a — when a DropZone is being used as a clickable navigation
+  // element (e.g. outline-view-item.tsx), it needs standard a11y attrs
+  // and keyboard handler. These are forwarded via {...otherProps} to the
+  // rendered <div>.
+  role?: string;
+  tabIndex?: number;
+  'aria-label'?: string;
+  'aria-selected'?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   shouldAcceptDrop: (e: React.DragEvent<HTMLDivElement>) => boolean;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragStateChange: (state: { isDropping: boolean }) => void;

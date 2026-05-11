@@ -239,6 +239,16 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
     this._runCallback('onSelect');
   };
 
+  // Ticket 44a — WCAG 2.1.1 (Keyboard) + 4.1.2 (Name, Role, Value).
+  // The outline-view-item is rendered as a <div role="button">; keyboard
+  // users press Enter or Space to activate, mirroring native <button>.
+  _onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+      event.preventDefault();
+      this._runCallback('onSelect');
+    }
+  };
+
   _onDelete = () => {
     this._runCallback('onDelete');
   };
@@ -360,9 +370,19 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
       <DropZone
         id={item.id}
         className={containerClass}
+        // Ticket 44a — WCAG 1.3.1 (Info & Relationships) + 4.1.2:
+        // outline-view-item is a clickable navigation control, so screen
+        // readers should announce it as "button, <name>". tabIndex={0}
+        // makes it part of the Tab focus order. The onKeyDown handler
+        // implements Enter/Space → onClick parity expected by WCAG 2.1.1.
+        role="button"
+        tabIndex={0}
+        aria-label={item.name || item.title || item.id}
+        aria-selected={item.selected ? true : false}
         onDrop={this._onDrop}
         onClick={this._onClick}
         onDoubleClick={this._onEdit}
+        onKeyDown={this._onKeyDown}
         shouldAcceptDrop={this._shouldAcceptDrop}
         onDragStateChange={this._onDragStateChange}
       >
