@@ -14,13 +14,23 @@
 //     visual disruption.
 
 // ---------- cursor affordance ----------
+//
+// 2026-05-11 hotfix (user feedback): global rule extended to cover
+// the additional clickable class names Mailspring uses on <div onClick>
+// elements (.list-item, .menu-item, .nylas-section-header, .item-account
+// account-sidebar rows). A proper accessibility fix would add role="button"
+// to each — tracked as ticket 43d long-tail audit.
 
 button:not([disabled]),
 [role='button']:not([aria-disabled='true']),
 a[href],
 [data-clickable='true'],
 .btn,
-.clickable {
+.clickable,
+.list-item,
+.menu-item,
+.item-account,
+.account-sidebar .item {
   cursor: pointer;
 }
 
@@ -29,37 +39,46 @@ button[disabled],
   cursor: not-allowed;
 }
 
-// ---------- touch target minimum size (Fitts's Law) ----------
+// ---------- touch target minimum size — SCOPED ONLY to toolbar buttons ----------
 //
-// 36px is the desktop comfort threshold. On future mobile (Capacitor/
-// PWA/Tauri mobile/RN day) bump to 44px via @media (pointer: coarse).
+// 2026-05-11 hotfix: the original rule was global on every <button>, which
+// reformatted small inline UI elements (sidebar unread-count badges,
+// disclosure triangles, account-row mini-buttons) into 36×36 squares,
+// producing "kółka artefakt" in the sidebar (user feedback w/ screenshot).
+//
+// New scope: only buttons explicitly marked as toolbar (.btn-toolbar) +
+// the main composer .btn class. Other buttons keep their natural size.
+// Touch-device promotion (@media pointer: coarse) intentionally also
+// scoped — small inline buttons on touch are common enough that forcing
+// 44×44 globally would break dropdown chevrons, ticker-style controls.
 
-button,
-[role='button'] {
+button.btn-toolbar,
+button.btn-large,
+[role='button'].btn-toolbar {
   min-height: 36px;
   min-width: 36px;
 }
 
 @media (pointer: coarse) {
-  // Touch devices — promote to Apple HIG 44pt / Material 48dp.
-  button,
-  [role='button'] {
+  // Touch devices — promote toolbar buttons only to Apple HIG 44pt.
+  button.btn-toolbar,
+  button.btn-large,
+  [role='button'].btn-toolbar {
     min-height: 44px;
     min-width: 44px;
   }
 }
 
-// ---------- active state visual feedback ----------
+// ---------- active state visual feedback — SCOPED to .btn class ----------
 //
-// Subtle press feedback for both mouse click and touch tap. The transform
-// scale gives a tactile sensation without layout shift (scale doesn't
-// trigger reflow). 0.97 is the sweet spot — noticeable but not jarring.
+// 2026-05-11 hotfix: original global rule applied scale(0.97) to every
+// button — including sidebar disclosure triangles and inline icon-only
+// elements, which produced a "wobble" effect that looked broken. New
+// scope: only top-level .btn-class buttons + role="button" with .btn class.
 
-button:active:not([disabled]),
-[role='button']:active:not([aria-disabled='true']),
-a[href]:active,
-.btn:active,
-.clickable:active {
+button.btn:active:not([disabled]),
+[role='button'].btn:active:not([aria-disabled='true']),
+a.btn[href]:active {
   transform: scale(0.97);
   transition: transform 0.1s ease-out;
 }

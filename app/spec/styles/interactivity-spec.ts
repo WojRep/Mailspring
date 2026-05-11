@@ -66,21 +66,37 @@ describe('interactivity CSS (cursor + touch + active feedback)', () => {
     });
   });
 
-  describe('touch target minimum size (Fitts\'s Law forward-looking)', () => {
-    it('applies min-height >= 36px to <button>', () => {
+  describe('touch target minimum size — SCOPED to .btn-toolbar (post-hotfix 2026-05-11)', () => {
+    it('applies min-height >= 36px to button.btn-toolbar', () => {
       const btn = document.createElement('button');
+      btn.className = 'btn-toolbar';
       btn.textContent = 'Tap me';
       host.appendChild(btn);
       const style = getComputedStyle(btn);
       expect(parseFloat(style.minHeight)).toBeGreaterThanOrEqual(36);
     });
 
-    it('applies min-width >= 36px to <button>', () => {
+    it('applies min-width >= 36px to button.btn-toolbar', () => {
       const btn = document.createElement('button');
+      btn.className = 'btn-toolbar';
       btn.textContent = 'Tap me';
       host.appendChild(btn);
       const style = getComputedStyle(btn);
       expect(parseFloat(style.minWidth)).toBeGreaterThanOrEqual(36);
+    });
+
+    // Regression guard: hotfix removed the global rule because it inflated
+    // small inline UI elements (sidebar unread badges, disclosure triangles)
+    // into 36×36 squares. Bare buttons must NOT inherit the rule.
+    it('does NOT apply 36px min-size to a bare <button> (no .btn-toolbar class)', () => {
+      const btn = document.createElement('button');
+      btn.textContent = 'Plain';
+      host.appendChild(btn);
+      const style = getComputedStyle(btn);
+      // Plain buttons get whatever default — 0px is the typical UA default,
+      // anything below 36 is acceptable here. The assertion is that the
+      // rule did NOT promote it.
+      expect(parseFloat(style.minHeight) || 0).toBeLessThan(36);
     });
   });
 });
