@@ -1,13 +1,22 @@
 @import 'ui-variables';
 @import 'ui-mixins';
 
-button,
-html input[type='button'] {
-  cursor: default;
+// Ticket 44 hotfix 2026-05-12 (user feedback "cały czas wskaźnik myszki
+// ma taki sam kursor"): Mailspring inherited a macOS HIG anti-pattern
+// of `cursor: default` on all <button>. This overrode our interactivity.less
+// rule. Flipped to `cursor: pointer` for consistency with web/Windows/Linux
+// expectations and ActunaMail's cross-platform UX baseline.
+button:not([disabled]),
+html input[type='button']:not([disabled]) {
+  cursor: pointer;
   &:hover,
   &:active {
-    cursor: default;
+    cursor: pointer;
   }
+}
+button[disabled],
+html input[type='button'][disabled] {
+  cursor: not-allowed;
 }
 
 body.platform-win32 {
@@ -53,7 +62,9 @@ body.platform-win32 {
   padding: 0 0.8em;
   border-radius: @border-radius-base;
   border: 0;
-  cursor: default;
+  // Ticket 44 hotfix: cursor: default → pointer (Mailspring inherited macOS
+  // HIG anti-pattern). Override flows via subclasses .btn-toolbar / .btn-large.
+  cursor: pointer;
   display: inline-block;
   color: @btn-default-text-color;
   background: @background-primary;
@@ -76,7 +87,7 @@ body.platform-win32 {
   }
 
   &:active {
-    cursor: default;
+    cursor: pointer;
     background: darken(@btn-default-bg-color, 9%);
   }
   &:focus-visible {
@@ -231,7 +242,7 @@ body.platform-win32 {
   }
 
   &:hover {
-    cursor: default;
+    cursor: pointer;
     color: @text-color-link;
     img.content-mask {
       background-color: @text-color-link;
