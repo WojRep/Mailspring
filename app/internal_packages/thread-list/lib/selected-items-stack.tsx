@@ -66,7 +66,18 @@ class SelectedItemsStack extends Component<{ selectionCount: number }> {
           <div className="count-info">
             <div className="count">{selectionCount}</div>
             <div className="count-message">{localized('Selected Messages')}</div>
-            <div className="clear btn" onClick={this.onClearSelection}>
+            <div
+              className="clear btn"
+              role="button"
+              tabIndex={0}
+              onClick={this.onClearSelection}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  this.onClearSelection();
+                }
+              }}
+            >
               {localized('Clear Selection')}
             </div>
           </div>

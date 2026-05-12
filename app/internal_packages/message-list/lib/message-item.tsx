@@ -122,7 +122,19 @@ export default class MessageItem extends React.Component<MessageItemProps, Messa
           <span>{`${this.props.message.files.length} ${localized('attachments')}`}</span>
         </div>
         <div className="separator">-</div>
-        <div className="download-all-action" onClick={this._onDownloadAll}>
+        <div
+          className="download-all-action"
+          role="button"
+          tabIndex={0}
+          aria-label={localized('Download All')}
+          onClick={this._onDownloadAll}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              this._onDownloadAll();
+            }
+          }}
+        >
           <RetinaImg name="ic-attachments-download-all.png" mode={RetinaImg.Mode.ContentIsMask} />
           <span>{localized('Download All')}</span>
         </div>
@@ -313,7 +325,20 @@ export default class MessageItem extends React.Component<MessageItemProps, Messa
     ) : null;
 
     return (
-      <div className={className} onClick={this._onToggleCollapsed}>
+      <div
+        className={className}
+        role="button"
+        tabIndex={0}
+        aria-label={localized('Expand message')}
+        aria-expanded={false}
+        onClick={this._onToggleCollapsed}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this._onToggleCollapsed();
+          }
+        }}
+      >
         <div className="message-item-white-wrap">
           <div className="message-item-area">
             <div className="collapsed-from">

@@ -96,7 +96,19 @@ export class MiniMonthView extends React.Component<MiniMonthViewProps, MiniMonth
     return (
       <div className="mini-month-view">
         <div className="header">
-          <div className="btn btn-icon" onClick={() => onChangeMonth(-1)}>
+          <div
+            className="btn btn-icon"
+            role="button"
+            tabIndex={0}
+            aria-label="Previous month"
+            onClick={() => onChangeMonth(-1)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onChangeMonth(-1);
+              }
+            }}
+          >
             <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
               <path
                 d="M7 1L2 6l5 5"
@@ -108,7 +120,19 @@ export class MiniMonthView extends React.Component<MiniMonthViewProps, MiniMonth
             </svg>
           </div>
           <span className="month-title">{month.format('MMMM YYYY')}</span>
-          <div className="btn btn-icon" onClick={() => onChangeMonth(1)}>
+          <div
+            className="btn btn-icon"
+            role="button"
+            tabIndex={0}
+            aria-label="Next month"
+            onClick={() => onChangeMonth(1)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onChangeMonth(1);
+              }
+            }}
+          >
             <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
               <path
                 d="M1 1l5 5-5 5"

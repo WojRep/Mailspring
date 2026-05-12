@@ -58,7 +58,18 @@ class ThreadListEmptyFolderBar extends React.Component<ThreadListEmptyFolderBarP
             />
           </div>
         ) : (
-          <div className="btn" onClick={this._onClick}>
+          <div
+            className="btn"
+            role="button"
+            tabIndex={0}
+            onClick={this._onClick}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this._onClick();
+              }
+            }}
+          >
             {localized(`Empty %@ now`, role)}
           </div>
         )}

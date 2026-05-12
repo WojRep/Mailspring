@@ -116,7 +116,18 @@ function AttachmentActionIcon(props) {
   };
 
   return (
-    <div className="file-action-icon" onClick={onClickActionIcon}>
+    <div
+      className="file-action-icon"
+      role="button"
+      tabIndex={0}
+      onClick={onClickActionIcon}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClickActionIcon(e as any);
+        }
+      }}
+    >
       <RetinaImg name={actionIconName} mode={retinaImgMode} />
     </div>
   );
@@ -267,7 +278,19 @@ export class AttachmentItem extends Component<AttachmentItemProps> {
               <span className="file-size">{displaySize ? `(${displaySize})` : ''}</span>
             </div>
             {filePreviewPath && (
-              <div className="file-action-icon quicklook" onClick={this._onClickQuicklookIcon}>
+              <div
+                className="file-action-icon quicklook"
+                role="button"
+                tabIndex={0}
+                aria-label="Quick look"
+                onClick={this._onClickQuicklookIcon}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this._onClickQuicklookIcon(e as any);
+                  }
+                }}
+              >
                 <RetinaImg name="attachment-quicklook.png" mode={RetinaImg.Mode.ContentIsMask} />
               </div>
             )}
