@@ -10,6 +10,7 @@ import { Model } from '../models/model';
 import MailspringStore from '../../global/actunamail-store';
 import * as Utils from '../models/utils';
 import Query from '../models/query';
+import KeyManager from '../../key-manager';
 
 const debug = createDebug('app:RxDB');
 const debugVerbose = createDebug('app:RxDB:all');
@@ -48,9 +49,60 @@ function handleUnrecoverableDatabaseError(
   });
 }
 
+/**
+ * Inject SQLCipher PRAGMA key BEFORE any other pragma on `db`.
+ *
+ * Ticket 45b: encryption-at-rest baseline (Tier A). Order matters —
+ * `PRAGMA key` MUST be the first statement on a SQLCipher connection,
+ * before journal_mode / page_size / cache_size / synchronous. Calling
+ * it later returns OK but does not bind the cipher engine.
+ *
+ * Until 45b.2 (npm dep swap to better-sqlite3-multiple-ciphers) and
+ * 45d (mailsync SQLCipher amalgamation) ship, this pragma is a no-op
+ * against stock better-sqlite3 — silently returns rows and does not
+ * encrypt. The wiring is staged here so the cipher engine lights up
+ * automatically when the deps swap.
+ */
+export async function _openWithEncryption(
+  db: { pragma: (sql: string) => any }
+): Promise<void> {
+  const dbKey = await KeyManager.getDBKey();
+  db.pragma(`key = "x'${dbKey.toString('hex')}'"`);
+}
+
+/**
+ * Build the IPC message envelope sent to the background query agent.
+ *
+ * Ticket 45b: agent receives `dbKeyHex` so it can issue PRAGMA key on
+ * first DB open (agent process is separate from the renderer, doesn't
+ * have @electron/remote access to safeStorage).
+ *
+ * Exported for spec coverage — the message contract is load-bearing
+ * (a future refactor must not silently drop dbKeyHex).
+ */
+export function _agentMessageEnvelope(args: {
+  query: string;
+  values: any[];
+  id: string;
+  dbpath: string;
+  dbKey: Buffer;
+}) {
+  return {
+    query: args.query,
+    values: args.values,
+    id: args.id,
+    dbpath: args.dbpath,
+    dbKeyHex: args.dbKey.toString('hex'),
+  };
+}
+
 async function openDatabase(dbPath: string) {
   try {
     const db = new Sqlite3(dbPath, { readonly: true, timeout: 10000 }) as Sqlite3.Database;
+
+    // Ticket 45b: PRAGMA key FIRST (no-op against stock better-sqlite3
+    // until 45b.2 swap; load-bearing once SQLCipher binding ships).
+    await _openWithEncryption(db);
 
     // https://www.sqlite.org/wal.html
     // WAL provides more concurrency as readers do not block writers and a writer
@@ -380,7 +432,11 @@ class DatabaseStore extends MailspringStore {
       }
       const id = Utils.generateTempId();
       this._agentOpenQueries[id] = resolve;
-      this._agent.send({ query, values, id, dbpath: this._databasePath });
+      // Ticket 45b: include dbKeyHex so agent can PRAGMA key on first DB open.
+      const dbKey = await KeyManager.getDBKey();
+      this._agent.send(
+        _agentMessageEnvelope({ query, values, id, dbpath: this._databasePath, dbKey })
+      );
     });
   }
 
