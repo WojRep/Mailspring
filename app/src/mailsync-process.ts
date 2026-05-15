@@ -158,9 +158,32 @@ export class MailsyncProcess extends EventEmitter {
   }
 
   _spawnProcess(mode) {
+    // Ticket 45c — pass MAILSPRING_DB_KEY env var to the C++ mailsync
+    // child process. The C++ side (mailsync/MailSync/MailStore.cpp,
+    // patched in ticket 45d) reads this env, validates as hex-32-byte,
+    // and calls `_db.key(...)` immediately after constructor — before
+    // any other PRAGMA statement. Identical key as the JS side
+    // (DatabaseStore) so both processes read/write the same encrypted
+    // edgehill.db.
+    //
+    // Sync read from KeyManager cache (populated earlier in renderer
+    // boot when DatabaseStore opens the DB and awaits getDBKey()).
+    // If cache empty (very first spawn before DB open), we fall through
+    // with empty env — mailsync C++ pre-45d ignores the env anyway.
+    let mailsyncDbKeyHex = '';
+    try {
+      const KeyManager = require('./key-manager').default;
+      const dbKey = KeyManager.getCachedDBKey();
+      if (dbKey) {
+        mailsyncDbKeyHex = dbKey.toString('hex');
+      }
+    } catch (err) {
+      console.error('mailsync-process: failed to read cached DBKey:', err);
+    }
     const env = {
       ...process.env,
       CONFIG_DIR_PATH: this.configDirPath,
+      MAILSPRING_DB_KEY: mailsyncDbKeyHex,
       GMAIL_CLIENT_ID: GMAIL_CLIENT_ID,
       GMAIL_CLIENT_SECRET: GMAIL_CLIENT_SECRET,
       // WS2-D: pass an empty IDENTITY_SERVER. The mailsync C++ side

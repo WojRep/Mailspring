@@ -366,6 +366,54 @@ const start = () => {
     app.removeListener('open-file', onOpenFileBeforeReady);
     app.removeListener('open-url', onOpenUrlBeforeReady);
 
+    // Ticket 45c — SQLCipher Tier A first-launch checks.
+    // 1) Linux refuse-to-start gate: if safeStorage backend is
+    //    basic_text / unavailable, show install instructions + quit.
+    // 2) First-launch detection: if v0.2.x plaintext data folder exists,
+    //    rename to <dir>.v0.2-archive-<timestamp> and create a fresh
+    //    empty data dir. User informed via post-launch info banner
+    //    (ticket 45e UX).
+    try {
+      const { safeStorage, dialog } = require('electron');
+      const {
+        verifySafeStorageBackend,
+        detectV02Data,
+        archiveV02Data,
+      } = require('./first-launch-checks');
+      const gate = verifySafeStorageBackend(safeStorage, process.platform);
+      if (!gate.ok) {
+        dialog.showMessageBoxSync({
+          type: 'error',
+          buttons: ['Quit'],
+          title: 'ActunaMail — encryption unavailable',
+          message: gate.message,
+        });
+        app.quit();
+        return;
+      }
+      if (detectV02Data(configDirPath)) {
+        const archivePath = archiveV02Data(configDirPath);
+        // Persist the archive path so the renderer (ticket 45e banner +
+        // preferences > Magazyn) can surface it to the user.
+        global.actunaArchivePath = archivePath;
+        dialog.showMessageBoxSync({
+          type: 'info',
+          buttons: ['Continue'],
+          title: 'ActunaMail v0.3 — new encrypted storage',
+          message:
+            'ActunaMail v0.3 introduces encrypted at-rest storage (GDPR Art. 32 / KNF Rec. D §17.4). ' +
+            'Existing v0.2 data was preserved at:\n\n' +
+            archivePath +
+            '\n\nThe app will start with an empty fresh folder. Configure your accounts again to continue.',
+        });
+      }
+    } catch (err) {
+      console.error('first-launch-checks failed:', err);
+      // Non-fatal: continue boot. Fail-open here matches the existing
+      // error-handling philosophy in this file (errors logged, app
+      // continues so the user can re-add accounts).
+    }
+
     // Remove the Origin header for Microsoft OAuth requests. Native fetch in Electron
     // adds an Origin header which causes AADSTS90023 errors because Microsoft treats
     // it as a cross-origin request requiring SPA client-type registration. Desktop apps

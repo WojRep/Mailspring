@@ -71,6 +71,24 @@ class KeyManager {
   }
 
   /**
+   * Synchronous accessor for the cached DBKey. Used by code paths that
+   * cannot await (e.g., mailsync-process.ts:_spawnProcess which is
+   * called synchronously by sync() and _spawnAndWait). Returns the
+   * cached Buffer or null if `getDBKey()` has not yet been awaited in
+   * this process.
+   *
+   * In normal renderer boot order, DatabaseStore opens the DB first
+   * (which awaits getDBKey, populating the cache), so by the time
+   * MailsyncBridge spawns a mailsync child the cache is warm.
+   */
+  getCachedDBKey(): Buffer | null {
+    if (this._dbKeyCache && this._dbKeyCache.some(b => b !== 0)) {
+      return this._dbKeyCache;
+    }
+    return null;
+  }
+
+  /**
    * Zeroes the in-memory DBKey cache. Used on app shutdown,
    * powerMonitor.suspend (Tier B integration in ticket 46), or when
    * forcing a fresh re-read after key rotation. After wipe the next
