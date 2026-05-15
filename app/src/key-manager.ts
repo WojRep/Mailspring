@@ -1,4 +1,6 @@
 import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import { localized } from './intl';
 import { Account } from 'actunamail-exports';
 
@@ -9,8 +11,52 @@ interface KeySet {
 const { safeStorage } = require('@electron/remote');
 
 const configCredentialsKey = 'credentials';
-const configDBKeyName = 'databaseKey';
 const DB_KEY_LENGTH_BYTES = 32;
+// SQLCipher DBKey is persisted as a safeStorage-encrypted blob in a
+// dedicated file (not in config.json). A dedicated file is readable by
+// BOTH the Electron main process and renderer processes via plain `fs`,
+// which the config store is not — main process has no `AppEnv.config`.
+const DB_KEY_FILENAME = 'db-key.enc';
+
+/**
+ * safeStorage accessor that works in BOTH process types.
+ *
+ *   - main process (process.type === 'browser'): electron.safeStorage
+ *     directly. `@electron/remote` is renderer-only and would yield
+ *     `undefined` here — that was the bug behind the v0.3.7–0.3.9
+ *     "MAILSPRING_DB_KEY is empty" crash: application.ts spawns
+ *     `mailsync.migrate()` from the MAIN process, getDBKey() threw on
+ *     `undefined.isEncryptionAvailable()`, the catch swallowed it, and
+ *     mailsync received an empty key.
+ *   - renderer: `@electron/remote`.safeStorage (main-process module
+ *     proxied into the renderer).
+ */
+function getSafeStorage(): {
+  isEncryptionAvailable(): boolean;
+  encryptString(s: string): Buffer;
+  decryptString(b: Buffer): string;
+} {
+  if (process.type === 'browser') {
+    return require('electron').safeStorage;
+  }
+  return require('@electron/remote').safeStorage;
+}
+
+/**
+ * Resolve the per-user config directory in BOTH process types.
+ *   - main: electron.app.getPath('userData') — main.js calls
+ *     app.setPath('userData', configDirPath) before Application starts.
+ *   - renderer: AppEnv.getConfigDirPath() (local, no remote round-trip).
+ */
+function getConfigDirPath(): string {
+  if (process.type === 'browser') {
+    return require('electron').app.getPath('userData');
+  }
+  if (typeof AppEnv !== 'undefined' && AppEnv && typeof AppEnv.getConfigDirPath === 'function') {
+    return AppEnv.getConfigDirPath();
+  }
+  return require('@electron/remote').app.getPath('userData');
+}
 
 /**
  * A basic wrap around electron's secure key management. Consolidates all of
@@ -24,37 +70,36 @@ class KeyManager {
   private _dbKeyCache: Buffer | null = null;
 
   /**
-   * SQLCipher Tier A DBKey accessor (ticket 45a; made synchronous in
-   * the 45-hotfix after a plaintext-DB race — see below).
+   * SQLCipher Tier A DBKey accessor (ticket 45a; process-aware since the
+   * v0.3.10 hotfix — see below).
    *
    * Returns a 32-byte Buffer used as the `PRAGMA key` for the encrypted
-   * SQLite database. The key is generated on first call via
-   * `crypto.randomBytes(32)`, persisted via `safeStorage.encryptString`
-   * (macOS Keychain / Windows DPAPI / Linux GNOME Keyring or KWallet),
-   * and cached in memory for the lifetime of the process.
+   * SQLite database. Generated on first call via `crypto.randomBytes(32)`,
+   * persisted as a safeStorage-encrypted blob in `<configDir>/db-key.enc`,
+   * cached in memory for the lifetime of the process.
    *
-   * SYNCHRONOUS by design. Electron's `safeStorage.encryptString` /
-   * `decryptString` are synchronous APIs (they return Buffer / string
-   * directly, not Promises). The earlier async signature created a
-   * race: `mailsync-process.ts:_spawnProcess` is called synchronously
-   * and could spawn the mailsync C++ child BEFORE the renderer had
-   * awaited the key — mailsync then opened edgehill.db with an empty
-   * MAILSPRING_DB_KEY and created a PLAINTEXT database, which the
-   * renderer (with the key) then failed to open: "file is not a
-   * database". A synchronous getDBKey() removes the race entirely —
-   * every caller gets the key immediately, no cache-warming order
-   * dependency.
+   * Works in BOTH the Electron main process and renderer processes —
+   * `getSafeStorage()` and `getConfigDirPath()` resolve per `process.type`.
+   * The earlier implementation used `@electron/remote` + `AppEnv.config`,
+   * both renderer-only; `application.ts` spawns `mailsync.migrate()` from
+   * the MAIN process, where getDBKey() threw and mailsync got an empty
+   * key → "MAILSPRING_DB_KEY is empty" refuse-to-start crash.
    *
-   * Linux refuse-to-start gate: if `safeStorage.isEncryptionAvailable()`
-   * returns false (no managed secret service), this throws a
-   * descriptive error rather than falling through to a plaintext mode
-   * — design memo §5 user decision 2026-05-12 *"Refuse to start"*.
+   * SYNCHRONOUS by design — Electron's safeStorage encrypt/decrypt and
+   * Node `fs` calls used here are all synchronous, so every caller
+   * (including the sync mailsync-process.ts:_spawnProcess path) gets the
+   * key immediately with no cache-warming race.
+   *
+   * Linux refuse-to-start gate: if `isEncryptionAvailable()` is false
+   * (no managed secret service), throws rather than degrading to a
+   * plaintext mode — design memo §5 user decision 2026-05-12.
    */
   getDBKey(): Buffer {
     if (this._dbKeyCache && this._dbKeyCache.some(b => b !== 0)) {
       return this._dbKeyCache;
     }
-    if (!safeStorage.isEncryptionAvailable()) {
+    const ss = getSafeStorage();
+    if (!ss || !ss.isEncryptionAvailable()) {
       const platformHint =
         process.platform === 'linux'
           ? localized(
@@ -67,18 +112,16 @@ class KeyManager {
         ) + platformHint
       );
     }
-    const persisted = AppEnv.config.get(configDBKeyName);
-    if (persisted !== undefined && persisted !== null && persisted !== 'null') {
-      const buf = Buffer.isBuffer(persisted)
-        ? persisted
-        : Buffer.from(persisted as string, 'utf-8');
-      const hex = safeStorage.decryptString(buf);
+    const keyPath = path.join(getConfigDirPath(), DB_KEY_FILENAME);
+    if (fs.existsSync(keyPath)) {
+      const blob = fs.readFileSync(keyPath);
+      const hex = ss.decryptString(blob);
       this._dbKeyCache = Buffer.from(hex, 'hex');
       return this._dbKeyCache;
     }
     const fresh = crypto.randomBytes(DB_KEY_LENGTH_BYTES);
-    const encrypted = safeStorage.encryptString(fresh.toString('hex'));
-    AppEnv.config.set(configDBKeyName, encrypted);
+    const encrypted = ss.encryptString(fresh.toString('hex'));
+    fs.writeFileSync(keyPath, encrypted, { mode: 0o600 });
     this._dbKeyCache = fresh;
     return this._dbKeyCache;
   }

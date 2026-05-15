@@ -1,25 +1,29 @@
+import fs from 'fs';
 import KeyManager from '../src/key-manager';
 
 // Ticket 45 sub-faza 45a — KeyManager Tier A extension for SQLCipher
 // implementation per analysis/13-sqlcipher-migration-design.md §3 Tier A.
 //
-// Adds `getDBKey()` returning 32-byte Buffer persisted via
-// safeStorage.encryptString (macOS Keychain / Windows DPAPI / Linux GNOME
-// Keyring), plus `wipeDBKey()` clearing in-memory cache.
+// Adds `getDBKey()` returning 32-byte Buffer persisted as a
+// safeStorage-encrypted blob in <configDir>/db-key.enc, plus
+// `wipeDBKey()` clearing the in-memory cache.
 //
-// WHY: Sprint 7 Tier A ships SQLCipher default-ON for fresh installs;
-// the DBKey is the single secret needed at DB open time (PRAGMA key).
-// safeStorage is the OS-managed at-rest protection; in-memory cache
-// keeps the runtime cost flat.
+// v0.3.10 hotfix: getDBKey() is process-aware (works in main process +
+// renderer) and stores the key in a dedicated file rather than
+// AppEnv.config (which only exists in the renderer). These specs run
+// in the renderer test env (process.type === 'renderer'), so the
+// @electron/remote safeStorage path and AppEnv.getConfigDirPath() path
+// are exercised.
 
 describe('KeyManager.getDBKey (ticket 45a — SQLCipher Tier A)', function keyManagerGetDBKeySpec() {
-  const DB_KEY_CONFIG_NAME = 'databaseKey';
   const remoteSafeStorage = () => require('@electron/remote').safeStorage;
+  const FAKE_CONFIG_DIR = '/tmp/actuna-keymanager-spec';
 
   beforeEach(function () {
-    // Reset cache between tests via wipe (production also exposes this).
     (KeyManager as any).wipeDBKey();
-    // Default mocks: encryption available, encrypt/decrypt round-trip.
+    // configDirPath resolution (renderer path)
+    spyOn(AppEnv, 'getConfigDirPath').andReturn(FAKE_CONFIG_DIR);
+    // safeStorage: available, encrypt/decrypt round-trip
     spyOn(remoteSafeStorage(), 'isEncryptionAvailable').andReturn(true);
     spyOn(remoteSafeStorage(), 'encryptString').andCallFake((s: string) =>
       Buffer.from(`enc:${s}`, 'utf-8')
@@ -29,99 +33,95 @@ describe('KeyManager.getDBKey (ticket 45a — SQLCipher Tier A)', function keyMa
     );
   });
 
-  describe('first-launch (empty config)', () => {
-    it('returns a 32-byte Buffer', async () => {
-      spyOn(AppEnv.config, 'get').andReturn(undefined);
-      const setSpy = spyOn(AppEnv.config, 'set') as any;
-      const key = await (KeyManager as any).getDBKey();
+  describe('first-launch (no db-key.enc file)', () => {
+    it('returns a 32-byte Buffer and writes the encrypted blob', () => {
+      spyOn(fs, 'existsSync').andReturn(false);
+      const writeSpy = spyOn(fs, 'writeFileSync') as any;
+      const key = (KeyManager as any).getDBKey();
       expect(Buffer.isBuffer(key)).toBe(true);
       expect(key.length).toBe(32);
-      expect(setSpy).toHaveBeenCalled();
-      // Persisted value should be the safeStorage-encrypted blob, not raw.
-      const [persistedKey, persistedVal] = setSpy.calls.mostRecent().args;
-      expect(persistedKey).toBe(DB_KEY_CONFIG_NAME);
-      expect(typeof persistedVal === 'string' || Buffer.isBuffer(persistedVal)).toBe(true);
+      expect(writeSpy).toHaveBeenCalled();
+      const [writtenPath, writtenVal] = writeSpy.calls.mostRecent().args;
+      expect(String(writtenPath)).toMatch(/db-key\.enc$/);
+      expect(Buffer.isBuffer(writtenVal)).toBe(true);
     });
 
-    it('persists encrypted (not raw) via safeStorage.encryptString', async () => {
-      spyOn(AppEnv.config, 'get').andReturn(undefined);
-      spyOn(AppEnv.config, 'set');
-      await (KeyManager as any).getDBKey();
+    it('persists encrypted (not raw) via safeStorage.encryptString', () => {
+      spyOn(fs, 'existsSync').andReturn(false);
+      spyOn(fs, 'writeFileSync');
+      (KeyManager as any).getDBKey();
       expect(remoteSafeStorage().encryptString).toHaveBeenCalled();
     });
 
-    it('generates a fresh random key (not a constant)', async () => {
-      spyOn(AppEnv.config, 'get').andReturn(undefined);
-      spyOn(AppEnv.config, 'set');
-      const k1 = await (KeyManager as any).getDBKey();
+    it('generates a fresh random key (not a constant)', () => {
+      spyOn(fs, 'existsSync').andReturn(false);
+      spyOn(fs, 'writeFileSync');
+      const k1 = (KeyManager as any).getDBKey();
       (KeyManager as any).wipeDBKey();
-      // simulate fresh first-launch again (config still empty)
-      const k2 = await (KeyManager as any).getDBKey();
+      const k2 = (KeyManager as any).getDBKey();
       expect(k1.equals(k2)).toBe(false);
     });
   });
 
-  describe('subsequent launches (config has key)', () => {
-    it('decrypts via safeStorage.decryptString and reuses', async () => {
+  describe('subsequent launches (db-key.enc exists)', () => {
+    it('decrypts via safeStorage.decryptString and reuses', () => {
       const fixedKey = Buffer.alloc(32, 0x42);
-      const encrypted = Buffer.from(`enc:${fixedKey.toString('hex')}`, 'utf-8');
-      spyOn(AppEnv.config, 'get').andReturn(encrypted);
-      const setSpy = spyOn(AppEnv.config, 'set');
-      const key = await (KeyManager as any).getDBKey();
+      const blob = Buffer.from(`enc:${fixedKey.toString('hex')}`, 'utf-8');
+      spyOn(fs, 'existsSync').andReturn(true);
+      spyOn(fs, 'readFileSync').andReturn(blob);
+      const writeSpy = spyOn(fs, 'writeFileSync');
+      const key = (KeyManager as any).getDBKey();
       expect(remoteSafeStorage().decryptString).toHaveBeenCalled();
       expect(key.length).toBe(32);
       expect(key.equals(fixedKey)).toBe(true);
-      // No re-persist on read path.
-      expect(setSpy).not.toHaveBeenCalled();
+      // No re-write on the read path.
+      expect(writeSpy).not.toHaveBeenCalled();
     });
   });
 
   describe('idempotent within session', () => {
-    it('returns the same buffer on repeated calls (RAM cache)', async () => {
-      spyOn(AppEnv.config, 'get').andReturn(undefined);
-      spyOn(AppEnv.config, 'set');
-      const k1 = await (KeyManager as any).getDBKey();
-      const k2 = await (KeyManager as any).getDBKey();
+    it('returns the same buffer on repeated calls (RAM cache)', () => {
+      spyOn(fs, 'existsSync').andReturn(false);
+      spyOn(fs, 'writeFileSync');
+      const k1 = (KeyManager as any).getDBKey();
+      const k2 = (KeyManager as any).getDBKey();
       expect(k1.equals(k2)).toBe(true);
-      // safeStorage.encryptString called only once on first call, not second.
+      // encryptString called only on the first call, not the second.
       expect((remoteSafeStorage().encryptString as any).calls.count()).toBe(1);
     });
   });
 
   describe('wipeDBKey', () => {
-    it('overwrites the RAM cache with zeros', async () => {
-      spyOn(AppEnv.config, 'get').andReturn(undefined);
-      spyOn(AppEnv.config, 'set');
-      const ref = await (KeyManager as any).getDBKey();
-      // Capture pre-wipe state
-      const wasNonZero = ref.some((b: number) => b !== 0);
-      expect(wasNonZero).toBe(true);
+    it('overwrites the RAM cache with zeros', () => {
+      spyOn(fs, 'existsSync').andReturn(false);
+      spyOn(fs, 'writeFileSync');
+      const ref = (KeyManager as any).getDBKey();
+      expect(ref.some((b: number) => b !== 0)).toBe(true);
       (KeyManager as any).wipeDBKey();
-      // Same buffer reference now zeroed
       expect(ref.every((b: number) => b === 0)).toBe(true);
     });
 
-    it('forces reload from config on next getDBKey call', async () => {
+    it('forces reload from disk on next getDBKey call', () => {
       const fixedKey = Buffer.alloc(32, 0x55);
-      const encrypted = Buffer.from(`enc:${fixedKey.toString('hex')}`, 'utf-8');
-      const getSpy = spyOn(AppEnv.config, 'get').andReturn(encrypted) as any;
-      spyOn(AppEnv.config, 'set');
-      await (KeyManager as any).getDBKey();
-      const firstCallCount = getSpy.calls.count();
+      const blob = Buffer.from(`enc:${fixedKey.toString('hex')}`, 'utf-8');
+      spyOn(fs, 'existsSync').andReturn(true);
+      const readSpy = spyOn(fs, 'readFileSync').andReturn(blob) as any;
+      spyOn(fs, 'writeFileSync');
+      (KeyManager as any).getDBKey();
+      const firstCount = readSpy.calls.count();
       (KeyManager as any).wipeDBKey();
-      await (KeyManager as any).getDBKey();
-      // After wipe, config.get must be re-queried.
-      expect(getSpy.calls.count()).toBeGreaterThan(firstCallCount);
+      (KeyManager as any).getDBKey();
+      expect(readSpy.calls.count()).toBeGreaterThan(firstCount);
     });
   });
 
   describe('Linux refuse-to-start gate (safeStorage unavailable)', () => {
-    it('throws a descriptive error when isEncryptionAvailable() === false', async () => {
+    it('throws a descriptive error when isEncryptionAvailable() === false', () => {
       (remoteSafeStorage().isEncryptionAvailable as jasmine.Spy).andReturn(false);
-      spyOn(AppEnv.config, 'get').andReturn(undefined);
+      spyOn(fs, 'existsSync').andReturn(false);
       let thrown: Error | null = null;
       try {
-        await (KeyManager as any).getDBKey();
+        (KeyManager as any).getDBKey();
       } catch (err) {
         thrown = err as Error;
       }
