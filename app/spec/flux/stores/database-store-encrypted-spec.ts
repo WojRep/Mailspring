@@ -14,11 +14,10 @@ import KeyManager from '../../../src/key-manager';
 
 describe('database-store encryption wiring (ticket 45b)', function databaseStoreEncryptedSpec() {
   describe('openDatabase pragma ordering', () => {
-    it('calls KeyManager.getDBKey() and injects PRAGMA key first', async () => {
+    it('calls KeyManager.getDBKey() and injects PRAGMA key first', () => {
       const fakeKey = Buffer.alloc(32, 0x99);
-      const getDBKeySpy = spyOn(KeyManager as any, 'getDBKey').andReturn(
-        Promise.resolve(fakeKey)
-      );
+      // getDBKey() is synchronous — returns the Buffer directly.
+      const getDBKeySpy = spyOn(KeyManager as any, 'getDBKey').andReturn(fakeKey);
 
       // Capture all pragma calls on a dummy db
       const pragmaCalls: string[] = [];
@@ -29,9 +28,9 @@ describe('database-store encryption wiring (ticket 45b)', function databaseStore
         },
       };
 
-      // Call the production opener (will be exported by 45b)
+      // Call the production opener (exported by 45b)
       const { _openWithEncryption } = require('../../../src/flux/stores/database-store');
-      await _openWithEncryption(dummyDb);
+      _openWithEncryption(dummyDb);
 
       // Order check: PRAGMA key must come first, before journal_mode/page_size/etc.
       expect(getDBKeySpy).toHaveBeenCalled();
@@ -41,9 +40,9 @@ describe('database-store encryption wiring (ticket 45b)', function databaseStore
       expect(pragmaCalls[0]).toContain(fakeKey.toString('hex'));
     });
 
-    it('passes hex-encoded key, not raw bytes', async () => {
+    it('passes hex-encoded key, not raw bytes', () => {
       const fakeKey = Buffer.alloc(32, 0xab);
-      spyOn(KeyManager as any, 'getDBKey').andReturn(Promise.resolve(fakeKey));
+      spyOn(KeyManager as any, 'getDBKey').andReturn(fakeKey);
       const pragmaCalls: string[] = [];
       const dummyDb = {
         pragma: (sql: string) => {
@@ -52,7 +51,7 @@ describe('database-store encryption wiring (ticket 45b)', function databaseStore
         },
       };
       const { _openWithEncryption } = require('../../../src/flux/stores/database-store');
-      await _openWithEncryption(dummyDb);
+      _openWithEncryption(dummyDb);
       // hex of 32 0xAB bytes is 64 char "ab" repeats
       expect(pragmaCalls[0]).toMatch(/[a-f0-9]{64}/);
       // No raw Buffer.toString() leakage

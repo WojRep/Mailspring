@@ -159,26 +159,26 @@ export class MailsyncProcess extends EventEmitter {
 
   _spawnProcess(mode) {
     // Ticket 45c — pass MAILSPRING_DB_KEY env var to the C++ mailsync
-    // child process. The C++ side (mailsync/MailSync/MailStore.cpp,
-    // patched in ticket 45d) reads this env, validates as hex-32-byte,
-    // and calls `_db.key(...)` immediately after constructor — before
-    // any other PRAGMA statement. Identical key as the JS side
-    // (DatabaseStore) so both processes read/write the same encrypted
-    // edgehill.db.
+    // child process. The C++ side (mailsync/MailSync/MailStore.cpp)
+    // reads this env, validates as hex-32-byte, and PRAGMA-keys the
+    // connection before any other statement. Identical key as the JS
+    // side (DatabaseStore) so both processes read/write the same
+    // encrypted edgehill.db.
     //
-    // Sync read from KeyManager cache (populated earlier in renderer
-    // boot when DatabaseStore opens the DB and awaits getDBKey()).
-    // If cache empty (very first spawn before DB open), we fall through
-    // with empty env — mailsync C++ pre-45d ignores the env anyway.
+    // KeyManager.getDBKey() is synchronous (safeStorage is a sync
+    // Electron API). Calling it directly here — not via a cache that
+    // may be cold — guarantees mailsync always spawns WITH the key,
+    // so it never creates a plaintext edgehill.db that the renderer
+    // (with the key) would then fail to open.
     let mailsyncDbKeyHex = '';
     try {
       const KeyManager = require('./key-manager').default;
-      const dbKey = KeyManager.getCachedDBKey();
+      const dbKey = KeyManager.getDBKey();
       if (dbKey) {
         mailsyncDbKeyHex = dbKey.toString('hex');
       }
     } catch (err) {
-      console.error('mailsync-process: failed to read cached DBKey:', err);
+      console.error('mailsync-process: failed to obtain DBKey:', err);
     }
     const env = {
       ...process.env,

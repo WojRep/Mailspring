@@ -66,10 +66,8 @@ function handleUnrecoverableDatabaseError(
  * encrypt. The wiring is staged here so the cipher engine lights up
  * automatically when the deps swap.
  */
-export async function _openWithEncryption(
-  db: { pragma: (sql: string) => any }
-): Promise<void> {
-  const dbKey = await KeyManager.getDBKey();
+export function _openWithEncryption(db: { pragma: (sql: string) => any }): void {
+  const dbKey = KeyManager.getDBKey();
   db.pragma(`key = "x'${dbKey.toString('hex')}'"`);
 }
 
@@ -103,9 +101,9 @@ async function openDatabase(dbPath: string) {
   try {
     const db = new Sqlite3(dbPath, { readonly: true, timeout: 10000 }) as Sqlite3.Database;
 
-    // Ticket 45b: PRAGMA key FIRST (no-op against stock better-sqlite3
-    // until 45b.2 swap; load-bearing once SQLCipher binding ships).
-    await _openWithEncryption(db);
+    // Ticket 45b: PRAGMA key FIRST, before any other pragma — binds the
+    // SQLCipher cipher engine (better-sqlite3-multiple-ciphers).
+    _openWithEncryption(db);
 
     // https://www.sqlite.org/wal.html
     // WAL provides more concurrency as readers do not block writers and a writer
@@ -436,7 +434,7 @@ class DatabaseStore extends MailspringStore {
       const id = Utils.generateTempId();
       this._agentOpenQueries[id] = resolve;
       // Ticket 45b: include dbKeyHex so agent can PRAGMA key on first DB open.
-      const dbKey = await KeyManager.getDBKey();
+      const dbKey = KeyManager.getDBKey();
       this._agent.send(
         _agentMessageEnvelope({ query, values, id, dbpath: this._databasePath, dbKey })
       );

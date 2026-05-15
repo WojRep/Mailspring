@@ -24,7 +24,8 @@ class KeyManager {
   private _dbKeyCache: Buffer | null = null;
 
   /**
-   * SQLCipher Tier A DBKey accessor (ticket 45a).
+   * SQLCipher Tier A DBKey accessor (ticket 45a; made synchronous in
+   * the 45-hotfix after a plaintext-DB race — see below).
    *
    * Returns a 32-byte Buffer used as the `PRAGMA key` for the encrypted
    * SQLite database. The key is generated on first call via
@@ -32,12 +33,24 @@ class KeyManager {
    * (macOS Keychain / Windows DPAPI / Linux GNOME Keyring or KWallet),
    * and cached in memory for the lifetime of the process.
    *
+   * SYNCHRONOUS by design. Electron's `safeStorage.encryptString` /
+   * `decryptString` are synchronous APIs (they return Buffer / string
+   * directly, not Promises). The earlier async signature created a
+   * race: `mailsync-process.ts:_spawnProcess` is called synchronously
+   * and could spawn the mailsync C++ child BEFORE the renderer had
+   * awaited the key — mailsync then opened edgehill.db with an empty
+   * MAILSPRING_DB_KEY and created a PLAINTEXT database, which the
+   * renderer (with the key) then failed to open: "file is not a
+   * database". A synchronous getDBKey() removes the race entirely —
+   * every caller gets the key immediately, no cache-warming order
+   * dependency.
+   *
    * Linux refuse-to-start gate: if `safeStorage.isEncryptionAvailable()`
    * returns false (no managed secret service), this throws a
    * descriptive error rather than falling through to a plaintext mode
    * — design memo §5 user decision 2026-05-12 *"Refuse to start"*.
    */
-  async getDBKey(): Promise<Buffer> {
+  getDBKey(): Buffer {
     if (this._dbKeyCache && this._dbKeyCache.some(b => b !== 0)) {
       return this._dbKeyCache;
     }
@@ -59,33 +72,15 @@ class KeyManager {
       const buf = Buffer.isBuffer(persisted)
         ? persisted
         : Buffer.from(persisted as string, 'utf-8');
-      const hex = await safeStorage.decryptString(buf);
+      const hex = safeStorage.decryptString(buf);
       this._dbKeyCache = Buffer.from(hex, 'hex');
       return this._dbKeyCache;
     }
     const fresh = crypto.randomBytes(DB_KEY_LENGTH_BYTES);
-    const encrypted = await safeStorage.encryptString(fresh.toString('hex'));
+    const encrypted = safeStorage.encryptString(fresh.toString('hex'));
     AppEnv.config.set(configDBKeyName, encrypted);
     this._dbKeyCache = fresh;
     return this._dbKeyCache;
-  }
-
-  /**
-   * Synchronous accessor for the cached DBKey. Used by code paths that
-   * cannot await (e.g., mailsync-process.ts:_spawnProcess which is
-   * called synchronously by sync() and _spawnAndWait). Returns the
-   * cached Buffer or null if `getDBKey()` has not yet been awaited in
-   * this process.
-   *
-   * In normal renderer boot order, DatabaseStore opens the DB first
-   * (which awaits getDBKey, populating the cache), so by the time
-   * MailsyncBridge spawns a mailsync child the cache is warm.
-   */
-  getCachedDBKey(): Buffer | null {
-    if (this._dbKeyCache && this._dbKeyCache.some(b => b !== 0)) {
-      return this._dbKeyCache;
-    }
-    return null;
   }
 
   /**
