@@ -1,4 +1,5 @@
-const Sqlite3 = require('better-sqlite3');
+// Ticket 45b.2: SQLCipher-capable drop-in for better-sqlite3.
+const Sqlite3 = require('better-sqlite3-multiple-ciphers');
 const dbs = {};
 
 const deathDelay = 5000;

@@ -2,7 +2,7 @@
   "name": "actunamail",
   "productName": "ActunaMail",
   "desktopName": "ActunaMail.desktop",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "repository": {
     "type": "git",
     "url": "git://github.com/WojRep/ActunaMail.git"
@@ -19,7 +19,7 @@
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "app-module-path": "^2.2.0",
-    "better-sqlite3": "^12.8.0",
+    "better-sqlite3-multiple-ciphers": "^12.9.0",
     "cheerio": "^1.1.2",
     "chromium-net-errors": "1.0.3",
     "chrono-node": "^2.9.0",

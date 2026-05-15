@@ -3,7 +3,10 @@ import path from 'path';
 import createDebug from 'debug';
 import childProcess, { ChildProcess } from 'child_process';
 import { LRUCache } from 'lru-cache';
-import Sqlite3 from 'better-sqlite3';
+// Ticket 45b.2: SQLCipher-capable drop-in. API-compatible with stock
+// better-sqlite3@^12; adds PRAGMA key / PRAGMA cipher support via
+// embedded SQLCipher amalgamation. Types are shipped by the package.
+import Sqlite3 from 'better-sqlite3-multiple-ciphers';
 
 import { ExponentialBackoffScheduler } from '../../backoff-schedulers';
 import { Model } from '../models/model';

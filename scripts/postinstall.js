@@ -127,7 +127,16 @@ if (cacheElectronTarget !== npmElectronTarget) {
 
 async function sqliteMissingNanosleep() {
   return new Promise(resolve => {
-    const sqliteLibDir = path.join(appModulesPath, 'better-sqlite3', 'build', 'Release');
+    // Ticket 45b.2: swapped better-sqlite3 → better-sqlite3-multiple-ciphers.
+    // Same .node binary name (better_sqlite3.node — multi-ciphers fork
+    // keeps the upstream filename for drop-in compatibility), just a
+    // different package directory.
+    const sqliteLibDir = path.join(
+      appModulesPath,
+      'better-sqlite3-multiple-ciphers',
+      'build',
+      'Release'
+    );
     const staticLib = path.join(sqliteLibDir, 'sqlite3.a');
     const sharedLib = path.join(sqliteLibDir, 'better_sqlite3.node');
 
