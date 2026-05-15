@@ -234,7 +234,7 @@ function copyVisualElements() {
     const files = [
       'actunamail-75px.png',
       'actunamail-150px.png',
-      'mailspring.VisualElementsManifest.xml',
+      'actunamail.VisualElementsManifest.xml',
     ];
     for (const file of files) {
       fs.copyFileSync(path.join(appFolder, 'resources', file), path.join(rootAppDataFolder, file));

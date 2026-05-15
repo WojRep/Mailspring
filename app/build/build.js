@@ -217,7 +217,7 @@ function buildPackagerOptions() {
       linux: process.arch,
     }[platform],
     icon: {
-      darwin: path.resolve(appDir, 'build', 'resources', 'mac', 'mailspring.icns'),
+      darwin: path.resolve(appDir, 'build', 'resources', 'mac', 'actunamail.icns'),
       win32: path.resolve(appDir, 'build', 'resources', 'win', 'actunamail-square.ico'),
       linux: undefined,
     }[platform],
