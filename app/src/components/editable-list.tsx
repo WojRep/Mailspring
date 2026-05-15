@@ -443,7 +443,19 @@ class EditableList extends Component<EditableListProps, EditableListState> {
     });
     return (
       <div className="buttons-wrapper">
-        <div className="btn-editable-list" onClick={this._onCreateItem}>
+        <div
+          className="btn-editable-list"
+          role="button"
+          tabIndex={0}
+          aria-label={localized('Create item')}
+          onClick={this._onCreateItem}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              this._onCreateItem();
+            }
+          }}
+        >
           <svg
             width="12"
             height="12"
@@ -459,7 +471,20 @@ class EditableList extends Component<EditableListProps, EditableListState> {
             />
           </svg>
         </div>
-        <div className={deleteClasses} onClick={this._onDeleteItem}>
+        <div
+          className={deleteClasses}
+          role="button"
+          tabIndex={0}
+          aria-label={localized('Delete item')}
+          aria-disabled={!this._getSelectedItem()}
+          onClick={this._onDeleteItem}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              this._onDeleteItem();
+            }
+          }}
+        >
           <svg
             width="12"
             height="12"

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { pickHTMLProps } from 'pick-react-known-prop';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import { localized } from 'actunamail-exports';
 
 import { RetinaImg } from './retina-img';
 import SelectableTable, { SelectableTableCell } from './selectable-table';
@@ -213,10 +214,34 @@ function EditableTable(props: EditableTableProps) {
     <div className="editable-table-container">
       <SelectableTable {...tableProps} />
       <div className="column-actions">
-        <div className="btn btn-small" onClick={onAddColumn}>
+        <div
+          className="btn btn-small"
+          role="button"
+          tabIndex={0}
+          aria-label={localized('Add column')}
+          onClick={onAddColumn}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onAddColumn(e);
+            }
+          }}
+        >
           <RetinaImg name="icon-column-plus.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
-        <div className="btn btn-small" onClick={onRemoveColumn}>
+        <div
+          className="btn btn-small"
+          role="button"
+          tabIndex={0}
+          aria-label={localized('Remove column')}
+          onClick={onRemoveColumn}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onRemoveColumn(e);
+            }
+          }}
+        >
           <RetinaImg name="icon-column-minus.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
       </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Rx, { Disposable } from 'rx-lite';
 import { Flexbox } from 'actunamail-component-kit';
+import { localized } from 'actunamail-exports';
 
 import { Template } from './scenario-editor-models';
 
@@ -187,13 +188,37 @@ export default class ScenarioEditorRow extends React.Component<ScenarioEditorRow
     return (
       <div className="actions">
         {this.props.removable && (
-          <div className="btn" onClick={this.props.onRemove}>
+          <div
+            className="btn"
+            role="button"
+            tabIndex={0}
+            aria-label={localized('Remove condition')}
+            onClick={this.props.onRemove}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.props.onRemove();
+              }
+            }}
+          >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <path d="M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
         )}
-        <div className="btn" onClick={this.props.onInsert}>
+        <div
+          className="btn"
+          role="button"
+          tabIndex={0}
+          aria-label={localized('Insert condition')}
+          onClick={this.props.onInsert}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              this.props.onInsert();
+            }
+          }}
+        >
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
