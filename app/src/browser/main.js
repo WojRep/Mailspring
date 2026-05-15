@@ -391,6 +391,18 @@ const start = () => {
         app.quit();
         return;
       }
+      // Ticket 45e — register IPC handler for manual archive cleanup
+      // (Preferences > Magazyn "Usuń archiwum v0.2.x" button).
+      // Independent of whether an archive exists right now — the user
+      // may delete it later in any session.
+      try {
+        const { ipcMain } = require('electron');
+        const { registerDeleteArchiveIPCHandler } = require('./delete-archive-ipc');
+        registerDeleteArchiveIPCHandler(ipcMain);
+      } catch (ipcErr) {
+        console.error('delete-archive IPC handler registration failed:', ipcErr);
+      }
+
       if (detectV02Data(configDirPath)) {
         const archivePath = archiveV02Data(configDirPath);
         // Persist the archive path so the renderer (ticket 45e banner +

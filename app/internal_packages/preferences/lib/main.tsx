@@ -50,6 +50,15 @@ export function activate() {
       order: 6,
     })
   );
+  // Ticket 45e — Magazyn tab: current DB info + v0.2.x archive manual cleanup.
+  PreferencesUIStore.registerPreferencesTab(
+    new PreferencesUIStore.TabItem({
+      tabId: 'Storage',
+      displayName: localized('Storage'),
+      componentClassFn: () => require('./tabs/preferences-storage').default,
+      order: 7,
+    })
+  );
 
   WorkspaceStore.defineSheet(
     'Preferences',
