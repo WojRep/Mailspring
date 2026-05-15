@@ -8,8 +8,6 @@ interface KeySet {
   [key: string]: string;
 }
 
-const { safeStorage } = require('@electron/remote');
-
 const configCredentialsKey = 'credentials';
 const DB_KEY_LENGTH_BYTES = 32;
 // SQLCipher DBKey is persisted as a safeStorage-encrypted blob in a
@@ -216,7 +214,7 @@ class KeyManager {
       encryptedCredentials !== 'null'
     ) {
       try {
-        raw = await safeStorage.decryptString(Buffer.from(encryptedCredentials, 'utf-8'));
+        raw = getSafeStorage().decryptString(Buffer.from(encryptedCredentials, 'utf-8'));
       } catch (err) {
         console.error('Mailspring encountered an error reading passwords from the keychain.');
         console.error(err);
@@ -230,7 +228,7 @@ class KeyManager {
   }
 
   async _writeKeyHash(keys: KeySet) {
-    if (!safeStorage.isEncryptionAvailable()) {
+    if (!getSafeStorage().isEncryptionAvailable()) {
       const platformHint =
         process.platform === 'linux'
           ? localized(
@@ -243,7 +241,7 @@ class KeyManager {
         ) + platformHint
       );
     }
-    const enrcyptedCredentials = await safeStorage.encryptString(JSON.stringify(keys));
+    const enrcyptedCredentials = getSafeStorage().encryptString(JSON.stringify(keys));
     AppEnv.config.set(configCredentialsKey, enrcyptedCredentials);
   }
 
