@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import { localized } from './intl';
 import { Account } from 'actunamail-exports';
 
@@ -8,6 +9,8 @@ interface KeySet {
 const { safeStorage } = require('@electron/remote');
 
 const configCredentialsKey = 'credentials';
+const configDBKeyName = 'databaseKey';
+const DB_KEY_LENGTH_BYTES = 32;
 
 /**
  * A basic wrap around electron's secure key management. Consolidates all of
@@ -18,6 +21,68 @@ const configCredentialsKey = 'credentials';
  * and every key we want to access.
  */
 class KeyManager {
+  private _dbKeyCache: Buffer | null = null;
+
+  /**
+   * SQLCipher Tier A DBKey accessor (ticket 45a).
+   *
+   * Returns a 32-byte Buffer used as the `PRAGMA key` for the encrypted
+   * SQLite database. The key is generated on first call via
+   * `crypto.randomBytes(32)`, persisted via `safeStorage.encryptString`
+   * (macOS Keychain / Windows DPAPI / Linux GNOME Keyring or KWallet),
+   * and cached in memory for the lifetime of the process.
+   *
+   * Linux refuse-to-start gate: if `safeStorage.isEncryptionAvailable()`
+   * returns false (no managed secret service), this throws a
+   * descriptive error rather than falling through to a plaintext mode
+   * — design memo §5 user decision 2026-05-12 *"Refuse to start"*.
+   */
+  async getDBKey(): Promise<Buffer> {
+    if (this._dbKeyCache && this._dbKeyCache.some(b => b !== 0)) {
+      return this._dbKeyCache;
+    }
+    if (!safeStorage.isEncryptionAvailable()) {
+      const platformHint =
+        process.platform === 'linux'
+          ? localized(
+              ' On Linux, ActunaMail requires a secret service such as GNOME Keyring or KWallet. Please install and run one, then restart ActunaMail.'
+            )
+          : '';
+      throw new Error(
+        localized(
+          `ActunaMail could not initialise database encryption because safeStorage is not available on this system.`
+        ) + platformHint
+      );
+    }
+    const persisted = AppEnv.config.get(configDBKeyName);
+    if (persisted !== undefined && persisted !== null && persisted !== 'null') {
+      const buf = Buffer.isBuffer(persisted)
+        ? persisted
+        : Buffer.from(persisted as string, 'utf-8');
+      const hex = await safeStorage.decryptString(buf);
+      this._dbKeyCache = Buffer.from(hex, 'hex');
+      return this._dbKeyCache;
+    }
+    const fresh = crypto.randomBytes(DB_KEY_LENGTH_BYTES);
+    const encrypted = await safeStorage.encryptString(fresh.toString('hex'));
+    AppEnv.config.set(configDBKeyName, encrypted);
+    this._dbKeyCache = fresh;
+    return this._dbKeyCache;
+  }
+
+  /**
+   * Zeroes the in-memory DBKey cache. Used on app shutdown,
+   * powerMonitor.suspend (Tier B integration in ticket 46), or when
+   * forcing a fresh re-read after key rotation. After wipe the next
+   * `getDBKey()` call re-decrypts from `safeStorage`.
+   */
+  wipeDBKey(): void {
+    if (this._dbKeyCache) {
+      this._dbKeyCache.fill(0);
+    }
+    this._dbKeyCache = null;
+  }
+
   async deleteAccountSecrets(account: Account) {
     try {
       const keys = await this._getKeyHash();
