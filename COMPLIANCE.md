@@ -100,7 +100,7 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** Account credentials are correctly placed in the OS keychain. Mail bodies are stored in plain SQLite (`MessageBody.value TEXT`), and the full-text search index (`ThreadSearch` fts5) carries `subject, to_, from_, body` in plain text. There is no application-layer encryption at rest.
 
-**ActunaMail v0.2.0.** Inherits Mailspring's OS-keychain handling for credentials (good). Inherits plain SQLite at rest (gap remains in this release). The SQLCipher migration is on the roadmap as ticket 03 — design memo planned for Sprint 6 (analysis/13-sqlcipher-migration-design.md), implementation targeted for v0.3 with two tiers: Tier A (transparent OS-keychain-derived key for consumer use) and Tier B (opt-in master password for KNF-regulated use). Until v0.3 ships, v0.2.0 mitigates by recommending FileVault / BitLocker / LUKS at the volume level for any deployment that needs to defend against a stolen laptop or a multi-user machine.
+**ActunaMail v0.3.x.** OS-keychain handling for credentials inherited (good). The local database `edgehill.db` is now **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A implemented: a random 32-byte key generated at first launch, protected by the OS keychain via Electron `safeStorage`, default-on for fresh installs, used by both the renderer and the C++ `mailsync` engine. This covers message bodies, the FTS search index, contacts and calendars. Tier B (opt-in master password → Argon2id KDF, for the strict KNF reading) is tracked as backlog ticket 46. **Remaining at-rest gap:** attachment files under `files/` are not yet encrypted — backlog ticket 49; volume-level encryption (FileVault / BitLocker / LUKS) remains the interim mitigation for attachment files only.
 
 The crash reporter that previously sent process memory to the United States is removed.
 
@@ -200,24 +200,30 @@ This does not by itself satisfy Article 21 — the deploying entity must add org
 
 We are explicit about what v0.2.0 does not yet provide (and what is queued in the roadmap):
 
-**Plain SQLite at rest.** The local mail database `edgehill.db` is plain SQLite. It contains:
+**Database at rest — ENCRYPTED (v0.3.x, SQLCipher Tier A).** The local mail
+database `edgehill.db` is encrypted at rest with SQLCipher (AES-256-CBC +
+HMAC). The encrypted scope covers:
 - Full HTML message bodies (`MessageBody.value`).
-- Full-text search index over subject / to / from / body (`ThreadSearch` fts5).
+- Full-text search index over subject / to / from / body (`ThreadSearch` fts5) — encrypted at the storage-page level, so search still works.
 - Full contact book (`Contact` and `ContactSearch` fts5).
 - Full calendar events with descriptions (`Event` and `EventSearch` fts5).
 
-**Plain attachments on disk.** `~/Library/Application Support/ActunaMail/files/<id>/<filename>` (macOS path; equivalent on other OSes). No application-layer encryption.
+Tier A: a random 32-byte key generated at first launch, protected by the
+OS keychain via Electron `safeStorage`, default-on for fresh installs.
+Verified end-to-end (`scripts/test-tier-a-smoke.js`). Implemented per
+backlog tickets 45a–45e. Tier B (opt-in master password → Argon2id KDF,
+for the strict KNF reading) is tracked as backlog ticket 46.
 
-**Mitigation in v0.2.0.** The deploying entity must enable FileVault (macOS), BitLocker (Windows), or LUKS (Linux) on the volume hosting the user profile. This protects against a stolen laptop or a powered-down machine. It does not protect against a logged-in attacker on the same machine, against backup leakage to iCloud Drive or Time Machine, or against forensic recovery on a multi-user machine.
+**Attachments on disk — NOT yet encrypted.** `~/Library/Application Support/ActunaMail/files/<id>/<filename>` (macOS path; equivalent on other OSes). Attachment files have no application-layer encryption — this is the one remaining at-rest gap, tracked as backlog ticket 49.
 
-**Resolution in v0.3 (roadmap, ticket 03 SQLCipher).** SQLCipher migration for `MessageBody` and the FTS index. Two tiers planned:
+**Interim mitigation for attachment files.** Until ticket 49 ships, the deploying entity should enable FileVault (macOS), BitLocker (Windows), or LUKS (Linux) on the volume hosting the user profile, to protect attachment files against a stolen laptop. Note this mitigation is now needed for attachment files ONLY — the database itself is already encrypted regardless of volume-level encryption.
 
-- **Tier A (default consumer):** key derived from the OS keychain via Electron `safeStorage`. Transparent to the user. GDPR Art. 32 defensible for "device theft" threat model.
-- **Tier B (opt-in, KNF-regulated):** master password → Argon2id KDF → key. Inactivity timeout, suspend/lock triggers, optional Touch ID unlock (ticket 41 — separately blocked by Faza B Apple Developer ID).
-
-Attachments are part of the same scope.
-
-This gap is the single biggest item between v0.2.0 and a deployment defensible under KNF Recommendation D and NIS2 Article 21 in the strictest reading. The Sprint 6 design memo addresses it — see `analysis/13-sqlcipher-migration-design.md` when it lands.
+**KNF Recommendation D / NIS2 Article 21.** The database-encryption gap
+that was the single biggest item between v0.2.0 and a strict-reading
+defensible deployment is CLOSED for the database. Attachment-file
+encryption (ticket 49) is the remaining work for a 100% positive at-rest
+audit. Design rationale: `analysis/13-sqlcipher-migration-design.md`;
+code-verified audit: `analysis/15-storage-audit-code-verified.md`.
 
 ---
 
