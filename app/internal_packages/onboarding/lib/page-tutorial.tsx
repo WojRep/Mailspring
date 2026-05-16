@@ -19,7 +19,7 @@ const Steps = [
       'Actuna Mail does not contact Sentry, Gravatar, or any analytics service when it starts. ' +
         'Your contacts, your drafts, and your error reports stay on your machine. ' +
         'No identity poll, no tracking pixels, no auto-subscribed newsletter. ' +
-        'Compliance posture mapped article-by-article to GDPR, the AI Act, KNF Recommendation D and Z, and NIS2 — ' +
+        'Compliance posture mapped article-by-article to GDPR, the AI Act, DORA, and NIS2 — ' +
         'every external endpoint Actuna Mail may reach is listed in SECURITY.md.'
     ),
   },
