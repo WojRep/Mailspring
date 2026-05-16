@@ -158,7 +158,7 @@ export class MailsyncProcess extends EventEmitter {
   }
 
   _spawnProcess(mode) {
-    // Ticket 45c — pass MAILSPRING_DB_KEY env var to the C++ mailsync
+    // Ticket 45c — pass ACTUNA_DB_KEY env var to the C++ mailsync
     // child process. The C++ side (mailsync/MailSync/MailStore.cpp)
     // reads this env, validates as hex-32-byte, and PRAGMA-keys the
     // connection before any other statement. Identical key as the JS
@@ -183,7 +183,7 @@ export class MailsyncProcess extends EventEmitter {
     const env = {
       ...process.env,
       CONFIG_DIR_PATH: this.configDirPath,
-      MAILSPRING_DB_KEY: mailsyncDbKeyHex,
+      ACTUNA_DB_KEY: mailsyncDbKeyHex,
       GMAIL_CLIENT_ID: GMAIL_CLIENT_ID,
       GMAIL_CLIENT_SECRET: GMAIL_CLIENT_SECRET,
       // WS2-D: pass an empty IDENTITY_SERVER. The mailsync C++ side

@@ -5,7 +5,7 @@
 // Catches the class of bug behind the v0.3.7–v0.3.11 restart loop:
 // KeyManager.getDBKey() failing in the main process (where mailsync
 // migrate is spawned), which left mailsync with an empty
-// MAILSPRING_DB_KEY and produced a plaintext / unopenable database.
+// ACTUNA_DB_KEY and produced a plaintext / unopenable database.
 //
 // It tests the COMPILED key-manager + the real mailsync binary out of
 // the deployed app bundle (/Applications/ActunaMail.app) — not the TS
@@ -123,7 +123,7 @@ app.whenReady().then(() => {
       env: {
         ...process.env,
         CONFIG_DIR_PATH: migrateDir,
-        MAILSPRING_DB_KEY: dbKeyHex,
+        ACTUNA_DB_KEY: dbKeyHex,
         IDENTITY_SERVER: '',
       },
       timeout: 30000,
@@ -149,7 +149,7 @@ app.whenReady().then(() => {
         env: {
           ...process.env,
           CONFIG_DIR_PATH: emptyDir,
-          MAILSPRING_DB_KEY: '',
+          ACTUNA_DB_KEY: '',
           IDENTITY_SERVER: '',
         },
         timeout: 30000,
@@ -169,7 +169,7 @@ app.whenReady().then(() => {
       env: {
         ...process.env,
         CONFIG_DIR_PATH: migrateDir,
-        MAILSPRING_DB_KEY: dbKeyHex,
+        ACTUNA_DB_KEY: dbKeyHex,
         IDENTITY_SERVER: '',
       },
       timeout: 30000,

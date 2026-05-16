@@ -22,7 +22,7 @@ const DB_KEY_FILENAME = 'db-key.enc';
  *   - main process (process.type === 'browser'): electron.safeStorage
  *     directly. `@electron/remote` is renderer-only and would yield
  *     `undefined` here — that was the bug behind the v0.3.7–0.3.9
- *     "MAILSPRING_DB_KEY is empty" crash: application.ts spawns
+ *     "ACTUNA_DB_KEY is empty" crash: application.ts spawns
  *     `mailsync.migrate()` from the MAIN process, getDBKey() threw on
  *     `undefined.isEncryptionAvailable()`, the catch swallowed it, and
  *     mailsync received an empty key.
@@ -81,7 +81,7 @@ class KeyManager {
    * The earlier implementation used `@electron/remote` + `AppEnv.config`,
    * both renderer-only; `application.ts` spawns `mailsync.migrate()` from
    * the MAIN process, where getDBKey() threw and mailsync got an empty
-   * key → "MAILSPRING_DB_KEY is empty" refuse-to-start crash.
+   * key → "ACTUNA_DB_KEY is empty" refuse-to-start crash.
    *
    * SYNCHRONOUS by design — Electron's safeStorage encrypt/decrypt and
    * Node `fs` calls used here are all synchronous, so every caller
