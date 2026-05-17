@@ -7,7 +7,6 @@ import {
   MessageUtils,
   MessageBodyProcessor,
   QuotedHTMLTransformer,
-  AttachmentStore,
   Message,
 } from 'actunamail-exports';
 import { InjectedComponentSet, RetinaImg } from 'actunamail-component-kit';
@@ -161,9 +160,11 @@ export default class MessageItemBody extends React.Component<
           merged = merged.replace(inlineImgRegexp, () => SpinnerImg);
         } else {
           merged = merged.replace(inlineImgRegexp, (match) => {
-            const filePath = AttachmentStore.pathForFile(file);
-            if (!filePath) return match;
-            return match.replace(`cid:${file.contentId}`, `file://${filePath}`);
+            // Ticket 49d — route inline images through the actuna-attachment://
+            // protocol. files/ now holds AES-GCM ciphertext (49b/49c); the
+            // protocol handler decrypts it in the main process and streams the
+            // plaintext to the iframe, so a plain file:// path no longer works.
+            return match.replace(`cid:${file.contentId}`, `actuna-attachment://file/${file.id}`);
           });
         }
       });

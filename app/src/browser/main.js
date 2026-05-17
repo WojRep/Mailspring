@@ -277,6 +277,16 @@ const start = () => {
         supportFetchAPI: true,
         corsEnabled: true,
       }
+    },
+    {
+      // Ticket 49d — serves decrypted inline image attachments to the
+      // message-body iframe (actuna-attachment-protocol-handler.ts).
+      scheme: 'actuna-attachment',
+      privileges: {
+        secure: true,
+        supportFetchAPI: true,
+        corsEnabled: true,
+      }
     }
   ])
 
@@ -459,7 +469,7 @@ const start = () => {
         responseHeaders: {
           ...details.responseHeaders,
           'Content-Security-Policy': [
-            "default-src * mailspring:; script-src 'self' 'unsafe-inline' chrome-extension://react-developer-tools; style-src * 'unsafe-inline' mailspring:; img-src * data: mailspring: file:; object-src none; media-src mailspring:; manifest-src none;",
+            "default-src * mailspring:; script-src 'self' 'unsafe-inline' chrome-extension://react-developer-tools; style-src * 'unsafe-inline' mailspring:; img-src * data: mailspring: file: actuna-attachment:; object-src none; media-src mailspring:; manifest-src none;",
           ],
         },
       });

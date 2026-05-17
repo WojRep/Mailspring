@@ -18,6 +18,7 @@ import SystemAccentWatcher from './system-accent-watcher';
 import SystemTrayManager from './system-tray-manager';
 import { DefaultClientHelper } from '../default-client-helper';
 import ActunaMailProtocolHandler from './actunamail-protocol-handler';
+import ActunaAttachmentProtocolHandler from './actuna-attachment-protocol-handler';
 import ConfigPersistenceManager from './config-persistence-manager';
 import moveToApplications from './move-to-applications';
 import { MailsyncProcess } from '../mailsync-process';
@@ -48,6 +49,7 @@ export default class Application extends EventEmitter {
   fileListCache: FileListCache;
   applicationMenu: ApplicationMenu;
   actunamailProtocolHandler: ActunaMailProtocolHandler;
+  actunaAttachmentProtocolHandler: ActunaAttachmentProtocolHandler;
   windowManager: WindowManager;
   autoUpdateManager: AutoUpdateManager;
   systemAccentWatcher: SystemAccentWatcher;
@@ -78,6 +80,11 @@ export default class Application extends EventEmitter {
       configDirPath,
       resourcePath,
       safeMode,
+    });
+    // Ticket 49d — serves decrypted inline image attachments to the
+    // message-body iframe over actuna-attachment://.
+    this.actunaAttachmentProtocolHandler = new ActunaAttachmentProtocolHandler({
+      configDirPath,
     });
 
     try {
