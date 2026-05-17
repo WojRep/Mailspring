@@ -171,6 +171,15 @@ export default class Sheet extends React.Component<SheetProps, SheetState> {
           mode: state.mode,
         });
 
+        // A column whose location has no registered components contributes
+        // nothing to the UI — skip it entirely so the layout collapses
+        // instead of reserving an empty strip. This is what hides the
+        // MessageListSidebar column when no contact-card plugin is
+        // registered to it.
+        if (entries.length === 0) {
+          return;
+        }
+
         const maxWidth = entries.reduce((m, { containerStyles }) => {
           if (
             containerStyles &&
