@@ -22,10 +22,6 @@ Prosimy **nie** zakładać zgłoszeń (issues) na GitHubie na etapie pre-alpha �
 
 Instrukcje budowania znajdują się w dokumentacji deweloperskiej repozytorium (`CLAUDE.md` oraz skrypty budujące w `app/build/`). W skrócie: `npm install`, następnie `npm start` dla trybu deweloperskiego lub `npm run build` dla buildu produkcyjnego.
 
-## Kodeks postępowania
-
-Projekt jest wydany z Kodeksem postępowania dla kontrybutorów ([Code of Conduct](CODE_OF_CONDUCT.md)). Uczestnicząc, zobowiązujesz się go przestrzegać.
-
 ## Kontakt
 
 `tech@actuna.pl`

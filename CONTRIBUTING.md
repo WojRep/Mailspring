@@ -22,10 +22,6 @@ Please do **not** open issues on GitHub during pre-alpha — email is the channe
 
 Build instructions live in the repository's developer documentation (`CLAUDE.md` and the build scripts under `app/build/`). In short: `npm install`, then `npm start` for development or `npm run build` for a production build.
 
-## Code of conduct
-
-This project is released with a Contributor [Code of Conduct](CODE_OF_CONDUCT.md). By participating you agree to abide by its terms.
-
 ## Contact
 
 `tech@actuna.pl`
