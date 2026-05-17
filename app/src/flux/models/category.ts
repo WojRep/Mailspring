@@ -17,7 +17,6 @@ const ToObject = (arr) => {
 const StandardRoleMap = ToObject([
   'inbox',
   'important',
-  'snoozed',
   'sent',
   'drafts',
   'all',
@@ -35,7 +34,6 @@ const HiddenRoleMap = ToObject([
   'archive',
   'starred',
   'important',
-  'snoozed',
   '[Mailspring]',
 ]);
 
@@ -48,7 +46,6 @@ const LocalizedStringForRole = {
   sent: localized('Sent Mail'),
   inbox: localized('Inbox'),
   important: localized('Important'),
-  snoozed: localized('Snoozed'),
   drafts: localized('Drafts'),
   all: localized('All Mail'),
   spam: localized('Spam'),

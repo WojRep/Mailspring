@@ -364,11 +364,6 @@ export default {
             default: true,
             title: localized('Play sound when receiving new mail'),
           },
-          unsnoozeToTop: {
-            type: 'boolean',
-            default: true,
-            title: localized('Resurface messages to the top of the inbox when unsnoozing'),
-          },
           countBadge: {
             type: 'string',
             default: 'unread',

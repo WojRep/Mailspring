@@ -51,7 +51,7 @@ class SidebarSection {
       return this.empty(account.label);
     }
 
-    const items = _.reject(cats, (cat) => ['drafts', 'snoozed'].includes(cat.role)).map((cat) =>
+    const items = _.reject(cats, (cat) => ['drafts'].includes(cat.role)).map((cat) =>
       SidebarItem.forCategories([cat], { editable: false, deletable: false })
     );
 
