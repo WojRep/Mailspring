@@ -1,28 +1,32 @@
 # Security
 
+**English** · [Polski](SECURITY.pl.md)
+
 ## Posture
 
 Actuna Mail is built on a single principle: **the binary you install must not transmit your data, your metadata, or your contacts' data to any third party that you have not knowingly chosen.**
 
-What this means in practice for ActunaMail v0.2.0 (current shipped release):
+What this means in practice:
 
 1. **Email credentials** (IMAP/SMTP passwords, OAuth refresh tokens) are stored in the operating system's secure credential store — macOS Keychain via Electron's `safeStorage`, Windows Credential Manager, or Linux Secret Service / GNOME Keyring / KWallet. They never leave the credential store except to be passed in-memory to the local `mailsync` subprocess that connects to your mail provider.
 
-2. **Mail content** (message bodies, full-text search index, contacts, calendars) is stored locally in SQLite under the user's application data directory at `~/Library/Application Support/ActunaMail/edgehill.db` (macOS) or platform equivalent. As of v0.3.x this database is **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A: a random 32-byte key generated at first launch and protected by the OS keychain via Electron `safeStorage` (macOS Keychain / Windows DPAPI / Linux GNOME Keyring or KWallet). Encryption is default-on for fresh installs; the renderer and the C++ `mailsync` engine both open the same encrypted database. Tier B (opt-in master password, Argon2id) is tracked as backlog ticket 46. **Attachments** stored as files under `files/` are also **encrypted at rest** as of v0.3.x — AES-256-GCM per file, with a key derived via HKDF-SHA256 from the same SQLCipher DBKey (no separate secret to manage); implemented per backlog ticket 49. Both the renderer and the C++ `mailsync` engine read and write the shared `AENC` on-disk format, and inline images / previews / Open / drag-out decrypt transparently. This closes the last at-rest gap — application-layer encryption now covers the database and the attachment files.
+2. **Mail content** (message bodies, full-text search index, contacts, calendars) is stored locally in SQLite under the user's application data directory at `~/Library/Application Support/ActunaMail/edgehill.db` (macOS) or platform equivalent. This database is **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A: a random 32-byte key generated at first launch and protected by the OS keychain via Electron `safeStorage` (macOS Keychain / Windows DPAPI / Linux GNOME Keyring or KWallet). Encryption is default-on for fresh installs; the renderer and the C++ `mailsync` engine both open the same encrypted database. Tier B (opt-in master password, Argon2id) is tracked as a backlog item.
 
-3. **No third-party error reporting.** No Sentry. No native crash reporter to remote servers. Crashes are logged locally to disk only. Electron Crashpad and Breakpad are disabled at three layers (renderer code, main process flags, mailsync C++ env).
+3. **Attachments** stored as files under `files/` are **encrypted at rest** — AES-256-GCM per file, with a key derived via HKDF-SHA256 from the same SQLCipher DBKey (no separate secret to manage). Both the renderer and the C++ `mailsync` engine read and write the shared `AENC` on-disk format, and inline images / previews / Open / drag-out decrypt transparently. Application-layer encryption at rest covers the database and the attachment files.
 
-4. **No third-party visual or behavioural lookups.** No Gravatar. No `logo.getmailspring.com`. No Plugin Metadata Sync. No Identity polling. The Mailspring identity/Foundry layer was removed entirely (the `Identity` store is gutted and returns `null`; `IDENTITY_SERVER` env var passed empty to mailsync).
+4. **No third-party error reporting.** No Sentry. No native crash reporter to remote servers. Crashes are logged locally to disk only. Electron Crashpad and Breakpad are disabled at three layers (renderer code, main process flags, mailsync C++ env).
 
-5. **No auto-update channel** in v0.2.0. The user controls when an update is applied. Once Actuna's own update channel ships (post Faza B Apple Developer ID enrollment, queued as ticket 07), it will be opt-in and signed.
+5. **No third-party visual or behavioural lookups.** No Gravatar. No `logo.getmailspring.com`. No Plugin Metadata Sync. No Identity polling. The Mailspring identity/Foundry layer was removed entirely (the `Identity` store is gutted and returns `null`; `IDENTITY_SERVER` env var passed empty to mailsync).
 
-6. **No telemetry.** Not now, and not after the optional Actuna Engine ships. If telemetry ever exists, it will be opt-in, off by default, documented in this file, and limited to non-PII performance metrics.
+6. **No auto-update channel.** The user controls when an update is applied. Once Actuna's own update channel ships, it will be opt-in and signed.
 
-7. **Custom URL scheme renamed** in v0.2.l from `mailspring://` to `actunamail://` (42 callsites migrated). The scheme is internal to the renderer for asset loading; it is also reserved for future opt-in deep-links to AI features (`actunamail://ai/...` namespace, ticket 16 EPIC) under AI Act Art. 5/52 constraints.
+7. **No telemetry.** Not now, and not after the optional Actuna Engine ships. If telemetry ever exists, it will be opt-in, off by default, documented in this file, and limited to non-PII performance metrics.
 
-The full sterilization log — every endpoint removed, every file changed, every line of code patched — is documented in [`COMPLIANCE.md`](COMPLIANCE.md) and tracked on the `compliance/v0.2` branch (tagged `v0.2.0`).
+8. **Custom URL schemes are internal.** The renderer uses an `actunamail://` scheme for asset loading and a sibling `actuna-attachment://` scheme that streams decrypted inline images to the message iframe. The `actunamail://ai/...` namespace is reserved for future opt-in deep-links to AI features under AI Act Art. 5/52 constraints.
 
-## What goes out over the network in default v0.2.0
+The full sterilization log — every endpoint removed, every file changed, every line of code patched — is documented in [`COMPLIANCE.md`](COMPLIANCE.md); the per-release history is in [`CHANGELOG.md`](CHANGELOG.md).
+
+## What goes out over the network by default
 
 | Destination | Purpose | When |
 |---|---|---|
@@ -32,9 +36,9 @@ The full sterilization log — every endpoint removed, every file changed, every
 | `login.microsoftonline.com`, `graph.microsoft.com` | OAuth refresh for Microsoft 365 / Outlook | When the M365 token expires |
 | `lh3.googleusercontent.com`, `lh*.ggpht.com` | Avatar URLs returned in OAuth responses | When rendering Google avatars that came inline |
 
-That is the full list. There are no other defaults. If your network monitor sees ActunaMail v0.2.0 reaching anything else, that is a bug — please report it.
+That is the full list. There are no other defaults. If your network monitor sees Actuna Mail reaching anything else, that is a bug — please report it.
 
-**Empirical baseline:** [`verification/test-1-post-patch-v02.txt`](../verification/test-1-post-patch-v02.txt) (KROK 5 procedure, 10-minute tcpdump capture with active IMAP/SMTP/CardDAV account) confirms **zero hits** to forbidden hosts: `*.getmailspring.com`, `*.sentry.io`, `*.gravatar.com`, `*.wp.com`.
+**Empirical baseline:** the runtime egress regression reports under [`verification/`](verification/) (KROK 5 procedure — a tcpdump capture during a fresh launch, and longer with an active IMAP/SMTP/CardDAV account) confirm **zero hits** to forbidden hosts: `*.getmailspring.com`, `*.sentry.io`, `*.gravatar.com`, `*.wp.com`. The egress posture is re-verified after every release.
 
 ## How to verify
 
@@ -42,7 +46,7 @@ Independent verification is the point of this project. We provide:
 
 - The full audit pack — see the project's parent directory at `tech@actuna.pl`.
 - Runtime tcpdump scripts (in the audit project) that you can run to confirm zero unauthorized egress.
-- Diff against upstream Mailspring 1.21.0: `git diff 1.21.0..v0.2.0`.
+- A diff against upstream Mailspring 1.21.0.
 - Reproducible builds: see the build instructions in this repository's developer documentation.
 
 If something in this document is inconsistent with the binary you installed, the binary is wrong. Please tell us at `tech@actuna.pl` so we can fix it.
@@ -51,7 +55,7 @@ If something in this document is inconsistent with the binary you installed, the
 
 If you believe Actuna Mail has a security vulnerability, please email `tech@actuna.pl` with as much detail as you can provide. Please give us a reasonable window to remediate before publishing details. We will acknowledge within 48 hours during business days.
 
-If you believe a third-party download site is hosting an unofficial build of Actuna Mail under our name, please report it to the same address. Official builds are signed and distributed only from `actuna.pl` (once v0.3 ships).
+If you believe a third-party download site is hosting an unofficial build of Actuna Mail under our name, please report it to the same address. Official builds are signed and distributed only from `actuna.pl`.
 
 ## Differences from upstream Mailspring SECURITY.md
 
@@ -63,28 +67,14 @@ The upstream Mailspring SECURITY.md, in three sentences, claims:
 
 Statement #1 is true in Mailspring 1.21.0.
 
-Statements #2 and #3 are not true in Mailspring 1.21.0 default install. The full evidence — file path and line number for every contradicting code path — is documented in our audit. We forked specifically to make all three statements true in Actuna Mail. The sterilization patches are atomic, reviewable, and on the `compliance/v0.1` branch.
+Statements #2 and #3 are not true in Mailspring 1.21.0 default install. The full evidence — file path and line number for every contradicting code path — is in [`AUDYT-MAILSPRING.md`](AUDYT-MAILSPRING.md) and the audit pack. We forked specifically to make all three statements true in Actuna Mail.
 
 This is not a criticism of Foundry 376. The leaks accumulated over years of feature development; each one made sense individually. We chose to fork rather than carry that same baggage into a product sold to organizations under GDPR, KNF and NIS2 obligations.
 
-## Changes since v0.1 (v0.2.0 release notes — security-relevant)
+## Release history
 
-| Sprint | Series | Security-relevant delta |
-|---|---|---|
-| 4 | v0.2.e | Dependency upgrades closing 42 of 52 Dependabot alerts. Electron 39.2.7 → 41.5.0 (Chrome 146), DOMPurify 3.3.1 → 3.4.2 (8 XSS-bypass alerts), `@xmldom/xmldom` 0.8.11 → 0.8.13 (5 XML injection alerts), lodash 4.17.21 → 4.18.1 (code injection via `_.template`), `postcss` 8.4.38 → 8.5.14 (XSS via `</style>`), `minimatch` and `brace-expansion` ReDoS fixes. Remaining 5 architectural deferrals documented in `analysis/10-sprint4-dependabot-triage.md`. |
-| 5 | v0.2.f | SMTP test email content reads localized `ACTUNA_TEST_*` env vars (mailcore2 modified). GPL-3.0 §5(a) attribution added at top of `all_licenses.html` (PL + EN bilingual). |
-| 5 | v0.2.h | i18n parity enforcement script (`scripts/check-i18n-parity.js`) ensures PL+EN translations stay in lockstep; prevents silent locale drift. `intl.ts:252` placeholder math bug fix (zero-indexing). |
-| 5 | v0.2.j | mailsync C++ anti-fork check (substring "mailspring" in executable path) removed. Bundle layout simplified — mailsync now lives at the natural `app.asar.unpacked/mailsync` path. No security regression: the removed check was anti-fork, not anti-tampering. Code-signing (ad-hoc) verifies binary integrity. |
-| 5 | v0.2.k | Custom URL scheme `mailspring://` renamed to `actunamail://` in renderer + main process. Internal scheme registration via `registerSchemesAsPrivileged` updated. Reserved `actunamail://ai/...` namespace for future AI integration (opt-in, AI Act Art. 5/52 documented). |
-| 5 | v0.2.l | 16 internal modules renamed from `mailspring-*` to `actunamail-*` (including `actunamail-exports`, `actunamail-component-kit`, `actunamail-store`). 481 import paths updated. `.eslintrc` whitelist updated. `engines.mailspring` in 42 internal_packages intentionally deferred to a separate refactor ticket (PackageManager coupling). |
-| 6 | v0.2.m | UX hover discoverability — global CSS rules for cursor pointer on interactive elements, touch target min-size 36px (desktop) / 44px (touch via `@media (pointer: coarse)`), subtle active-state scale feedback. No security impact. |
-| 6 | v0.2.n | Tooltip foundation component (`<Tooltip>`) wrapping `@floating-ui/react@^0.20` (React 16 compatible). WCAG 1.4.13 compliant. Facade pattern enables 1-file swap to React Native compatible package on future mobile path. |
-| 6 | v0.2.o | Retroactive TDD coverage for Sprint 5 untested production code — 3 spec files (page-compliance, check-i18n-parity, intl extended). Methodology debt paid down. |
-
-**Tagged release:** [`v0.2.0`](https://github.com/WojRep/ActunaMail/releases/tag/v0.2.0) on `WojRep/ActunaMail` `compliance/v0.2` branch.
-
-**Submodule pinned:** `WojRep/Mailspring-Sync` tag `actuna-v0.2.0` (commit `4441196`, anti-fork check removed).
+Security-relevant changes per release are recorded in [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
-*Last reviewed: 2026-05-11 (Sprint 6 close-out for ticket 05). Next review: at each sprint close, or whenever the endpoint table or sterilization layer changes.*
+*Reviewed at each release, and whenever the endpoint table or sterilization layer changes.*

@@ -1,5 +1,7 @@
 # Audit — Mailspring 1.21.0
 
+**English** · [Polski](AUDYT-MAILSPRING.pl.md)
+
 This document records the line-by-line security audit of
 [Foundry376/Mailspring](https://github.com/Foundry376/Mailspring) 1.21.0 that
 motivated the Actuna Mail fork. The summary lives in the project

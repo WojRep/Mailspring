@@ -1,13 +1,15 @@
 # Compliance
 
-ActunaMail v0.2.0 is built to defensible compliance with four overlapping regimes that apply to organizations operating in Poland and the European Union:
+**English** · [Polski](COMPLIANCE.pl.md)
+
+Actuna Mail is built to defensible compliance with four overlapping regimes that apply to organizations operating in Poland and the European Union:
 
 - **GDPR** — Regulation (EU) 2016/679, with Polish implementation in *ustawa o ochronie danych osobowych* (10 May 2018) and the supervisory role of the Office for Personal Data Protection (UODO).
 - **AI Act** — Regulation (EU) 2024/1689.
 - **KNF** — guidelines from the Polish Financial Supervision Authority, in particular Recommendation D (IT governance), Recommendation Z (outsourcing risk), and the *Communiqué on the use of cloud services* of 23 January 2020.
 - **NIS2** — Directive (EU) 2022/2555, with Polish implementation in the *Krajowy System Cyberbezpieczeństwa 2.0*.
 
-This document is a working compliance map between **the actual code on the `compliance/v0.2` branch** and **specific articles of the four regimes**. It is not a legal opinion and it does not substitute for a Data Protection Impact Assessment (DPIA), a Transfer Impact Assessment (TIA), or counsel from a qualified lawyer. It is meant to be precise enough that an auditor or DPO can verify each claim.
+This document is a working compliance map between **the actual code in this repository** and **specific articles of the four regimes**. It is not a legal opinion and it does not substitute for a Data Protection Impact Assessment (DPIA), a Transfer Impact Assessment (TIA), or counsel from a qualified lawyer. It is meant to be precise enough that an auditor or DPO can verify each claim.
 
 ## How this document is organized
 
@@ -15,7 +17,7 @@ For each regime we list the articles that reach a desktop email client of this k
 
 - **What the regulation requires.** A short, faithful paraphrase.
 - **What upstream Mailspring 1.21.0 does.** With file path and line number.
-- **What ActunaMail v0.2.0 does.** With the patch on the `compliance/v0.2` branch.
+- **What Actuna Mail does.** With reference to the patch.
 - **Verification.** How an auditor can confirm.
 
 Every "what upstream does" claim is sourced from the audit in the parent project of this fork. The audit itself is reproducible — clone Mailspring 1.21.0 at commit `561a81a3` and run the same greps. We deliberately make the contrast verifiable rather than rhetorical.
@@ -28,11 +30,11 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Required.** Personal data must be processed lawfully, fairly, and transparently in relation to the data subject.
 
-**Mailspring 1.21.0.** The default install contacts at minimum ten distinct external endpoints (see [SECURITY.md](SECURITY.md)) without prior notice in the application's first-run UX. The SECURITY.md document distributed with the source promises behaviour that the binary does not exhibit.
+**Mailspring 1.21.0.** The default install contacts at minimum ten distinct external endpoints (see [SECURITY.md](SECURITY.md) and [AUDYT-MAILSPRING.md](AUDYT-MAILSPRING.md)) without prior notice in the application's first-run UX. The SECURITY.md document distributed with the source promises behaviour that the binary does not exhibit.
 
-**ActunaMail v0.2.0.** All ten egress channels are removed by default. The `compliance/v0.2` branch contains atomic commits, one per channel, each citing the line numbers in upstream that were patched. The new SECURITY.md is faithful to the binary.
+**Actuna Mail.** All ten egress channels are removed by default. The repository contains atomic commits, one per channel, each citing the line numbers in upstream that were patched. The SECURITY.md is faithful to the binary.
 
-**Verification.** Run the runtime tcpdump scripts shipped with the audit project, in `post-patch` mode, against a build of the `compliance/v0.2` branch. Expected output: zero requests to `*.getmailspring.com`, `*.sentry.io`, `*.gravatar.com`, `*.wp.com` for the lifetime of the process.
+**Verification.** Run the runtime tcpdump scripts shipped with the audit project, in `post-patch` mode, against a build of this repository. Expected output: zero requests to `*.getmailspring.com`, `*.sentry.io`, `*.gravatar.com`, `*.wp.com` for the lifetime of the process.
 
 ### Article 5(1)(c) — Data minimization
 
@@ -43,9 +45,9 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 - `SendFeatureUsageEventTask` is queued every time a Pro feature is used, even on the Basic plan with no quota to enforce server-side.
 - The streaming connection at `/deltas/<accountId>/streaming?ih=<imapHost>` carries the user's IMAP host as a URL parameter for the duration of the session.
 
-**ActunaMail v0.2.0.** Identity polling is removed. `SendFeatureUsageEventTask` is removed. The streaming connection is removed (Mailspring ID concept is removed entirely; see Article 7).
+**Actuna Mail.** Identity polling is removed. `SendFeatureUsageEventTask` is removed. The streaming connection is removed (the Mailspring ID concept is removed entirely; see Article 7).
 
-**Verification.** `grep -rn "fetchIdentity\|SendFeatureUsageEventTask\|MetadataWorker" mailspring/app/ mailsync/MailSync/` on `compliance/v0.2` returns nothing relevant.
+**Verification.** `grep -rn "fetchIdentity\|SendFeatureUsageEventTask\|MetadataWorker" app/ mailsync/MailSync/` returns nothing relevant.
 
 ### Article 6 — Lawful basis
 
@@ -53,7 +55,7 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** Sentry, Gravatar, `logo.getmailspring.com`, identity polling, Plugin Metadata Sync, `/api/resolve-dav-hosts`, and the onboarding webview all run by default. None of them have an explicit lawful basis disclosed in the application UI. The argument that error reporting is a legitimate interest under Article 6(1)(f) does not survive the balancing test when the data is shipped to the United States with no DPA, no TIA, and no opt-out — particularly given the SECURITY.md promise to the contrary.
 
-**ActunaMail v0.2.0.** The processing operations whose lawful basis is doubtful are removed. What remains:
+**Actuna Mail.** The processing operations whose lawful basis is doubtful are removed. What remains:
 - IMAP / SMTP / CalDAV / CardDAV traffic to the user's chosen mail provider (Article 6(1)(b) — performance of contract).
 - OAuth refresh against Google / Microsoft (Article 6(1)(b)).
 - That is the entire list.
@@ -66,9 +68,9 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** `app/internal_packages/onboarding/lib/newsletter-signup.tsx:67-72` calls `POST /newsletter` from `componentDidMount`. There is no checkbox, no opt-in dialog, no record of consent. Any user who completes onboarding is enrolled.
 
-**ActunaMail v0.2.0.** The newsletter signup module is removed in its entirety. There is no newsletter to subscribe to.
+**Actuna Mail.** The newsletter signup module is removed in its entirety. There is no newsletter to subscribe to.
 
-**Verification.** `ls app/internal_packages/onboarding/lib/newsletter*` on `compliance/v0.2` returns no files.
+**Verification.** `ls app/internal_packages/onboarding/lib/newsletter*` returns no files.
 
 ### Articles 13 / 14 — Information to data subjects
 
@@ -76,7 +78,7 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** SECURITY.md is the closest thing to an in-app information notice and it does not match the code. The privacy policy at `getmailspring.com/privacy-policy` is reachable only by leaving the application.
 
-**ActunaMail v0.2.0.** SECURITY.md is rewritten to match the binary. The binary itself does not collect personal data for any purpose other than connecting the user to their own mail provider, so the Articles 13/14 burden is dramatically reduced compared to upstream Mailspring. When the optional Actuna Engine ships (EPIC 16 in backlog, post-v0.2 roadmap), the AI router will surface its own information notice at first use.
+**Actuna Mail.** SECURITY.md is rewritten to match the binary. The binary itself does not collect personal data for any purpose other than connecting the user to their own mail provider, so the Articles 13/14 burden is dramatically reduced compared to upstream Mailspring. When the optional Actuna Engine ships, the AI router will surface its own information notice at first use.
 
 ### Article 25 — Data protection by design and by default
 
@@ -84,7 +86,7 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** The default state is "everything on" — Sentry, crash reporter, Gravatar, identity polling, every Pro plugin loaded. The user must take action to opt out of channels that they have not been informed about.
 
-**ActunaMail v0.2.0.** The default state is "nothing on except what is necessary to deliver mail." This is the article 25 standard.
+**Actuna Mail.** The default state is "nothing on except what is necessary to deliver mail." This is the Article 25 standard.
 
 ### Article 28 — Processor relationships
 
@@ -92,23 +94,21 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** Every Gravatar lookup involves Automattic, Inc. as a third party processing personal data of the *user's contacts* (the contact's email is hashed and sent). Without a DPA between the Mailspring user (acting as controller) and Automattic, this is unsupported processing. The same applies to Sentry (Functional Software, Inc.) for stack traces and device fingerprints.
 
-**ActunaMail v0.2.0.** Both processors are removed. There is no third-party processor in the default configuration.
+**Actuna Mail.** Both processors are removed. There is no third-party processor in the default configuration.
 
 ### Article 32 — Security of processing
 
 **Required.** Appropriate technical and organisational measures including, where appropriate, pseudonymisation and encryption of personal data.
 
-**Mailspring 1.21.0.** Account credentials are correctly placed in the OS keychain. Mail bodies are stored in plain SQLite (`MessageBody.value TEXT`), and the full-text search index (`ThreadSearch` fts5) carries `subject, to_, from_, body` in plain text. There is no application-layer encryption at rest.
+**Mailspring 1.21.0.** Account credentials are correctly placed in the OS keychain. Mail bodies are stored in plain SQLite (`MessageBody.value TEXT`), and the full-text search index (`ThreadSearch` fts5) carries `subject, to_, from_, body` in plain text. Attachment files are stored in plaintext. There is no application-layer encryption at rest.
 
-**ActunaMail v0.3.x.** OS-keychain handling for credentials inherited (good). The local database `edgehill.db` is now **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A implemented: a random 32-byte key generated at first launch, protected by the OS keychain via Electron `safeStorage`, default-on for fresh installs, used by both the renderer and the C++ `mailsync` engine. This covers message bodies, the FTS search index, contacts and calendars. Tier B (opt-in master password → Argon2id KDF, for the strict KNF reading) is tracked as backlog ticket 46. **Attachment files** under `files/` are **also encrypted at rest** (AES-256-GCM per file, key derived via HKDF-SHA256 from the same DBKey) — backlog ticket 49, implemented in both the renderer and the C++ `mailsync` engine. Application-layer encryption at rest now covers the database and the attachment files; no at-rest gap remains.
-
-The crash reporter that previously sent process memory to the United States is removed.
+**Actuna Mail.** OS-keychain handling for credentials inherited (good). The local database `edgehill.db` is **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A: a random 32-byte key generated at first launch, protected by the OS keychain via Electron `safeStorage`, default-on for fresh installs, used by both the renderer and the C++ `mailsync` engine. This covers message bodies, the FTS search index, contacts and calendars. Tier B (opt-in master password → Argon2id KDF, for the strict KNF reading) is tracked as a backlog item. **Attachment files** under `files/` are **also encrypted at rest** (AES-256-GCM per file, key derived via HKDF-SHA256 from the same DBKey), implemented in both the renderer and the C++ `mailsync` engine. Application-layer encryption at rest covers the database and the attachment files; no at-rest gap remains. The crash reporter that previously sent process memory to the United States is removed.
 
 ### Article 35 — DPIA
 
 **Required.** When processing is likely to result in high risk, a DPIA is required before processing begins.
 
-**ActunaMail v0.2.0.** Email content is sensitive by definition (it routinely includes special-category data and confidential business communications). Operators deploying Actuna Mail to personnel handling regulated communications should perform a DPIA. We provide a starter template covering the application's actual data flows in the v0.3 compliance pack.
+**Actuna Mail.** Email content is sensitive by definition (it routinely includes special-category data and confidential business communications). Operators deploying Actuna Mail to personnel handling regulated communications should perform a DPIA. We provide a starter template covering the application's actual data flows in the compliance pack.
 
 ### Article 44 et seq. — Transfers to third countries (Schrems II)
 
@@ -116,7 +116,7 @@ The crash reporter that previously sent process memory to the United States is r
 
 **Mailspring 1.21.0.** Every default channel except the user's own mail server lands in the United States: Sentry (`o70907.ingest.us.sentry.io`), Foundry's identity service (`id.getmailspring.com`), Gravatar (Automattic), the crash reporter. Schrems II requires a Transfer Impact Assessment when relying on Standard Contractual Clauses; none is provided.
 
-**ActunaMail v0.2.0.** All default transfers to the United States are removed. The remaining destinations are the user's chosen mail provider and the user's chosen OAuth provider (Google or Microsoft, where transfers are governed by the user's separate relationship with that provider).
+**Actuna Mail.** All default transfers to the United States are removed. The remaining destinations are the user's chosen mail provider and the user's chosen OAuth provider (Google or Microsoft, where transfers are governed by the user's separate relationship with that provider).
 
 ---
 
@@ -126,15 +126,15 @@ The crash reporter that previously sent process memory to the United States is r
 
 **Required.** Providers of generative AI systems must ensure that AI-generated text, when published to inform the public, is detectable as AI-generated, and users must be informed when they interact with an AI system.
 
-**ActunaMail v0.2.0.** No AI features are present.
+**Actuna Mail.** No AI features are present in the mail client itself.
 
-**Actuna Mail v0.2 (planned).** The Actuna Engine will route to the user's own Claude or Codex CLI subscription. Drafts authored or edited with AI assistance will be marked in the application as such. The marking will be opt-in to send (a literal "Mark as AI-assisted" checkbox in the composer) and never silently injected.
+**Actuna Engine (planned).** The Actuna Engine will route to the user's own Claude or Codex CLI subscription. Drafts authored or edited with AI assistance will be marked in the application as such. The marking will be opt-in to send (a literal "Mark as AI-assisted" checkbox in the composer) and never silently injected.
 
 ### Article 6 / Annex III — High-risk classification
 
-**Mailspring 1.21.0 / ActunaMail v0.2.0.** Neither system performs any of the activities listed in Annex III. Article 6 high-risk classification does not apply.
+**Mailspring 1.21.0 / Actuna Mail.** Neither system performs any of the activities listed in Annex III. Article 6 high-risk classification does not apply.
 
-When v0.2 ships AI assistance, we will revisit this. Routine email composition assistance is generally not Annex III, but operators in regulated sectors (recruitment, credit, insurance) should review their specific use case.
+When Actuna ships AI assistance, we will revisit this. Routine email composition assistance is generally not Annex III, but operators in regulated sectors (recruitment, credit, insurance) should review their specific use case.
 
 ---
 
@@ -144,10 +144,10 @@ When v0.2 ships AI assistance, we will revisit this. Routine email composition a
 
 **Recommendation D**, in particular sections on data classification, supply chain, change management, and incident reporting, expects supervised entities to manage IT systems with documented controls.
 
-**ActunaMail v0.2.0 contribution.**
+**Actuna Mail — contribution.**
 - Documented data classification: which fields are PII (in `analysis/07-storage-static-analysis.md` of the audit project).
 - Documented supply chain: every external endpoint is in [SECURITY.md](SECURITY.md), every npm dependency in `package-lock.json`, every C++ dependency in `mailsync/Vendor/` and `mailsync/vcpkg.json`.
-- Change management: every modification from upstream is one atomic commit on `compliance/v0.2`, individually reviewable.
+- Change management: every modification from upstream is one atomic, individually reviewable commit.
 - Incident response: documented in this file under Article 23 NIS2.
 
 ### Recommendation Z — Outsourcing risk
@@ -156,13 +156,13 @@ When v0.2 ships AI assistance, we will revisit this. Routine email composition a
 
 **Mailspring 1.21.0.** The default install establishes outsourcing relationships with Sentry, Automattic (Gravatar), and Foundry 376 (Plugin Metadata Sync, identity, crash reports), with no written agreement available to the deploying entity.
 
-**ActunaMail v0.2.0.** All default outsourcing relationships outside of the user's own mail provider and OAuth issuer are removed.
+**Actuna Mail.** All default outsourcing relationships outside of the user's own mail provider and OAuth issuer are removed.
 
 ### KNF Communiqué of 23 January 2020 — Cloud as significant outsourcing
 
 The 2020 communiqué treats reliance on cloud services as significant outsourcing for supervised financial entities. It requires risk classification, exit plans, and notification to KNF in some cases.
 
-**ActunaMail v0.2.0.** No cloud dependency for any default function. The user's mail provider and OAuth issuer are governed by the supervised entity's existing arrangements with those providers.
+**Actuna Mail.** No cloud dependency for any default function. The user's mail provider and OAuth issuer are governed by the supervised entity's existing arrangements with those providers.
 
 ---
 
@@ -172,9 +172,9 @@ The 2020 communiqué treats reliance on cloud services as significant outsourcin
 
 **Required.** Essential and important entities must take appropriate and proportionate technical, operational and organisational measures, including (a) risk analysis policies, (b) incident handling, (c) supply chain security, (d) network security, (e) cryptography, (f) access control, (g) human resources, (h) basic cyber hygiene and training, (i) policies on the use of cryptography, (j) zero trust, (k) business continuity, (l) supplier security, (m) vulnerability handling, (n) effectiveness assessment.
 
-**ActunaMail v0.2.0 contribution.**
+**Actuna Mail — contribution.**
 - (c) Supply chain security — full documented and pruned dependency list, no telemetry to U.S. providers in default configuration.
-- (e), (i) Cryptography — credentials in OS keychain in v0.2.0 (inherited from Mailspring, correctly used). SQLCipher for content at rest is roadmap (ticket 03, design memo Sprint 6, implementation v0.3).
+- (e), (i) Cryptography — credentials in OS keychain (inherited from Mailspring, correctly used); the local database is encrypted with SQLCipher and attachment files with AES-256-GCM (application-layer encryption at rest, default-on).
 - (m) Vulnerability handling — responsible disclosure process documented in [SECURITY.md](SECURITY.md).
 
 This does not by itself satisfy Article 21 — the deploying entity must add organisational measures around the application — but it removes the technical obstacles that upstream Mailspring would have introduced.
@@ -183,8 +183,8 @@ This does not by itself satisfy Article 21 — the deploying entity must add org
 
 **Required.** Significant incidents must be reported to the CSIRT or the competent authority within 24 hours of becoming aware (early warning), with a fuller report within 72 hours.
 
-**ActunaMail v0.2.0.** The application does not produce its own incidents, but it can be implicated by an incident in the deploying entity's environment. We provide:
-- An incident response template in the v0.3 compliance pack.
+**Actuna Mail.** The application does not produce its own incidents, but it can be implicated by an incident in the deploying entity's environment. We provide:
+- An incident response template in the compliance pack.
 - A guarantee that no internal information is silently transmitted to a third-party error tracking service that the entity does not control.
 - Local crash logs that the entity's own forensic process can access without involving Foundry, Sentry, or any other third party.
 
@@ -196,51 +196,46 @@ This does not by itself satisfy Article 21 — the deploying entity must add org
 
 ---
 
-## Storage encryption — what v0.2.0 does not yet provide
+## Storage encryption
 
-We are explicit about what v0.2.0 does not yet provide (and what is queued in the roadmap):
+The application encrypts mail data at rest at the application layer — independent of, and in addition to, any volume-level encryption.
 
-**Database at rest — ENCRYPTED (v0.3.x, SQLCipher Tier A).** The local mail
-database `edgehill.db` is encrypted at rest with SQLCipher (AES-256-CBC +
-HMAC). The encrypted scope covers:
+**Database at rest — ENCRYPTED (SQLCipher, Tier A).** The local mail database `edgehill.db` is encrypted at rest with SQLCipher (AES-256-CBC + HMAC). The encrypted scope covers:
 - Full HTML message bodies (`MessageBody.value`).
 - Full-text search index over subject / to / from / body (`ThreadSearch` fts5) — encrypted at the storage-page level, so search still works.
 - Full contact book (`Contact` and `ContactSearch` fts5).
 - Full calendar events with descriptions (`Event` and `EventSearch` fts5).
 
-Tier A: a random 32-byte key generated at first launch, protected by the
-OS keychain via Electron `safeStorage`, default-on for fresh installs.
-Verified end-to-end (`scripts/test-tier-a-smoke.js`). Implemented per
-backlog tickets 45a–45e. Tier B (opt-in master password → Argon2id KDF,
-for the strict KNF reading) is tracked as backlog ticket 46.
+Tier A: a random 32-byte key generated at first launch, protected by the OS keychain via Electron `safeStorage`, default-on for fresh installs. Verified end-to-end (`scripts/test-tier-a-smoke.js`). Tier B (opt-in master password → Argon2id KDF, for the strict KNF reading) is tracked as a backlog item.
 
-**Attachments on disk — ENCRYPTED (v0.3.x, ticket 49).** `~/Library/Application Support/ActunaMail/files/<id>/<filename>` (macOS path; equivalent on other OSes). Each attachment file is encrypted with AES-256-GCM (on-disk `AENC` format: magic + version + 96-bit nonce + ciphertext + GCM tag). The key is derived once via HKDF-SHA256 from the SQLCipher DBKey — same trust model as the database, no separate secret. The C++ `mailsync` engine encrypts on IMAP receive and decrypts on send; the renderer encrypts draft attachments and decrypts for Save / Open / drag-out / inline images / previews. Pre-49 plaintext attachments are still readable (graceful passthrough); there is no migration pass (fresh-install policy).
+**Attachments on disk — ENCRYPTED (`AENC` format).** `~/Library/Application Support/ActunaMail/files/<id>/<filename>` (macOS path; equivalent on other OSes). Each attachment file is encrypted with AES-256-GCM (on-disk `AENC` format: magic + version + 96-bit nonce + ciphertext + GCM tag). The key is derived once via HKDF-SHA256 from the SQLCipher DBKey — same trust model as the database, no separate secret. The C++ `mailsync` engine encrypts on IMAP receive and decrypts on send; the renderer encrypts draft attachments and decrypts for Save / Open / drag-out / inline images / previews. Legacy plaintext attachments from before this feature shipped are still readable (graceful passthrough); there is no migration pass (fresh-install policy).
 
-**Volume-level encryption** (FileVault / BitLocker / LUKS) remains good defence-in-depth but is no longer required to close any application-layer at-rest gap — both the database and the attachment files are encrypted regardless.
+**Volume-level encryption** (FileVault / BitLocker / LUKS) remains good defence-in-depth but is not required to close any application-layer at-rest gap — both the database and the attachment files are encrypted regardless.
 
-**KNF Recommendation D / NIS2 Article 21.** The at-rest encryption gap
-that was the single biggest item between v0.2.0 and a strict-reading
-defensible deployment is now CLOSED — application-layer encryption covers
-the database (SQLCipher Tier A) and the attachment files (ticket 49,
-AES-256-GCM). Design rationale: `analysis/13-sqlcipher-migration-design.md`;
-code-verified audit: `analysis/15-storage-audit-code-verified.md`.
+**KNF Recommendation D / NIS2 Article 21.** The at-rest encryption gap that was the single biggest item between the early fork and a strict-reading defensible deployment is now CLOSED — application-layer encryption covers the database (SQLCipher Tier A) and the attachment files (AES-256-GCM). Design rationale: `analysis/13-sqlcipher-migration-design.md`; code-verified audit: `analysis/15-storage-audit-code-verified.md`.
 
 ---
 
-## Compliance pack roadmap
+## Compliance pack
 
-What ships with v0.2.0: this document, [SECURITY.md](SECURITY.md), the patches on the `compliance/v0.2` branch (tag `v0.2.0`), the audit pack in the parent project, the runtime egress verification report [`verification/test-1-post-patch-v02.txt`](../verification/test-1-post-patch-v02.txt).
+The compliance artifacts shipped with the project:
 
-What ships with v0.3 (roadmap):
-- SQLCipher migration (ticket 03 Sprint 6 design memo, Sprint 7 implementation).
-- DPIA template specific to ActunaMail's data flows.
+- This document and [SECURITY.md](SECURITY.md).
+- [AUDYT-MAILSPRING.md](AUDYT-MAILSPRING.md) — the line-by-line audit of upstream Mailspring.
+- The atomic, per-change commit history of this repository.
+- The audit pack in the parent project.
+- The runtime egress verification reports under `verification/` in the audit project.
+
+Planned / in progress:
+
+- DPIA template specific to Actuna Mail's data flows.
 - TIA template covering the residual transfers (OAuth providers, user's own mail server).
-- DPA template for Actuna's role when Hosted tier ships.
+- DPA template for Actuna's role when a Hosted tier ships.
 - SBOM (CycloneDX) for both the Electron application and the C++ mail sync engine.
 - Public privacy policy on `actuna.pl`.
 - Customer-facing compliance package for KNF / NIS2 deployments.
-- Apple Developer ID Application cert + notarization (ticket 07, currently on hold per user direction "DUNS i Apple Id - wstrzymujemy do odwołania, najpierw działająca aplikacja").
+- Apple Developer ID Application cert + notarization (on hold per user direction — a working application first).
 
 ---
 
-*This document is part of ActunaMail v0.2.0 and is licensed under the same terms as the rest of the source: GPL-3.0. Last reviewed: 2026-05-11 (Sprint 6 ticket 05 close-out).*
+*This document is part of Actuna Mail and is licensed under the same terms as the rest of the source: GPL-3.0.*
