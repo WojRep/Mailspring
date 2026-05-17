@@ -8,40 +8,17 @@
 [![Status: pre-alpha](https://img.shields.io/badge/Status-pre--alpha-orange.svg)](#status)
 [![Compliance: GDPR · AI Act · KNF · NIS2](https://img.shields.io/badge/Compliance-GDPR%20·%20AI%20Act%20·%20KNF%20·%20NIS2-green.svg)](COMPLIANCE.md)
 
+**English** · [Polski](README.pl.md)
+
 ---
 
-## Why another fork of Mailspring?
+## Goal
 
-Mailspring is a fast, beautiful, open-source email client. We use it. We respect the work Foundry 376 has put into it. But there is a gap between what its [SECURITY.md](https://github.com/Foundry376/Mailspring/blob/master/SECURITY.md) promises and what its code does.
+**Actuna Mail** is a compliance-hardened fork of Mailspring 1.21.0. We audited Mailspring line by line, cut every default channel that ships your data, your metadata, or your contacts' data to a third party, and added encryption at rest for the database and attachments.
 
-Mailspring's SECURITY.md says, in three sentences:
+The goal is an email client whose privacy posture matches what its documentation claims — one that holds up under audit by a law firm, an accounting practice, or a financial-sector compliance officer.
 
-1. *"your email credentials are stored securely in your system keychain"*
-2. *"Mailspring does not transmit, store or process your mail in the cloud"*
-3. *"choosing to skip Mailspring ID prevents your data from being transmitted off your machine entirely"*
-
-We audited Mailspring 1.21.0 line by line. Statement #1 is true. Statements #2 and #3 are not — at least, not as the user reads them. The default install of Mailspring contacts at minimum:
-
-- **Sentry (USA)** — every error report, with stack traces, plugin IDs, and a SHA-256 of your MAC address as device fingerprint. Hardcoded DSN, no opt-out, no consent, no DPA.
-- **Native crash reporter (USA)** — minidumps of process memory, on every crash, sent to `id.getmailspring.com/report-crash`. Memory may include passwords, tokens, draft emails.
-- **`id.getmailspring.com/onboarding`** — webview that loads on first launch, **before** the user clicks "Skip".
-- **Newsletter signup** — `componentDidMount` calls `POST /newsletter`. No opt-in checkbox.
-- **Gravatar (Automattic, USA)** — `https://www.gravatar.com/avatar/<sha256(email)>` for every contact rendered. Each request leaks the corresponding contact's email to a third party.
-- **`logo.getmailspring.com`** — company logos in signatures, looked up by user's email domain.
-- **Plugin Metadata Sync** — `id.getmailspring.com/metadata/...` and a long-lived HTTP stream `/deltas/.../streaming?ih=<your-imap-host>`. For Pro features (snooze, send-later, tracking, sharing). Includes IP addresses of recipients (open/click tracking) and your IMAP host as a URL parameter.
-- **Identity polling** — `/api/me` every 10 minutes for the lifetime of the app.
-- **Send Feature Usage Event** — every Pro feature use, even on the Basic plan.
-
-Plus two more uncovered in our deeper C++ audit:
-
-- **`/api/resolve-dav-hosts`** — sends `{ domain, imapHost }` when adding accounts with CardDAV/CalDAV, **even with no Mailspring ID**.
-- **`/ping`** in install-check mode.
-
-That is **ten distinct egress channels** to servers in the United States. Several of them carry data of third parties (your contacts, your recipients) who never consented. Under GDPR Article 6 — and in Poland, under the Polish Personal Data Protection Act and the Office for Personal Data Protection (UODO) — that is at minimum a transparency failure (Articles 13, 25), and at points a lawful-basis failure (Articles 6, 7, 28, 32, 44+).
-
-We don't believe Foundry 376 set out to mislead anyone. The leaks have grown organically over years of feature development — Sentry was added for crash debugging, Gravatar for visual polish, Plugin Metadata Sync for the Pro tier. Each one made sense individually. The resulting whole no longer matches the SECURITY.md.
-
-We forked to deliver the experience the SECURITY.md describes — for users who have to.
+The full audit of what Mailspring 1.21.0 actually does — ten egress channels, the gap against Mailspring's own SECURITY.md, and a channel-by-channel comparison — is in **[AUDYT-MAILSPRING.md](AUDYT-MAILSPRING.md)**.
 
 ## Who is this for
 
@@ -51,28 +28,19 @@ We forked to deliver the experience the SECURITY.md describes — for users who 
 - Organizations that want to use AI in email workflows without falling under **AI Act** Article 6 / Annex III scope unintentionally.
 - Privacy-conscious individuals who want a working email client whose privacy posture they can verify.
 
-## What we change vs upstream Mailspring
+## Security at a glance
 
-In a single line: **we cut every default channel that ships your data, your metadata, or your contacts' data to a third party.** Specifics in [COMPLIANCE.md](COMPLIANCE.md). Branch: `compliance/v0.1`.
-
-| Channel | Status in Mailspring 1.21.0 | Status in Actuna Mail v0.1 |
+| Security area | Mailspring 1.21.0 | Actuna Mail |
 |---|---|---|
-| Sentry error reporting | Hardcoded, no opt-out | Removed |
-| Native crash reporter (`id.getmailspring.com/report-crash`) | Always on | Removed |
-| Auto-newsletter signup | Auto-subscribe in `componentDidMount` | Removed |
-| Gravatar lookup for every contact | Always on | Removed (local fallback) |
-| `logo.getmailspring.com` company logo | Always on in signatures | Removed |
-| Plugin Metadata Sync (Pro features) | Always on with Mailspring ID | Removed (no Mailspring ID concept) |
-| Identity polling `/api/me` every 10 min | Always on with ID | Removed |
-| `SendFeatureUsageEventTask` per feature use | Always on | Removed |
-| `/api/resolve-dav-hosts` (mailsync C++) | Auto on CardDAV/CalDAV setup | Removed (manual config) |
-| `/ping` install-check (mailsync C++) | On Test button | Removed |
-| Mailspring ID account & onboarding webview | Default flow | Completely removed |
-| Auto-update channel `updates.getmailspring.com` | Default | Disabled until our own channel ships |
-| 8 plugins requiring Mailspring ID | Default available | Removed (activity, link/open-tracking, participant-profile, send-reminders, thread-sharing, thread-snooze, translation) |
-| `composer-grammar-check` (sends drafts to LanguageTool via Foundry) | Default off, opt-in | Removed |
+| Default third-party egress | 10 channels to US servers (Sentry, crash reporter, Gravatar, metadata sync, identity polling…) | None — every channel removed |
+| Database encryption at rest | None — plain SQLite | SQLCipher (AES-256-CBC + HMAC), default-on |
+| Attachment encryption at rest | None — plaintext files | AES-256-GCM per file |
+| Cloud account / Mailspring ID | Default sign-up flow | Removed entirely — no cloud account |
+| Crash reports & telemetry | On by default, no consent | Removed |
 
-What we **keep**:
+Full channel-by-channel breakdown: **[AUDYT-MAILSPRING.md](AUDYT-MAILSPRING.md)**.
+
+## What we keep
 
 - All mail core functionality: IMAP, SMTP, CalDAV, CardDAV.
 - Gmail, Microsoft 365, iCloud, Outlook, Yahoo, generic IMAP support.
@@ -82,6 +50,13 @@ What we **keep**:
 - Plugin SDK for users who want to extend, as long as plugins respect Actuna's egress policy.
 
 Actuna Mail's binary is GPL-3.0, the same license as Mailspring. The work to harden it for compliance is a small fraction of Mailspring's overall codebase — credit for the email client itself goes to [Foundry 376](https://github.com/Foundry376) and the contributors of Mailspring.
+
+## Documentation
+
+- **[AUDYT-MAILSPRING.md](AUDYT-MAILSPRING.md)** — line-by-line security audit of Mailspring 1.21.0 and the full list of removed egress channels.
+- **[COMPLIANCE.md](COMPLIANCE.md)** — mapping of every change to GDPR / AI Act / KNF / NIS2 articles.
+- **[SECURITY.md](SECURITY.md)** — Actuna Mail's own security posture and responsible-disclosure contact.
+- **`verification/`** — runtime egress regression reports; the egress posture is re-verified empirically after every release.
 
 ## Architecture
 
@@ -115,23 +90,18 @@ The Engine layer is **not** part of this repository and **does not** import from
 
 Detailed in [COMPLIANCE.md](COMPLIANCE.md). Summary:
 
-| Framework | Coverage in v0.1 |
+| Framework | Coverage |
 |---|---|
 | **GDPR / RODO** (EU 2016/679 + PL ust. o ochr. dan. osob.) | Article 5 (data minimization), Article 6 (lawful basis), Article 7 (consent), Article 13/14 (transparency), Article 25 (privacy by design and default), Article 32 (security), Article 44+ (third-country transfers — Schrems II) |
-| **AI Act** (EU 2024/1689) | Article 50 (transparency for AI-generated content) — applies once Engine ships in v0.2 |
+| **AI Act** (EU 2024/1689) | Article 50 (transparency for AI-generated content) — applies once Engine ships |
 | **KNF Recommendation D and Z** | Recommendation D (IT governance), Recommendation Z (outsourcing risk) |
 | **NIS2** (EU 2022/2555 + PL Krajowy System Cyberbezpieczeństwa 2.0) | Article 21 (risk-management measures, supply chain), Article 23 (incident reporting basis) |
 
-Storage encryption (SQLCipher for `MessageBody` and the FTS index) is on the roadmap for v0.2. Today's v0.1 inherits Mailspring's plain SQLite — protected by FileVault / BitLocker / LUKS at the volume level.
+Storage encryption is implemented: the local database is encrypted with SQLCipher (AES-256-CBC + HMAC) and attachment files with AES-256-GCM — application-layer encryption at rest, default-on for fresh installs. See [SECURITY.md](SECURITY.md).
 
 ## Status
 
-- **v0.1 (`compliance/v0.1`)** — sterilization patches. Pre-alpha. Build artifact not yet shipped.
-- **v0.2** — Actuna Engine integration (Claude / Codex routing), SQLCipher for `MessageBody` and FTS index.
-- **v0.3** — branding, packaging, code signing, notarization, own update channel.
-- **v1.0** — public launch.
-
-This repository contains the audit packs that drove every change. The audit lives in the parent project — see the audit notes referenced from [SECURITY.md](SECURITY.md).
+Pre-alpha. The repository contains the audit packs that drove every change; the audit lives in the parent project — see the audit notes referenced from [SECURITY.md](SECURITY.md) and [AUDYT-MAILSPRING.md](AUDYT-MAILSPRING.md).
 
 ## Contributing
 
@@ -141,7 +111,7 @@ We are not accepting external pull requests during pre-alpha. The audit work is 
 
 - This is a fork of [Foundry376/Mailspring](https://github.com/Foundry376/Mailspring), © Foundry 376 LLC, GPL-3.0. The underlying email client is the foundation of this work.
 - The mail sync engine [Foundry376/Mailspring-Sync](https://github.com/Foundry376/Mailspring-Sync) (vendored as a submodule) is also © Foundry 376, GPL-3.0.
-- All modifications in `compliance/v0.1` and beyond are © Actuna, licensed under GPL-3.0.
+- All modifications by Actuna are licensed under GPL-3.0.
 - The full text of GPL-3.0 is in [LICENSE.md](LICENSE.md).
 - "Mailspring" is a trademark of Foundry 376 LLC. We do not use the Mailspring name or logo on Actuna Mail builds. The references in this README are descriptive, in compliance with nominative fair use.
 
