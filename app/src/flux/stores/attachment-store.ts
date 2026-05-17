@@ -1,5 +1,6 @@
 import os from 'os';
 import _fs from 'fs';
+import crypto from 'crypto';
 import path from 'path';
 import { shell } from 'electron';
 import MailspringStore from 'actunamail-store';
@@ -8,6 +9,7 @@ import * as Actions from '../actions';
 import { File } from '../models/file';
 import * as Utils from '../models/utils';
 import { localized } from '../../intl';
+import { encrypt, decrypt, looksEncrypted } from '../../attachment-crypto';
 import {
   generatePreview,
   canPossiblyPreviewExtension,
@@ -33,6 +35,12 @@ class AttachmentStore extends MailspringStore {
   _filesDirectory: string = path.join(AppEnv.getConfigDirPath(), 'files');
   _lastDownloadDirectory: string;
 
+  // Ticket 49c — attachments in files/ are encrypted at-rest (AENC format,
+  // see attachment-crypto.ts). External apps (Open, drag-out, Quick Look)
+  // need a real plaintext file, so we decrypt into a temp dir OUTSIDE the
+  // synced profile directory. The dir is wiped on every launch.
+  _decryptedTempDir: string = path.join(os.tmpdir(), 'ActunaMail-attachments');
+
   constructor() {
     super();
 
@@ -49,6 +57,15 @@ class AttachmentStore extends MailspringStore {
     this.listenTo(Actions.removeAttachment, this._onRemoveAttachment);
 
     fs.mkdirSync(this._filesDirectory, { recursive: true });
+
+    // Drop any plaintext temp files left over from a previous run, then
+    // recreate the (empty) temp dir for this session.
+    try {
+      _fs.rmSync(this._decryptedTempDir, { recursive: true, force: true });
+    } catch (err) {
+      // best-effort — a stale temp dir is not fatal
+    }
+    fs.mkdirSync(this._decryptedTempDir, { recursive: true });
   }
 
   // Returns a path on disk for saving the file. Note that we must account
@@ -71,6 +88,32 @@ class AttachmentStore extends MailspringStore {
       return null;
     }
     return filePath;
+  }
+
+  // Returns a path to a PLAINTEXT copy of an at-rest attachment, suitable
+  // for the OS / external apps (Open, drag-out, Quick Look). Encrypted
+  // (AENC) files are decrypted into the per-session temp dir; legacy
+  // pre-49 plaintext files are returned as-is (no needless copy).
+  // Synchronous so it can be used from the drag-start event handler.
+  decryptedPathForFileSync(sourcePath: string): string {
+    const stored = _fs.readFileSync(sourcePath);
+    if (!looksEncrypted(stored)) {
+      return sourcePath; // legacy plaintext — usable directly
+    }
+    const tag = crypto.createHash('sha1').update(sourcePath).digest('hex');
+    const destDir = path.join(this._decryptedTempDir, tag);
+    const destPath = path.join(destDir, path.basename(sourcePath));
+    try {
+      // reuse an already-decrypted temp file if it is up to date
+      if (_fs.statSync(destPath).mtimeMs >= _fs.statSync(sourcePath).mtimeMs) {
+        return destPath;
+      }
+    } catch (err) {
+      // temp not present yet — fall through and create it
+    }
+    _fs.mkdirSync(destDir, { recursive: true });
+    _fs.writeFileSync(destPath, decrypt(stored));
+    return destPath;
   }
 
   getDownloadDataForFile(fileId: string): AttachmentDownloadData {
@@ -160,20 +203,20 @@ class AttachmentStore extends MailspringStore {
 
   _fetchAndOpen = (file: File) => {
     return this._prepareAndResolveFilePath(file)
-      .then((filePath) => shell.openPath(filePath))
+      .then((filePath) => shell.openPath(this.decryptedPathForFileSync(filePath)))
       .catch(this._catchFSErrors)
       .catch((error) => {
         this._presentError({ file, error });
       });
   };
 
-  _writeToExternalPath = (filePath, savePath) => {
-    return new Promise<void>((resolve, reject) => {
-      const stream = fs.createReadStream(filePath);
-      stream.pipe(fs.createWriteStream(savePath));
-      stream.on('error', (err) => reject(err));
-      stream.on('end', () => resolve());
-    });
+  // Copy a files/ attachment to a user-chosen external path, decrypting
+  // it on the way out. Exporting to a path the user picked is intentional
+  // plaintext output. Legacy pre-49 attachments (no AENC header) pass
+  // through decrypt() unchanged.
+  _writeToExternalPath = async (filePath: string, savePath: string) => {
+    const stored = await fs.readFileAsync(filePath);
+    await fs.writeFileAsync(savePath, decrypt(stored));
   };
 
   _fetchAndSave = (file) => {
@@ -371,18 +414,22 @@ class AttachmentStore extends MailspringStore {
       );
   }
 
-  _copyToInternalPath(originPath: string, targetPath: string) {
-    return new Promise<void>((resolve, reject) => {
-      const readStream = fs.createReadStream(originPath);
-      const writeStream = fs.createWriteStream(targetPath);
-
-      readStream.on('error', () => reject(new Error(`Could not read file at path: ${originPath}`)));
-      writeStream.on('error', () =>
-        reject(new Error(`Could not write ${path.basename(targetPath)} to files directory.`))
-      );
-      readStream.on('end', () => resolve());
-      readStream.pipe(writeStream);
-    });
+  // Copy a user-picked file into the files/ directory, encrypting it
+  // at-rest (AENC). The stored ciphertext is ~33 bytes larger than the
+  // input; file.size keeps the plaintext size (what the recipient gets
+  // once mailsync decrypts on send).
+  async _copyToInternalPath(originPath: string, targetPath: string) {
+    let plain: Buffer;
+    try {
+      plain = await fs.readFileAsync(originPath);
+    } catch (err) {
+      throw new Error(`Could not read file at path: ${originPath}`);
+    }
+    try {
+      await fs.writeFileAsync(targetPath, encrypt(plain));
+    } catch (err) {
+      throw new Error(`Could not write ${path.basename(targetPath)} to files directory.`);
+    }
   }
 
   async _deleteFile(file: File) {

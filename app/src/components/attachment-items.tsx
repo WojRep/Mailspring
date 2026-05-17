@@ -5,6 +5,7 @@ import React, { Component, CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import * as Actions from '../flux/actions';
+import AttachmentStore from '../flux/stores/attachment-store';
 import { pickHTMLProps } from 'pick-react-known-prop';
 import { RetinaImg } from './retina-img';
 import { Flexbox } from './flexbox';
@@ -171,10 +172,19 @@ export class AttachmentItem extends Component<AttachmentItemProps> {
 
   _onDragStart = (event) => {
     const { contentType, filePath } = this.props;
-    if (fs.existsSync(filePath)) {
+    if (!fs.existsSync(filePath)) {
+      event.preventDefault();
+      return;
+    }
+    try {
+      // Ticket 49c — files/ attachments are encrypted at-rest (AENC). The
+      // OS drag hands the file straight to another app, so it must point
+      // at a decrypted copy. decryptedPathForFileSync returns the source
+      // path unchanged for legacy plaintext attachments.
+      const dragPath = AttachmentStore.decryptedPathForFileSync(filePath);
       // Note: From trial and error, it appears that the second param /MUST/ be the
       // same as the last component of the filePath URL, or the download fails.
-      const downloadURL = `${contentType}:${path.basename(filePath)}:file://${filePath}`;
+      const downloadURL = `${contentType}:${path.basename(dragPath)}:file://${dragPath}`;
       event.dataTransfer.setData('DownloadURL', downloadURL);
       event.dataTransfer.setData('text/mailspring-file-url', downloadURL);
       const el = ReactDOM.findDOMNode(this._fileIconComponent) as HTMLElement;
@@ -182,7 +192,7 @@ export class AttachmentItem extends Component<AttachmentItemProps> {
       const x = window.devicePixelRatio === 2 ? rect.height / 2 : rect.height;
       const y = window.devicePixelRatio === 2 ? rect.width / 2 : rect.width;
       event.dataTransfer.setDragImage(el, x, y);
-    } else {
+    } catch (err) {
       event.preventDefault();
     }
   };
