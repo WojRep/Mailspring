@@ -10,16 +10,12 @@ import {
 import { MessageListHiddenMessagesToggle } from './message-list-hidden-messages-toggle';
 import MessageList from './message-list';
 import { SidebarPluginContainer } from './sidebar-plugin-container';
-import { SidebarParticipantPicker } from './sidebar-participant-picker';
 
 export function activate() {
   if (AppEnv.isMainWindow()) {
     // Register Message List Actions we provide globally
     ComponentRegistry.register(MessageList, {
       location: WorkspaceStore.Location.MessageList,
-    });
-    ComponentRegistry.register(SidebarParticipantPicker, {
-      location: WorkspaceStore.Location.MessageListSidebar,
     });
     ComponentRegistry.register(SidebarPluginContainer, {
       location: WorkspaceStore.Location.MessageListSidebar,
@@ -49,5 +45,4 @@ export function activate() {
 export function deactivate() {
   ComponentRegistry.unregister(MessageList);
   ComponentRegistry.unregister(SidebarPluginContainer);
-  ComponentRegistry.unregister(SidebarParticipantPicker);
 }
