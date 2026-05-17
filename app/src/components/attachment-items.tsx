@@ -356,9 +356,13 @@ export class ImageAttachmentItem extends Component<ImageAttachmentItemProps> {
       );
     }
 
-    const src =
-        download && download.percent < 100 ? `${filePath}?percent=${download.percent}` : filePath,
-      styles: CSSProperties = {};
+    const styles: CSSProperties = {};
+    // Ticket 49e — files/ holds AES-GCM ciphertext; load the image through
+    // the actuna-attachment:// protocol, which decrypts in the main process.
+    // The attachment id is the parent directory of its files/ path.
+    const src = filePath
+      ? `actuna-attachment://file/${path.basename(path.dirname(filePath))}`
+      : filePath;
 
     if (imgProps) {
       if (imgProps.height) {

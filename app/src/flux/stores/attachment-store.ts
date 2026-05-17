@@ -169,8 +169,11 @@ class AttachmentStore extends MailspringStore {
       return;
     }
 
-    const filePath = this.pathForFile(file);
-    const previewPath = `${filePath}.png`;
+    // Ticket 49e — the preview is generated from a decrypted temp copy, and
+    // the thumbnail itself lives in the temp dir, never in the synced files/
+    // directory (a thumbnail would otherwise be a plaintext derivative of
+    // the encrypted attachment). The temp dir is wiped on every launch.
+    const previewPath = path.join(this._decryptedTempDir, 'previews', `${file.id}.png`);
 
     if (await fileAccessibleAtPath(previewPath)) {
       // If the preview file already exists, set our state and bail
@@ -179,8 +182,16 @@ class AttachmentStore extends MailspringStore {
       return;
     }
 
+    let sourcePath: string;
+    try {
+      sourcePath = this.decryptedPathForFileSync(this.pathForFile(file));
+    } catch (err) {
+      return; // attachment could not be decrypted — skip the preview
+    }
+    await _fs.promises.mkdir(path.dirname(previewPath), { recursive: true });
+
     // If the preview file doesn't exist yet, generate it
-    if (await generatePreview({ file, filePath, previewPath })) {
+    if (await generatePreview({ file, filePath: sourcePath, previewPath })) {
       this._filePreviewPaths[file.id] = previewPath;
       this.trigger();
     }
@@ -189,7 +200,16 @@ class AttachmentStore extends MailspringStore {
   // Section: Retrieval of Files
 
   _quickPreviewFile = (filePath: string) => {
-    displayQuickPreviewWindow(filePath);
+    // Ticket 49e — filePath points at the encrypted files/ entry; the Quick
+    // Look / PDF / renderer preview tools need a real plaintext file, so
+    // decrypt to the temp dir first (legacy plaintext passes through).
+    let previewablePath: string;
+    try {
+      previewablePath = this.decryptedPathForFileSync(filePath);
+    } catch (err) {
+      return;
+    }
+    displayQuickPreviewWindow(previewablePath);
   };
 
   _fetch = (file: File) => {

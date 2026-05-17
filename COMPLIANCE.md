@@ -100,7 +100,7 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Mailspring 1.21.0.** Account credentials are correctly placed in the OS keychain. Mail bodies are stored in plain SQLite (`MessageBody.value TEXT`), and the full-text search index (`ThreadSearch` fts5) carries `subject, to_, from_, body` in plain text. There is no application-layer encryption at rest.
 
-**ActunaMail v0.3.x.** OS-keychain handling for credentials inherited (good). The local database `edgehill.db` is now **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A implemented: a random 32-byte key generated at first launch, protected by the OS keychain via Electron `safeStorage`, default-on for fresh installs, used by both the renderer and the C++ `mailsync` engine. This covers message bodies, the FTS search index, contacts and calendars. Tier B (opt-in master password → Argon2id KDF, for the strict KNF reading) is tracked as backlog ticket 46. **Remaining at-rest gap:** attachment files under `files/` are not yet encrypted — backlog ticket 49; volume-level encryption (FileVault / BitLocker / LUKS) remains the interim mitigation for attachment files only.
+**ActunaMail v0.3.x.** OS-keychain handling for credentials inherited (good). The local database `edgehill.db` is now **encrypted at rest with SQLCipher** (AES-256-CBC + HMAC) — Tier A implemented: a random 32-byte key generated at first launch, protected by the OS keychain via Electron `safeStorage`, default-on for fresh installs, used by both the renderer and the C++ `mailsync` engine. This covers message bodies, the FTS search index, contacts and calendars. Tier B (opt-in master password → Argon2id KDF, for the strict KNF reading) is tracked as backlog ticket 46. **Attachment files** under `files/` are **also encrypted at rest** (AES-256-GCM per file, key derived via HKDF-SHA256 from the same DBKey) — backlog ticket 49, implemented in both the renderer and the C++ `mailsync` engine. Application-layer encryption at rest now covers the database and the attachment files; no at-rest gap remains.
 
 The crash reporter that previously sent process memory to the United States is removed.
 
@@ -214,15 +214,15 @@ Verified end-to-end (`scripts/test-tier-a-smoke.js`). Implemented per
 backlog tickets 45a–45e. Tier B (opt-in master password → Argon2id KDF,
 for the strict KNF reading) is tracked as backlog ticket 46.
 
-**Attachments on disk — NOT yet encrypted.** `~/Library/Application Support/ActunaMail/files/<id>/<filename>` (macOS path; equivalent on other OSes). Attachment files have no application-layer encryption — this is the one remaining at-rest gap, tracked as backlog ticket 49.
+**Attachments on disk — ENCRYPTED (v0.3.x, ticket 49).** `~/Library/Application Support/ActunaMail/files/<id>/<filename>` (macOS path; equivalent on other OSes). Each attachment file is encrypted with AES-256-GCM (on-disk `AENC` format: magic + version + 96-bit nonce + ciphertext + GCM tag). The key is derived once via HKDF-SHA256 from the SQLCipher DBKey — same trust model as the database, no separate secret. The C++ `mailsync` engine encrypts on IMAP receive and decrypts on send; the renderer encrypts draft attachments and decrypts for Save / Open / drag-out / inline images / previews. Pre-49 plaintext attachments are still readable (graceful passthrough); there is no migration pass (fresh-install policy).
 
-**Interim mitigation for attachment files.** Until ticket 49 ships, the deploying entity should enable FileVault (macOS), BitLocker (Windows), or LUKS (Linux) on the volume hosting the user profile, to protect attachment files against a stolen laptop. Note this mitigation is now needed for attachment files ONLY — the database itself is already encrypted regardless of volume-level encryption.
+**Volume-level encryption** (FileVault / BitLocker / LUKS) remains good defence-in-depth but is no longer required to close any application-layer at-rest gap — both the database and the attachment files are encrypted regardless.
 
-**KNF Recommendation D / NIS2 Article 21.** The database-encryption gap
+**KNF Recommendation D / NIS2 Article 21.** The at-rest encryption gap
 that was the single biggest item between v0.2.0 and a strict-reading
-defensible deployment is CLOSED for the database. Attachment-file
-encryption (ticket 49) is the remaining work for a 100% positive at-rest
-audit. Design rationale: `analysis/13-sqlcipher-migration-design.md`;
+defensible deployment is now CLOSED — application-layer encryption covers
+the database (SQLCipher Tier A) and the attachment files (ticket 49,
+AES-256-GCM). Design rationale: `analysis/13-sqlcipher-migration-design.md`;
 code-verified audit: `analysis/15-storage-audit-code-verified.md`.
 
 ---
