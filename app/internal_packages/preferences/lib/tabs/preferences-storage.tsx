@@ -50,9 +50,10 @@ export default class PreferencesStorage extends React.Component<{}, PreferencesS
       try {
         const entries = fs.readdirSync(parent);
         const dataName = path.basename(dataDir);
-        const archiveEntry = entries.find(e =>
-          e.startsWith(`${dataName}.v0.2-archive-`) &&
-          fs.statSync(path.join(parent, e)).isDirectory()
+        const archiveEntry = entries.find(
+          (e) =>
+            e.startsWith(`${dataName}.v0.2-archive-`) &&
+            fs.statSync(path.join(parent, e)).isDirectory()
         );
         if (archiveEntry) {
           this._populateArchiveStats(path.join(parent, archiveEntry));
@@ -163,7 +164,10 @@ export default class PreferencesStorage extends React.Component<{}, PreferencesS
           <h6 style={{ marginBottom: 10 }}>{localized('Current database')}</h6>
           <div style={{ fontSize: 12, opacity: 0.8 }}>{currentDbPath}</div>
           <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
-            {localized('Encrypted at rest: %@', localized('Yes (SQLCipher Tier A — once enabled in v0.3.x)'))}
+            {localized(
+              'Encrypted at rest: %@',
+              localized('Yes (SQLCipher Tier A — once enabled in v0.3.x)')
+            )}
           </div>
         </section>
 
@@ -189,9 +193,7 @@ export default class PreferencesStorage extends React.Component<{}, PreferencesS
                 style={{ marginTop: 12 }}
                 aria-label={localized('Delete v0.2 archive')}
               >
-                {busy
-                  ? localized('Deleting…')
-                  : localized('Delete v0.2 archive')}
+                {busy ? localized('Deleting…') : localized('Delete v0.2 archive')}
               </button>
             </>
           ) : (

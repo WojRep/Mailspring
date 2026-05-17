@@ -120,7 +120,10 @@ export function detectV02Data(configDirPath: string): boolean {
  * `configDirPath` at the second call (likely an empty fresh folder).
  */
 export function archiveV02Data(configDirPath: string, nowIso?: string): string {
-  const ts = (nowIso || new Date().toISOString()).replace(/[:.]/g, '-').replace(/T/, '-').slice(0, 19);
+  const ts = (nowIso || new Date().toISOString())
+    .replace(/[:.]/g, '-')
+    .replace(/T/, '-')
+    .slice(0, 19);
   const archivePath = `${configDirPath}.v0.2-archive-${ts}`;
   fs.renameSync(configDirPath, archivePath);
   fs.mkdirSync(configDirPath, { recursive: true });

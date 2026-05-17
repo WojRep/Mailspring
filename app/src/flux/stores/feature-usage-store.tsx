@@ -7,8 +7,8 @@ import MailspringStore from 'actunamail-store';
 // feature is unconditionally available.
 //
 // This file is the stub that preserves the public API surface so callers
-// (e.g. send-later, composer-templates, github-contact-card) keep working
-// with no behavioural change other than "always available".
+// (e.g. send-later, composer-templates) keep working with no behavioural
+// change other than "always available".
 //
 // Compliance:
 //   GDPR Art. 5(1)(c) — eliminating the per-feature usage event removes

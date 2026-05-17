@@ -129,9 +129,7 @@ export default class AutoUpdateManager extends EventEmitter {
       icon: this.dialogIcon(),
       message: localized('No update available.'),
       title: localized('No update available.'),
-      detail: localized(
-        `Auto-update is disabled in this build. Download new versions manually.`
-      ),
+      detail: localized(`Auto-update is disabled in this build. Download new versions manually.`),
     });
   };
 

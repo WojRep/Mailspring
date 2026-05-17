@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { RetinaImg, BindGlobalCommands, RovingTabIndexToolbar, Tooltip } from 'actunamail-component-kit';
+import {
+  RetinaImg,
+  BindGlobalCommands,
+  RovingTabIndexToolbar,
+  Tooltip,
+} from 'actunamail-component-kit';
 import {
   localized,
   Actions,
@@ -45,18 +50,18 @@ export class ArchiveButton extends React.Component<{ items: Thread[] }> {
     return (
       <BindGlobalCommands commands={{ 'core:archive-item': () => this._onArchive() }}>
         <Tooltip content={localized('Archive')}>
-        <button
-          tabIndex={-1}
-          className="btn btn-toolbar"
-          aria-label={localized('Archive')}
-          onClick={this._onArchive}
-        >
-          <RetinaImg
-            name="toolbar-archive.png"
-            mode={RetinaImg.Mode.ContentIsMask}
-            aria-hidden="true"
-          />
-        </button>
+          <button
+            tabIndex={-1}
+            className="btn btn-toolbar"
+            aria-label={localized('Archive')}
+            onClick={this._onArchive}
+          >
+            <RetinaImg
+              name="toolbar-archive.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </button>
         </Tooltip>
       </BindGlobalCommands>
     );
@@ -93,18 +98,18 @@ export class TrashButton extends React.Component<{ items: Thread[] }> {
     return (
       <BindGlobalCommands commands={{ 'core:delete-item': () => this._onRemove() }}>
         <Tooltip content={localized('Move to Trash')}>
-        <button
-          tabIndex={-1}
-          className="btn btn-toolbar"
-          aria-label={localized('Move to Trash')}
-          onClick={this._onRemove}
-        >
-          <RetinaImg
-            name="toolbar-trash.png"
-            mode={RetinaImg.Mode.ContentIsMask}
-            aria-hidden="true"
-          />
-        </button>
+          <button
+            tabIndex={-1}
+            className="btn btn-toolbar"
+            aria-label={localized('Move to Trash')}
+            onClick={this._onRemove}
+          >
+            <RetinaImg
+              name="toolbar-trash.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </button>
         </Tooltip>
       </BindGlobalCommands>
     );
@@ -245,18 +250,18 @@ export class MarkAsSpamButton extends React.Component<{ items: Thread[] }> {
           commands={{ 'core:report-not-spam': () => this._onNotSpam() }}
         >
           <Tooltip content={localized('Not Spam')}>
-          <button
-            tabIndex={-1}
-            className="btn btn-toolbar"
-            aria-label={localized('Not Spam')}
-            onClick={this._onNotSpam}
-          >
-            <RetinaImg
-              name="toolbar-not-spam.png"
-              mode={RetinaImg.Mode.ContentIsMask}
-              aria-hidden="true"
-            />
-          </button>
+            <button
+              tabIndex={-1}
+              className="btn btn-toolbar"
+              aria-label={localized('Not Spam')}
+              onClick={this._onNotSpam}
+            >
+              <RetinaImg
+                name="toolbar-not-spam.png"
+                mode={RetinaImg.Mode.ContentIsMask}
+                aria-hidden="true"
+              />
+            </button>
           </Tooltip>
         </BindGlobalCommands>
       );
@@ -272,18 +277,18 @@ export class MarkAsSpamButton extends React.Component<{ items: Thread[] }> {
         commands={{ 'core:report-as-spam': () => this._onMarkAsSpam() }}
       >
         <Tooltip content={localized('Mark as Spam')}>
-        <button
-          tabIndex={-1}
-          className="btn btn-toolbar"
-          aria-label={localized('Mark as Spam')}
-          onClick={this._onMarkAsSpam}
-        >
-          <RetinaImg
-            name="toolbar-spam.png"
-            mode={RetinaImg.Mode.ContentIsMask}
-            aria-hidden="true"
-          />
-        </button>
+          <button
+            tabIndex={-1}
+            className="btn btn-toolbar"
+            aria-label={localized('Mark as Spam')}
+            onClick={this._onMarkAsSpam}
+          >
+            <RetinaImg
+              name="toolbar-spam.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </button>
         </Tooltip>
       </BindGlobalCommands>
     );
