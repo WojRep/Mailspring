@@ -186,6 +186,7 @@
   "Delete your custom key bindings and reset to the template defaults?": "Benutzerdefinierte Tastenbelegungen löschen und auf die Standardwerte zurücksetzen?",
   "Deleted": "Gelöschten",
   "Deleting %@": "Lösche %@",
+  "Deleting a folder moves it and its contents to Trash. A folder already in Trash is removed permanently. It may take a moment to sync.": "Beim Löschen wird der Ordner samt Inhalt in den Papierkorb verschoben. Ein bereits im Papierkorb liegender Ordner wird endgültig gelöscht. Die Synchronisierung kann einen Moment dauern.",
   "Deleting all messages in %@": "Lösche alle Nachrichten in %@",
   "Deleting draft": "Lösche Entwurf",
   "Deselect all conversations": "Auswahl aller Unterhaltungen aufheben",

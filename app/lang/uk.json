@@ -182,6 +182,7 @@
   "Delete your custom key bindings and reset to the template defaults?": "Видалити користувацькі прив'язки ключів та скинути налаштування за замовчуванням?",
   "Deleted": "Видалено",
   "Deleting %@": "Видалення %@",
+  "Deleting a folder moves it and its contents to Trash. A folder already in Trash is removed permanently. It may take a moment to sync.": "Видалення теки переміщує її разом із вмістом у Кошик. Тека, що вже в Кошику, видаляється остаточно. Синхронізація може зайняти трохи часу.",
   "Deleting all messages in %@": "Видалення всіх повідомлень у %@",
   "Deleting draft": "Видалення чернетки",
   "Deselect all conversations": "Скасувати вибір усіх бесід",

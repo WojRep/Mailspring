@@ -181,6 +181,7 @@
   "Delete your custom key bindings and reset to the template defaults?": "¿Eliminar sus enlaces de teclas personalizados y restablecer los valores predeterminados de la plantilla?",
   "Deleted": "Eliminado",
   "Deleting %@": "Eliminando %@",
+  "Deleting a folder moves it and its contents to Trash. A folder already in Trash is removed permanently. It may take a moment to sync.": "Eliminar una carpeta la mueve con su contenido a la Papelera. Una carpeta que ya está en la Papelera se elimina de forma permanente. La sincronización puede tardar un momento.",
   "Deleting all messages in %@": "Eliminando todos los mensajes en %@",
   "Deleting draft": "Eliminando borrador",
   "Deselect all conversations": "Deseleccionar todas las conversaciones",

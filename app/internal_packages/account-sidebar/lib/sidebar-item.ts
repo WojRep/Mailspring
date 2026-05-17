@@ -58,7 +58,7 @@ const onDeleteItem = function (item: ISidebarItem) {
     type: 'info',
     message: localized('Are you sure?'),
     detail: localized(
-      'Deleting folders and labels cannot be undone and it may take a few minutes for changes to sync to Mailspring.'
+      'Deleting a folder moves it and its contents to Trash. A folder already in Trash is removed permanently. It may take a moment to sync.'
     ),
     buttons: [localized('Delete'), localized('Cancel')],
     defaultId: 0,
