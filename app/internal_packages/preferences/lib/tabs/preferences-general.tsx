@@ -119,6 +119,19 @@ class PreferencesGeneral extends React.Component<{
           </div>
         </div>
 
+        <div className="two-columns-flexbox" style={{ paddingTop: 30 }}>
+          <div style={{ flex: 1 }}>
+            <ConfigSchemaItem
+              configSchema={this.props.configSchema.properties.audit}
+              keyName={localized('Audit Trail')}
+              keyPath="core.audit"
+              config={this.props.config}
+            />
+          </div>
+          <div style={{ width: 30 }} />
+          <div style={{ flex: 1 }} />
+        </div>
+
         <div className="local-data">
           <h6>{localized('Local Data')}</h6>
           <div className="btn" onClick={this._onResetEmailCache} style={{ marginLeft: 0 }}>

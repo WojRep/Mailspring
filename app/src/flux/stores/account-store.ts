@@ -9,6 +9,7 @@ import { Account } from '../models/account';
 import { Thread } from '../models/thread';
 import { Contact } from '../models/contact';
 import * as Utils from '../models/utils';
+import { auditLog } from '../../utils/audit-fanout';
 
 const configAccountsKey = 'accounts';
 const configVersionKey = 'accountsVersion';
@@ -183,6 +184,9 @@ class _AccountStore extends MailspringStore {
     const account = this._accounts.find((a) => a.id === id);
     if (!account) return;
 
+    // Ticket #04 04e — audit trail (no-op unless the user opted in).
+    auditLog('account-remove', { account_id: account.id, provider: account.provider });
+
     this._caches = {};
 
     const remainingAccounts = this._accounts.filter((a) => a !== account);
@@ -252,6 +256,9 @@ class _AccountStore extends MailspringStore {
       existing.emailAddress = cleanAccount.emailAddress;
       existing.settings = cleanAccount.settings;
     }
+
+    // Ticket #04 04e — audit trail (no-op unless the user opted in).
+    auditLog('account-add', { account_id: cleanAccount.id, provider: cleanAccount.provider });
 
     this._save();
   };

@@ -24,6 +24,19 @@ export default {
           },
         },
       },
+      audit: {
+        type: 'object',
+        properties: {
+          enabled: {
+            type: 'boolean',
+            default: false,
+            title: localized('Keep a local audit trail of account and sync events'),
+            note: localized(
+              'Ticket #04 — writes a redacted, newline-delimited JSON log to a local file. Never sent over the network.'
+            ),
+          },
+        },
+      },
       appearance: {
         type: 'object',
         properties: {
