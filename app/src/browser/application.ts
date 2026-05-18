@@ -19,7 +19,7 @@ import SystemTrayManager from './system-tray-manager';
 import { DefaultClientHelper } from '../default-client-helper';
 import ActunaMailProtocolHandler from './actunamail-protocol-handler';
 import ActunaAttachmentProtocolHandler from './actuna-attachment-protocol-handler';
-import { installLogChannel } from './log-channel';
+import { installLogChannel, logAppStarted, logAppStopping } from './log-channel';
 import ConfigPersistenceManager from './config-persistence-manager';
 import moveToApplications from './move-to-applications';
 import { MailsyncProcess } from '../mailsync-process';
@@ -91,6 +91,7 @@ export default class Application extends EventEmitter {
     // Ticket #04 04c — Mandarynka logger: persist log lines forwarded from
     // renderer processes to the OS log directory.
     installLogChannel();
+    logAppStarted(version);
 
     try {
       const mailsync = new MailsyncProcess(options);
@@ -548,6 +549,8 @@ export default class Application extends EventEmitter {
 
     // Called before the app tries to close any windows.
     app.on('before-quit', () => {
+      // Ticket #04 — shutdown heartbeat in the log file.
+      logAppStopping();
       // Allow the main window to be closed.
       this.quitting = true;
       // Destroy hot windows so that they can't block the app from quitting.

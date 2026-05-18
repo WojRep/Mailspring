@@ -2,6 +2,7 @@ import { app, ipcMain } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import { LOG_IPC_CHANNEL } from '../logger';
+import { redactLogObject } from '../utils/log-redaction';
 
 // Mandarynka logger — main-process log sink (ticket #04 phase 04c).
 //
@@ -47,4 +48,26 @@ export function installLogChannel(): void {
       logStream.write(normalizeLogLine(line));
     }
   });
+}
+
+// Write one main-process record straight to the log file. Synchronous so the
+// shutdown record survives process exit. pino-compatible schema; meta is
+// redacted like every other record.
+function writeMainRecord(level: number, msg: string, meta: Record<string, unknown> = {}): void {
+  try {
+    const record = { level, time: Date.now(), name: 'main', msg, ...redactLogObject(meta) };
+    fs.appendFileSync(logFilePathForDate(), `${JSON.stringify(record)}\n`);
+  } catch {
+    // Best-effort — never block startup/shutdown on a log write.
+  }
+}
+
+// Startup heartbeat — ticket #04, gives a verifiable JSON line every launch.
+export function logAppStarted(version: string): void {
+  writeMainRecord(30, 'ActunaMail started', { version });
+}
+
+// Shutdown heartbeat — written synchronously from the before-quit handler.
+export function logAppStopping(): void {
+  writeMainRecord(30, 'ActunaMail shutting down');
 }
