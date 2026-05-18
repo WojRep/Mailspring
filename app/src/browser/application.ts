@@ -444,19 +444,18 @@ export default class Application extends EventEmitter {
       }
     });
 
+    // Help menu — point at the ActunaMail GitHub project rather than the
+    // upstream Mailspring community site (which is not our resource).
     this.on('application:view-help', () => {
-      const helpUrl = 'https://community.getmailspring.com/docs';
-      shell.openExternal(helpUrl);
+      shell.openExternal('https://github.com/WojRep/ActunaMail/wiki');
     });
 
     this.on('application:view-getting-started', () => {
-      const helpUrl = 'https://community.getmailspring.com/pub/quick-start-guide';
-      shell.openExternal(helpUrl);
+      shell.openExternal('https://github.com/WojRep/ActunaMail#readme');
     });
 
     this.on('application:view-community', () => {
-      const helpUrl = 'https://community.getmailspring.com/';
-      shell.openExternal(helpUrl);
+      shell.openExternal('https://github.com/WojRep/ActunaMail/discussions');
     });
 
     this.on('application:open-preferences', () => {
