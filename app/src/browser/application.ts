@@ -19,6 +19,7 @@ import SystemTrayManager from './system-tray-manager';
 import { DefaultClientHelper } from '../default-client-helper';
 import ActunaMailProtocolHandler from './actunamail-protocol-handler';
 import ActunaAttachmentProtocolHandler from './actuna-attachment-protocol-handler';
+import { installLogChannel } from './log-channel';
 import ConfigPersistenceManager from './config-persistence-manager';
 import moveToApplications from './move-to-applications';
 import { MailsyncProcess } from '../mailsync-process';
@@ -86,6 +87,10 @@ export default class Application extends EventEmitter {
     this.actunaAttachmentProtocolHandler = new ActunaAttachmentProtocolHandler({
       configDirPath,
     });
+
+    // Ticket #04 04c — Mandarynka logger: persist log lines forwarded from
+    // renderer processes to the OS log directory.
+    installLogChannel();
 
     try {
       const mailsync = new MailsyncProcess(options);
