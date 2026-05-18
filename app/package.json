@@ -2,7 +2,7 @@
   "name": "actunamail",
   "productName": "ActunaMail",
   "desktopName": "ActunaMail.desktop",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "repository": {
     "type": "git",
     "url": "git://github.com/WojRep/ActunaMail.git"
@@ -25,7 +25,6 @@
     "chrono-node": "^2.9.0",
     "classnames": "^2.5.1",
     "collapse-whitespace": "^1.1.7",
-    "debug": "github:emorikawa/debug#nylas",
     "dompurify": "^3.4.0",
     "emoji-data": "^0.2.0",
     "event-kit": "^1.0.2",
@@ -48,6 +47,7 @@
     "node-emoji": "^2.2.0",
     "optimist": "0.4.0",
     "pick-react-known-prop": "0.x.x",
+    "pino": "^10.3.1",
     "proxyquire": "1.3.1",
     "react": "16.9.0",
     "react-color": "^2.19.3",

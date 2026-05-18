@@ -1,6 +1,5 @@
 /* eslint global-require: 0 */
 import path from 'path';
-import createDebug from 'debug';
 import childProcess, { ChildProcess } from 'child_process';
 import { LRUCache } from 'lru-cache';
 // Ticket 45b.2: SQLCipher-capable drop-in. API-compatible with stock
@@ -14,9 +13,9 @@ import MailspringStore from '../../global/actunamail-store';
 import * as Utils from '../models/utils';
 import Query from '../models/query';
 import KeyManager from '../../key-manager';
+import { createLogger } from '../../logger';
 
-const debug = createDebug('app:RxDB');
-const debugVerbose = createDebug('app:RxDB:all');
+const log = createLogger('RxDB');
 
 const DEBUG_QUERY_PLANS = AppEnv.inDevMode();
 const AGENT_PATH = path.join(path.dirname(__filename), 'database-agent.js');
@@ -300,9 +299,8 @@ class DatabaseStore extends MailspringStore {
       } else {
         const { results, agentTime } = await this._executeInBackground(query, values);
         const msec = Date.now() - start;
-        if (debugVerbose.enabled) {
-          const q = `🔶 (${msec}ms) Background: ${query}`;
-          debugVerbose(trimTo(q));
+        if (log.isLevelEnabled('trace')) {
+          log.trace(trimTo(`🔶 (${msec}ms) Background: ${query}`));
         }
 
         if (msec > 100) {
@@ -352,15 +350,16 @@ class DatabaseStore extends MailspringStore {
         const start = Date.now();
         results = stmt[fn](values) as any[];
         const msec = Date.now() - start;
-        if (debugVerbose.enabled) {
-          const q = `(${msec}ms) ${query}`;
-          debugVerbose(trimTo(q));
+        if (log.isLevelEnabled('trace')) {
+          log.trace(trimTo(`(${msec}ms) ${query}`));
         }
 
         if (msec > 100) {
           const msgPrefix = msec > 100 ? 'DatabaseStore: query took more than 100ms - ' : '';
           if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
-            const plan = this._db.prepare<any,{detail: string}>(`EXPLAIN QUERY PLAN ${query}`).all(values);
+            const plan = this._db
+              .prepare<any, { detail: string }>(`EXPLAIN QUERY PLAN ${query}`)
+              .all(values);
             const planString = `${plan.map((row) => row.detail).join('\n')} for ${query}`;
             const quiet = ['ThreadCounts', 'ThreadSearch', 'ContactSearch', 'COVERING INDEX'];
 
@@ -405,7 +404,7 @@ class DatabaseStore extends MailspringStore {
       if (this._agent.stderr)
         this._agent.stderr.on('data', (data) => console.error(data.toString()));
       this._agent.on('close', (code) => {
-        debug(`Query Agent: exited with code ${code}`);
+        log.debug(`Query Agent: exited with code ${code}`);
         this._agent = null;
       });
       this._agent.on('error', (err) => {
