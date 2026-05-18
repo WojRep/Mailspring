@@ -22,4 +22,11 @@ export class DestroyCategoryTask extends Task {
   label() {
     return localized(`Deleting %@`, imapUtf7.decode(this.path));
   }
+
+  onSuccess() {
+    // The folder was moved to Trash / removed on the server. Wake the sync
+    // workers so the local folder list and the sidebar refresh immediately
+    // instead of waiting for the next background sync cycle (ticket #59 C).
+    AppEnv.mailsyncBridge?.sendSyncMailNow();
+  }
 }

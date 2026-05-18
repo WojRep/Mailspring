@@ -26,4 +26,11 @@ export class ExpungeAllInFolderTask extends Task {
       this.folder ? this.folder.displayName : 'unknown'
     );
   }
+
+  onSuccess() {
+    // The folder was emptied on the server. Wake the sync workers so the
+    // thread list and folder counts refresh immediately instead of waiting
+    // for the next background sync cycle (ticket #59 part C).
+    AppEnv.mailsyncBridge?.sendSyncMailNow();
+  }
 }
