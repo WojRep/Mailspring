@@ -33,14 +33,18 @@
       white-space: nowrap;
     }
 
+    // Always visible so the "create folder" action is discoverable without
+    // hovering the section (ticket #53 — hover-only discoverability is an
+    // accessibility anti-pattern, see ticket #43).
     .add-item-button {
       margin-left: @padding-small-horizontal;
       margin-right: @padding-small-horizontal;
       cursor: pointer;
+      display: flex;
+      align-items: center;
       img {
         background: @text-color-very-subtle;
       }
-      display: none;
     }
 
     .collapse-button {
@@ -54,8 +58,7 @@
 
   &:hover {
     .heading {
-      .collapse-button,
-      .add-item-button {
+      .collapse-button {
         display: inherit;
       }
     }

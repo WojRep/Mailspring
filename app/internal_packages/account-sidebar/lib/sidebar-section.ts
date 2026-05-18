@@ -33,6 +33,70 @@ function toggleSectionCollapsed(section) {
   SidebarActions.setKeyCollapsed(section.title, !isSectionCollapsed(section.title));
 }
 
+// Normalized "/"-joined hierarchy key for a category, so folders nested with
+// different IMAP delimiters (. / \) compare consistently.
+function categoryHierarchyKey(category): string {
+  return category.displayName.replace(RegExpUtils.subcategorySplitRegex(), '/');
+}
+
+// Ticket #48 moves a deleted folder into Trash via IMAP RENAME, so it becomes a
+// user category whose path lives under the Trash folder. Ticket #54: such folders
+// must appear nested inside Trash, not as flat top-level entries in the folder list.
+function trashHierarchyKey(account): string | null {
+  const trash = CategoryStore.getTrashCategory(account);
+  return trash ? categoryHierarchyKey(trash) : null;
+}
+
+function isInsideTrash(category, trashKey: string | null): boolean {
+  if (!trashKey) {
+    return false;
+  }
+  const key = categoryHierarchyKey(category);
+  return key !== trashKey && key.startsWith(`${trashKey}/`);
+}
+
+// Builds the nested sidebar items for user folders that were moved into Trash, so
+// they render as children of the Trash item rather than flat top-level entries.
+function userCategoryItemsInTrash(account): ISidebarItem[] {
+  const trashKey = trashHierarchyKey(account);
+  if (!trashKey) {
+    return [];
+  }
+  const items: ISidebarItem[] = [];
+  const seenItems: { [key: string]: ISidebarItem } = {};
+  for (const category of CategoryStore.userCategories(account)) {
+    if (!isInsideTrash(category, trashKey)) {
+      continue;
+    }
+    const itemKey = categoryHierarchyKey(category);
+
+    let parent: ISidebarItem = null;
+    let parentKey: string = null;
+    const parentComponents = itemKey.split('/');
+    for (let i = parentComponents.length - 1; i >= 1; i--) {
+      parentKey = parentComponents.slice(0, i).join('/');
+      parent = seenItems[parentKey];
+      if (parent) {
+        break;
+      }
+    }
+
+    let item: ISidebarItem;
+    if (parent) {
+      const itemDisplayName = category.displayName.substr(parentKey.length + 1);
+      item = SidebarItem.forCategories([category], { name: itemDisplayName });
+      parent.children.push(item);
+    } else {
+      // Direct child of Trash — drop the "Trash/" prefix from the displayed name.
+      const itemDisplayName = category.displayName.substr(trashKey.length + 1);
+      item = SidebarItem.forCategories([category], { name: itemDisplayName });
+      items.push(item);
+    }
+    seenItems[itemKey] = item;
+  }
+  return items;
+}
+
 class SidebarSection {
   static empty(title): ISidebarSection {
     return {
@@ -51,9 +115,14 @@ class SidebarSection {
       return this.empty(account.label);
     }
 
-    const items = _.reject(cats, (cat) => ['drafts'].includes(cat.role)).map((cat) =>
-      SidebarItem.forCategories([cat], { editable: false, deletable: false })
-    );
+    const items = _.reject(cats, (cat) => ['drafts'].includes(cat.role)).map((cat) => {
+      const opts: Partial<ISidebarItem> = { editable: false, deletable: false };
+      // Nest folders that were deleted into Trash (ticket #54) under the Trash item.
+      if (cat.role === 'trash') {
+        opts.children = userCategoryItemsInTrash(account);
+      }
+      return SidebarItem.forCategories([cat], opts);
+    });
 
     const unreadItem = SidebarItem.forUnread([account.id]);
     const starredItem = SidebarItem.forStarred([account.id]);
@@ -186,7 +255,14 @@ class SidebarSection {
     //
     const items: ISidebarItem[] = [];
     const seenItems: { [key: string]: ISidebarItem } = {};
+    // Single-account view nests deleted folders under Trash (see
+    // standardSectionForAccount); keep them out of the flat folder list here.
+    // Multi-account view (`collapsible`) keeps the previous flat behavior.
+    const trashKey = collapsible ? null : trashHierarchyKey(account);
     for (const category of CategoryStore.userCategories(account)) {
+      if (isInsideTrash(category, trashKey)) {
+        continue;
+      }
       // https://regex101.com/r/jK8cC2/1
       let item: ISidebarItem = null;
       const re = RegExpUtils.subcategorySplitRegex();

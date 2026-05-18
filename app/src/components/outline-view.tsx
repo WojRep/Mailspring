@@ -132,6 +132,25 @@ export class OutlineView extends Component<OutlineViewProps, OutlineViewState> {
     }
   };
 
+  // Right-clicking the section heading offers a "New Folder" action, so creating
+  // a top-level folder is discoverable without finding the small "+" button
+  // (ticket #53).
+  _onHeadingContextMenu = () => {
+    if (this.props.onItemCreated == null) {
+      return;
+    }
+    const { Menu, MenuItem } = require('@electron/remote');
+    const isLabel = this.props.iconName === 'tag.png';
+    const menu = new Menu();
+    menu.append(
+      new MenuItem({
+        label: isLabel ? localized('New Label...') : localized('New Folder...'),
+        click: () => this.setState({ showCreateInput: true }),
+      })
+    );
+    menu.popup({});
+  };
+
   _onDragStateChange = ({ isDropping }) => {
     if (this.props.collapsed && !this._expandTimeout && isDropping) {
       this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
@@ -185,7 +204,7 @@ export class OutlineView extends Component<OutlineViewProps, OutlineViewState> {
         }}
       >
         <RetinaImg
-          url="actunamail://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
+          name="icon-sidebar-addcategory.png"
           style={{ height: 15, width: 14 }}
           mode={RetinaImg.Mode.ContentIsMask}
           alt=""
@@ -213,6 +232,7 @@ export class OutlineView extends Component<OutlineViewProps, OutlineViewState> {
     return (
       <DropZone
         className="heading"
+        onContextMenu={this._onHeadingContextMenu}
         onDrop={() => true}
         onDragStateChange={this._onDragStateChange}
         shouldAcceptDrop={() => true}
