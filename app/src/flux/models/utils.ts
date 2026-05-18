@@ -10,6 +10,9 @@ import path from 'path';
 
 let ResourcePath = null;
 import DatabaseObjectRegistry from '../../registries/database-object-registry';
+import { createLogger } from '../../logger';
+
+const log = createLogger('Utils');
 
 export function waitFor(latch, options: { timeout?: number } = {}) {
   const timeout = options.timeout || 400;
@@ -394,7 +397,7 @@ export function isEqual(
   const value = _isEqual(a, b, [], [], options);
   if (options.logWhenFalse) {
     if (value === false) {
-      console.log('isEqual is false', a, b, options);
+      log.info({ a, b, options }, 'isEqual is false');
     }
     return value;
   }

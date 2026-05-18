@@ -16,6 +16,9 @@ import { schema, plugins, convertFromHTML, convertToHTML, convertToPlainText } f
 import { lastUnquotedNode, removeQuotedText, isQuoteNode } from './base-block-plugins';
 import { UNEDITABLE_TYPE } from './uneditable-plugins';
 import { changes as InlineAttachmentChanges } from './inline-attachment-plugins';
+import { createLogger } from '../../logger';
+
+const log = createLogger('ComposerEditor');
 
 // Returns a reason string if the document needs recovery, or null if it's fine.
 function getDocumentBrokenReason(value: Value): string | null {
@@ -287,7 +290,7 @@ export class ComposerEditor extends React.Component<ComposerEditorProps, Compose
     // knows the document changed and doesn't skip saving.
     const reason = getDocumentBrokenReason(change.value);
     if (reason) {
-      console.warn(`ComposerEditor: ${reason}, inserting empty paragraph to recover.`);
+      log.warn(`ComposerEditor: ${reason}, inserting empty paragraph to recover.`);
       const op = require('slate').Operation.create({
         type: 'insert_node',
         path: Immutable.List([0]),

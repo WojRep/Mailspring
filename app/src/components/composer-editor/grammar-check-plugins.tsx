@@ -2,6 +2,9 @@ import React from 'react';
 import { Editor, Decoration, Mark, Point, Text } from 'slate';
 import { localized } from 'actunamail-exports';
 import { ComposerEditorPlugin, ComposerEditorPluginTopLevelComponentProps } from './types';
+import { createLogger } from '../../logger';
+
+const log = createLogger('GrammarCheckPlugins');
 
 export const GRAMMAR_ERROR_MARK = 'grammar-error';
 
@@ -87,7 +90,7 @@ function _scheduleCheck(draftId: string, editor: Editor, delayMs: number, start 
       try {
         applyGrammarDecorations(editor, draftId);
       } catch (err) {
-        console.warn('Grammar check: failed to apply decorations', err);
+        log.warn({ err }, 'Grammar check: failed to apply decorations');
       }
     });
   }, delayMs);
@@ -217,7 +220,7 @@ function applyGrammarDecorations(editor: Editor, draftId: string) {
 
     // Staleness check: verify the text hasn't changed since we checked
     if (block.text !== blockErrors.text) {
-      console.warn(
+      log.warn(
         `[grammar] staleness check failed for block ${block.key}:\n` +
           `  current:  ${JSON.stringify(block.text)}\n` +
           `  stored:   ${JSON.stringify(blockErrors.text)}`
@@ -230,7 +233,7 @@ function applyGrammarDecorations(editor: Editor, draftId: string) {
     for (const error of blockErrors.errors) {
       const range = offsetToSlateRange(texts, error.offset, error.length);
       if (!range) {
-        console.warn(
+        log.warn(
           `[grammar] offsetToSlateRange returned null for error "${error.ruleId}" ` +
             `offset=${error.offset} length=${error.length} in text: ${JSON.stringify(
               blockErrors.text

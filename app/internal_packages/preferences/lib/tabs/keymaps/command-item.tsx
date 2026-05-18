@@ -2,10 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Flexbox } from 'actunamail-component-kit';
-import { localized } from 'actunamail-exports';
+import { localized, createLogger } from 'actunamail-exports';
 import fs from 'fs';
 
 import { keyAndModifiersForEvent } from './mousetrap-keybinding-helpers';
+
+const log = createLogger('CommandItem');
 
 interface CommandKeybindingProps {
   bindings: string[];
@@ -124,7 +126,7 @@ export default class CommandKeybinding extends React.Component<
           keymaps = JSON.parse(fs.readFileSync(keymapPath).toString());
         }
       } catch (err) {
-        console.error(err);
+        log.error(err);
       }
 
       keymaps[this.props.command] = this.state.editingBinding;

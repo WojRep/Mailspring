@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { localized } from 'actunamail-exports';
+import { localized, createLogger } from 'actunamail-exports';
 import { RetinaImg } from 'actunamail-component-kit';
 import {
   UnsubscribeOption,
@@ -9,6 +9,8 @@ import {
   performMailtoUnsubscribe,
   performWebUnsubscribe,
 } from './unsubscribe-service';
+
+const log = createLogger('UnsubscribeHeader');
 
 type UnsubscribeMethod = 'one-click' | 'mailto' | 'web' | 'body-link';
 
@@ -103,7 +105,7 @@ export class UnsubscribeHeader extends React.Component<
     try {
       performMailtoUnsubscribe(uri);
     } catch (err) {
-      console.error('Failed to open unsubscribe email:', err);
+      log.error({ err }, 'Failed to open unsubscribe email');
     }
   }
 
@@ -111,7 +113,7 @@ export class UnsubscribeHeader extends React.Component<
     try {
       performWebUnsubscribe(url);
     } catch (err) {
-      console.error('Failed to open unsubscribe URL:', err);
+      log.error({ err }, 'Failed to open unsubscribe URL');
     }
   }
 

@@ -15,11 +15,14 @@ import {
   Event,
   EventRSVPTask,
   DatabaseStore,
+  createLogger,
 } from 'actunamail-exports';
 import ICAL from 'ical.js';
 import { findOneIana } from 'windows-iana';
 
 const moment = require('moment-timezone');
+
+const log = createLogger('EventHeader');
 
 interface EventHeaderProps {
   message: Message;
@@ -74,7 +77,7 @@ export class EventHeader extends React.Component<EventHeaderProps, EventHeaderSt
       try {
         parsed = CalendarUtils.parseICSString(data.toString());
       } catch (e) {
-        console.warn(
+        log.warn(
           `EventHeader: Could not parse ICS data from attachment ${file.filename}: ${e.message}`
         );
         return;
@@ -104,7 +107,7 @@ export class EventHeader extends React.Component<EventHeaderProps, EventHeaderSt
             icsEvent: CalendarUtils.parseICSString(calEvent.ics).event,
           });
         } catch (e) {
-          console.warn(`EventHeader: Could not parse ICS data from calendar event: ${e.message}`);
+          log.warn(`EventHeader: Could not parse ICS data from calendar event: ${e.message}`);
         }
       });
     });
@@ -126,7 +129,10 @@ export class EventHeader extends React.Component<EventHeaderProps, EventHeaderSt
     // that can be handled by moments-timezone.
     let startTimezone = findOneIana(icsEvent.startDate.zone.tzid) || icsEvent.startDate.zone.tzid;
     let endTimezone = findOneIana(icsEvent.endDate.zone.tzid) || icsEvent.endDate.zone.tzid;
-    console.log(startTimezone, endTimezone, icsEvent, icsEvent.startDate.toString());
+    log.info(
+      { startTimezone, endTimezone, icsEvent, startDate: icsEvent.startDate.toString() },
+      'EventHeader render timezones'
+    );
     // Workaround to convert calendar invites sent out from Google calendar with "Z" timezone
     // to IANA timezone that can be handled by moments-timezone.
     if (startTimezone === 'Z') {

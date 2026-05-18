@@ -1,7 +1,7 @@
 import React, { CSSProperties, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { webUtils } from 'electron';
-import { Contact, localized, CanvasUtils, AccountStore } from 'actunamail-exports';
+import { Contact, localized, CanvasUtils, AccountStore, createLogger } from 'actunamail-exports';
 import {
   FocusContainer,
   MultiselectList,
@@ -13,6 +13,8 @@ import {
 import { ContactsPerspective, Store } from './Store';
 import { writeContactsToTempVCF, importContactsFromPaths } from './VCFImportExport';
 import { ContactListContextMenu } from './ContactListContextMenu';
+
+const log = createLogger('ContactList');
 
 const ContactColumn = new ListTabular.Column({
   name: 'Item',
@@ -103,7 +105,7 @@ class ContactListWithData extends React.Component<ContactListProps, ContactListS
       // The DownloadURL second segment MUST match the last path component of the URL.
       event.dataTransfer.setData('DownloadURL', `text/vcard:${filename}:file://${filePath}`);
     } catch (err) {
-      console.warn('Could not write temp VCF for drag export:', err);
+      log.warn({ err }, 'Could not write temp VCF for drag export');
     }
   };
 

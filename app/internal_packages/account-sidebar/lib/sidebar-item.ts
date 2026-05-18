@@ -12,10 +12,13 @@ import {
   Actions,
   RegExpUtils,
   localized,
+  createLogger,
 } from 'actunamail-exports';
 
 import * as SidebarActions from './sidebar-actions';
 import { ISidebarItem } from './types';
+
+const log = createLogger('SidebarItem');
 
 const idForCategories = (categories) => categories.map((c) => c.id).join('-');
 
@@ -226,7 +229,7 @@ export default class SidebarItem {
           try {
             jsonData = JSON.parse(jsonString);
           } catch (err) {
-            console.error(`JSON parse error: ${err}`);
+            log.error(`JSON parse error: ${err}`);
           }
           if (!jsonData) {
             return;

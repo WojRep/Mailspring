@@ -1,4 +1,7 @@
 import moment, { Moment } from 'moment-timezone';
+import { createLogger } from './logger';
+
+const log = createLogger('DateUtils');
 
 // Init locale for moment
 moment.locale(navigator.language);
@@ -6,7 +9,7 @@ moment.locale(navigator.language);
 // Initialise moment timezone
 const tz = moment.tz.guess();
 if (!tz) {
-  console.error('DateUtils: TimeZone could not be determined. This should not happen!');
+  log.error('DateUtils: TimeZone could not be determined. This should not happen!');
 }
 
 const yearRegex = / ?YY(YY)?/;

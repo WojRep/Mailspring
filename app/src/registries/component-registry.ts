@@ -1,6 +1,9 @@
 import _ from 'underscore';
 import MailspringStore from 'actunamail-store';
 import { SheetToolbarDeclaration } from '../flux/stores/workspace-store';
+import { createLogger } from '../logger';
+
+const log = createLogger('ComponentRegistry');
 
 type LocationDescriptor = { id: string } | SheetToolbarDeclaration;
 
@@ -58,7 +61,7 @@ class ComponentRegistry extends MailspringStore {
   //
   register(component, options: ComponentRegistryDescriptor) {
     if (component.view) {
-      return console.warn(
+      return log.warn(
         'Ignoring component trying to register with old CommandRegistry.register syntax'
       );
     }

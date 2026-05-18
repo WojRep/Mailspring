@@ -8,6 +8,8 @@ export type getAvailableLanguages = typeof import('../intl').getAvailableLanguag
 export const getAvailableLanguages: getAvailableLanguages;
 export type isRTL = typeof import('../intl').isRTL;
 export const isRTL: isRTL;
+export type createLogger = typeof import('../logger').createLogger;
+export const createLogger: createLogger;
 
 // Actions
 export type Actions = typeof import('../flux/actions');

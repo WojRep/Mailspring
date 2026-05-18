@@ -8,8 +8,11 @@ import {
   AndCompositeMatcher,
   OrCompositeMatcher,
   Contact,
+  createLogger,
 } from 'actunamail-exports';
 import IcalExpander from 'ical-expander';
+
+const log = createLogger('CalendarDataSource');
 
 /** Participation status values from iCalendar spec */
 export type ParticipationStatus = 'NEEDS-ACTION' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE' | string;
@@ -187,7 +190,7 @@ export function occurrencesForEvents(
           });
         });
       } catch (err) {
-        console.error(`Failed to expand ICS for event ${master.id}:`, err);
+        log.error({ err }, `Failed to expand ICS for event ${master.id}`);
         // Fallback: show the master event as a single occurrence so it doesn't vanish
         occurrences.push({
           start: master.recurrenceStart,
@@ -269,7 +272,7 @@ export function occurrencesForEvents(
           attendees,
         });
       } catch (err) {
-        console.error(`Failed to parse ICS for exception ${exception.id}:`, err);
+        log.error({ err }, `Failed to parse ICS for exception ${exception.id}`);
       }
     }
   }

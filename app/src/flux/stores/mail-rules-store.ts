@@ -12,6 +12,9 @@ import { localized } from '../../intl';
 import { Template } from '../../components/scenario-editor-models';
 import { ConditionMode, ConditionTemplates, ActionTemplates } from '../../mail-rules-templates';
 import { DatabaseChangeRecord } from 'actunamail-exports';
+import { createLogger } from '../../logger';
+
+const log = createLogger('MailRulesStore');
 
 const RulesJSONKey = 'MailRules-V2';
 const AutoSinceJSONKey = 'MailRules-Auto-Since';
@@ -68,7 +71,7 @@ class MailRulesStore extends MailspringStore {
         this._rules = JSON.parse(txt);
       }
     } catch (err) {
-      console.warn('Could not load saved mail rules', err);
+      log.warn({ err }, 'Could not load saved mail rules');
     }
 
     this.listenTo(Actions.addMailRule, this._onAddMailRule);

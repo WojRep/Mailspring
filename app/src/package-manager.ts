@@ -3,6 +3,9 @@ import fs from 'fs';
 import { shell } from 'electron';
 import { localized } from './intl';
 import Package, { isValidPackageName } from './package';
+import { createLogger } from './logger';
+
+const log = createLogger('PackageManager');
 
 export default class PackageManager {
   packageDirectories: string[] = [];
@@ -78,7 +81,7 @@ export default class PackageManager {
             continue;
           }
           if (err instanceof Package.InvalidPackageNameError) {
-            console.error(err.message);
+            log.error(err.message);
             continue;
           }
           const wrapped = new Error(
@@ -131,7 +134,7 @@ export default class PackageManager {
 
     if (!pkg.isEngineSet()) {
       // don't use AppEnv.reportError, I don't want to know about these.
-      console.error(
+      log.error(
         localized(
           `This plugin or theme %@ does not list "mailspring" in it's package.json's "engines" field. Ask the developer to test the plugin with Mailspring and add it, or follow the instructions here: %@`,
           pkg.name,

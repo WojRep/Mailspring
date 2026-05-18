@@ -1,5 +1,8 @@
 import * as Actions from './actions';
 import * as Utils from './models/utils';
+import { createLogger } from '../logger';
+
+const log = createLogger('ActionBridge');
 
 const Role = {
   MAIN: 'default',
@@ -73,8 +76,8 @@ class ActionBridge {
     // I believe this resolves issues like https://sentry.mailspring.com/sentry/edgehill/group/2735/,
     // which are React exceptions in a direct stack (no next ticks) from an IPC event.
     setTimeout(() => {
-      console.debug(
-        printToConsole,
+      log.debug(
+        { printToConsole },
         `ActionBridge: ${this.initiatorId} Action Bridge Received: ${name}`
       );
 
@@ -107,8 +110,8 @@ class ActionBridge {
 
     const json = JSON.stringify(params);
 
-    console.debug(
-      printToConsole,
+    log.debug(
+      { printToConsole },
       `ActionBridge: ${this.initiatorId} Action Bridge Broadcasting: ${name}`
     );
     this.ipc.send(`action-bridge-rebroadcast-to-${target}`, this.initiatorId, name, json);

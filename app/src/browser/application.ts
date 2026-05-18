@@ -23,6 +23,7 @@ import { installLogChannel, logAppStarted, logAppStopping } from './log-channel'
 import ConfigPersistenceManager from './config-persistence-manager';
 import moveToApplications from './move-to-applications';
 import { MailsyncProcess } from '../mailsync-process';
+import { createLogger } from '../logger';
 import Config from '../config';
 import { registerQuickpreviewIPCHandlers } from './quickpreview-ipc';
 import {
@@ -30,6 +31,8 @@ import {
   registerNotificationIPCHandlers,
 } from './notification-ipc';
 import WindowsTaskbarManager from './windows-taskbar-manager';
+
+const log = createLogger('Application');
 
 let clipboard = null;
 
@@ -287,7 +290,7 @@ export default class Application extends EventEmitter {
   deleteFileWithRetry(filePath, callback = () => {}, retries = 5) {
     const callbackWithRetry = (err) => {
       if (err && err.message.indexOf('no such file') === -1) {
-        console.log(`File Error: ${err.message} - retrying in 150msec`);
+        log.info(`File Error: ${err.message} - retrying in 150msec`);
         setTimeout(() => {
           this.deleteFileWithRetry(filePath, callback, retries - 1);
         }, 150);
@@ -636,7 +639,7 @@ export default class Application extends EventEmitter {
       // test environments (xvfb can't render or accept input), hanging the
       // spec suite until the 20 minute CI timeout.
       if (this.specMode) {
-        console.error(`${message}\n${detail}`);
+        log.error(`${message}\n${detail}`);
         return;
       }
 
@@ -709,12 +712,12 @@ export default class Application extends EventEmitter {
 
     ipcMain.on('call-window-method', (event, method, ...args) => {
       if (!ALLOWED_WINDOW_METHODS.has(method)) {
-        console.error(`Method ${method} is not permitted on BrowserWindow!`);
+        log.error(`Method ${method} is not permitted on BrowserWindow!`);
         return;
       }
       const win = BrowserWindow.fromWebContents(event.sender);
       if (!win[method]) {
-        console.error(`Method ${method} does not exist on BrowserWindow!`);
+        log.error(`Method ${method} does not exist on BrowserWindow!`);
         return;
       }
       win[method](...args);
@@ -722,7 +725,7 @@ export default class Application extends EventEmitter {
 
     ipcMain.on('call-devtools-webcontents-method', (event, method, ...args) => {
       if (!ALLOWED_DEVTOOLS_WEBCONTENTS_METHODS.has(method)) {
-        console.error(`Method ${method} is not permitted on devToolsWebContents!`);
+        log.error(`Method ${method} is not permitted on devToolsWebContents!`);
         return;
       }
       // If devtools aren't open the `webContents::devToolsWebContents` will be null
@@ -730,7 +733,7 @@ export default class Application extends EventEmitter {
         return;
       }
       if (!event.sender.devToolsWebContents[method]) {
-        console.error(`Method ${method} does not exist on devToolsWebContents!`);
+        log.error(`Method ${method} does not exist on devToolsWebContents!`);
         return;
       }
       event.sender.devToolsWebContents[method](...args);
@@ -738,11 +741,11 @@ export default class Application extends EventEmitter {
 
     ipcMain.on('call-webcontents-method', (event, method, ...args) => {
       if (!ALLOWED_WEBCONTENTS_METHODS.has(method)) {
-        console.error(`Method ${method} is not permitted on WebContents!`);
+        log.error(`Method ${method} is not permitted on WebContents!`);
         return;
       }
       if (!event.sender[method]) {
-        console.error(`Method ${method} does not exist on WebContents!`);
+        log.error(`Method ${method} does not exist on WebContents!`);
         return;
       }
       event.sender[method](...args);
@@ -856,7 +859,7 @@ export default class Application extends EventEmitter {
         Object.assign(err, errorParams);
         global.errorLogger.reportError(err, extra);
       } catch (parseError) {
-        console.error(parseError);
+        log.error(parseError);
         global.errorLogger.reportError(parseError, {});
       }
       event.returnValue = true;
@@ -920,8 +923,7 @@ export default class Application extends EventEmitter {
   // MailspringWindow - The {MailspringWindow} to send the command to.
   // args - The optional arguments to pass along.
   sendCommandToWindow = (command, MailspringWindow, ...args) => {
-    console.log('sendCommandToWindow');
-    console.log(command);
+    log.info({ command }, 'sendCommandToWindow');
     if (this.emit(command, ...args)) {
       return;
     }
@@ -967,7 +969,7 @@ export default class Application extends EventEmitter {
     const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
 
     if (!main) {
-      console.log(`Ignoring URL - main window is not available, user may not be authed.`);
+      log.info(`Ignoring URL - main window is not available, user may not be authed.`);
       return;
     }
 
@@ -992,7 +994,7 @@ export default class Application extends EventEmitter {
         main.sendMessage('openThreadFromWeb', urlToOpen);
       }
     } else {
-      console.log(`Ignoring unknown URL type: ${urlToOpen}`);
+      log.info(`Ignoring unknown URL type: ${urlToOpen}`);
     }
   }
 

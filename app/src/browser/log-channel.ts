@@ -50,6 +50,14 @@ export function installLogChannel(): void {
   });
 }
 
+// Append a finished JSON log line to the log file. Used by the main-process
+// logger (ticket #61) — renderers reach the file over IPC instead.
+export function appendLogLine(line: string): void {
+  if (logStream && typeof line === 'string') {
+    logStream.write(normalizeLogLine(line));
+  }
+}
+
 // Write one main-process record straight to the log file. Synchronous so the
 // shutdown record survives process exit. pino-compatible schema; meta is
 // redacted like every other record.

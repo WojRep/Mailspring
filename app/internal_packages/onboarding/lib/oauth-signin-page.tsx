@@ -1,6 +1,12 @@
 import { shell } from 'electron';
 import React from 'react';
-import { localized, localizedReactFragment, PropTypes, Account } from 'actunamail-exports';
+import {
+  localized,
+  localizedReactFragment,
+  PropTypes,
+  Account,
+  createLogger,
+} from 'actunamail-exports';
 import { RetinaImg } from 'actunamail-component-kit';
 import http from 'http';
 import url from 'url';
@@ -8,6 +14,8 @@ import url from 'url';
 import FormErrorMessage from './form-error-message';
 import { LOCAL_SERVER_PORT } from './onboarding-constants';
 import AccountProviders from './account-providers';
+
+const log = createLogger('OAuthSignInPage');
 
 /**
  * Extract the OAuth authorization code from a redirect URL's query string.
@@ -218,7 +226,7 @@ export default class OAuthSignInPage extends React.Component<
             onClick={() =>
               navigator.clipboard
                 .writeText(this.props.providerAuthPageUrl)
-                .catch((err) => console.error('Failed to copy to clipboard:', err))
+                .catch((err) => log.error({ err }, 'Failed to copy to clipboard'))
             }
             onMouseDown={() => this.setState({ pressed: true })}
             onMouseUp={() => this.setState({ pressed: false })}

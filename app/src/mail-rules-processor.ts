@@ -17,6 +17,10 @@ import { ChangeFolderTask } from './flux/tasks/change-folder-task';
 import { ChangeStarredTask } from './flux/tasks/change-starred-task';
 import { ChangeLabelsTask } from './flux/tasks/change-labels-task';
 import { Message } from 'actunamail-exports';
+import { createLogger } from './logger';
+
+const log = createLogger('MailRulesProcessor');
+
 let MailRulesStore: typeof import('./flux/stores/mail-rules-store').default = null;
 type MailRule = import('./flux/stores/mail-rules-store').MailRule;
 
@@ -187,7 +191,7 @@ class MailRulesProcessor {
           // `incoming.thread`, because rules may be modifying it as they run!
           const thread = await DatabaseStore.find<Thread>(Thread, message.threadId);
           if (!thread) {
-            console.warn(`Cannot find thread ${message.threadId} to process mail rules.`);
+            log.warn(`Cannot find thread ${message.threadId} to process mail rules.`);
             continue;
           }
           await this._applyRuleToMessage(rule, message, thread);
@@ -223,7 +227,7 @@ class MailRulesProcessor {
     return fn.call(rule.conditions, (condition) => {
       const template = templateMap.get(condition.templateKey);
       if (!template) {
-        console.warn(`Unknown mail rule condition template: ${condition.templateKey}`);
+        log.warn(`Unknown mail rule condition template: ${condition.templateKey}`);
         return false;
       }
       const value = template.valueForMessage(message);

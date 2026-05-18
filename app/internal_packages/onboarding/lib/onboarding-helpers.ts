@@ -8,6 +8,7 @@ import {
   IdentityStore,
   MailsyncProcess,
   localized,
+  createLogger,
 } from 'actunamail-exports';
 import MailspringProviderSettings from './actunamail-provider-settings.json';
 import MailcoreProviderSettings from './mailcore-provider-settings.json';
@@ -23,6 +24,8 @@ import {
   CODE_CHALLENGE,
 } from './onboarding-constants';
 import { parseStringPromise } from 'xml2js';
+
+const log = createLogger('OnboardingHelpers');
 
 interface TokenResponse {
   access_token: string;
@@ -110,7 +113,7 @@ export async function expandAccountWithCommonSettings(account: Account) {
   });
 
   if (template) {
-    console.log(`Using Mailcore Template: ${JSON.stringify(template, null, 2)}`);
+    log.info(`Using Mailcore Template: ${JSON.stringify(template, null, 2)}`);
     const imap = (template.servers.imap || [])[0] || ({} as any);
     const smtp = (template.servers.smtp || [])[0] || ({} as any);
     const defaults = {
@@ -147,9 +150,9 @@ export async function expandAccountWithCommonSettings(account: Account) {
     if (mstemplate.alias) {
       mstemplate = MailspringProviderSettings[mstemplate.alias];
     }
-    console.log(`Using Mailspring Template: ${JSON.stringify(mstemplate, null, 2)}`);
+    log.info(`Using Mailspring Template: ${JSON.stringify(mstemplate, null, 2)}`);
   } else {
-    console.log(`Using Fallback Template`);
+    log.info(`Using Fallback Template`);
     mstemplate = {
       imap_host: `imap.${domain}`,
       imap_user_format: 'email',
@@ -479,7 +482,7 @@ async function TryThunderbirdAutoconfig(populated: Account, account: Account) {
     };
 
     populated.settings = Object.assign(settings, populated.settings);
-    console.log('Returning populated settings from autoconfig');
+    log.info('Returning populated settings from autoconfig');
     return populated;
   } else {
     return false;

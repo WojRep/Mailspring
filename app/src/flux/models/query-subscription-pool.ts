@@ -3,6 +3,10 @@ import { QuerySubscription } from './query-subscription';
 import { DatabaseChangeRecord } from '../stores/database-change-record';
 import ModelQuery from './query';
 import { Model } from './model';
+import { createLogger } from '../../logger';
+
+const log = createLogger('QuerySubscriptionPool');
+
 let DatabaseStore = null;
 
 /*
@@ -48,16 +52,16 @@ class QuerySubscriptionPool {
 
   printSubscriptions() {
     if (!AppEnv.inDevMode()) {
-      console.log('printSubscriptions is only available in developer mode.');
+      log.info('printSubscriptions is only available in developer mode.');
       return;
     }
 
     for (const key of Object.keys(this._subscriptions)) {
       const subscription = this._subscriptions[key];
-      console.log(key);
+      log.info(key);
       console.group();
       for (const callback of subscription._callbacks) {
-        console.log(`${callback._registrationPoint}`);
+        log.info(`${callback._registrationPoint}`);
       }
       console.groupEnd();
     }

@@ -19,6 +19,9 @@ import SoundRegistry from '../../registries/sound-registry';
 import * as ExtensionRegistry from '../../registries/extension-registry';
 import { localized } from '../../intl';
 import { DatabaseChangeRecord } from './database-change-record';
+import { createLogger } from '../../logger';
+
+const log = createLogger('DraftStore');
 
 interface IThreadMessageModelOrId {
   thread?: Thread;
@@ -457,7 +460,7 @@ class DraftStore extends MailspringStore {
     if (id) {
       Actions.queueTask(new DestroyDraftTask({ accountId, messageIds: [id] }));
     } else {
-      console.warn('Tried to delete a draft that had no ID assigned yet.');
+      log.warn('Tried to delete a draft that had no ID assigned yet.');
     }
     if (AppEnv.isComposerWindow()) {
       AppEnv.close();

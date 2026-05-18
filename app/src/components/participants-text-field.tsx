@@ -13,6 +13,9 @@ import {
   DatabaseStore,
 } from 'actunamail-exports';
 import { TokenizingTextField, Menu, InjectedComponentSet } from 'actunamail-component-kit';
+import { createLogger } from '../logger';
+
+const log = createLogger('ParticipantsTextField');
 
 const TokenRenderer = (props) => {
   const contact = props.token as Contact;
@@ -217,7 +220,7 @@ export default class ParticipantsTextField extends React.Component<ParticipantsT
         click: () =>
           navigator.clipboard
             .writeText(participant.email)
-            .catch((err) => console.error('Failed to copy to clipboard:', err)),
+            .catch((err) => log.error({ err }, 'Failed to copy to clipboard')),
       })
     );
     menu.append(

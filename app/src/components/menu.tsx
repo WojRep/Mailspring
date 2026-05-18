@@ -3,6 +3,9 @@ import _ from 'underscore';
 import React, { HTMLProps } from 'react';
 import ReactDOM from 'react-dom';
 import { PropTypes, DOMUtils } from 'actunamail-exports';
+import { createLogger } from '../logger';
+
+const log = createLogger('Menu');
 
 export interface MenuItemProps {
   id?: string;
@@ -432,10 +435,10 @@ export class Menu extends React.Component<MenuProps, MenuState> {
 
       const key = this.props.itemKey(item);
       if (!key) {
-        console.warn('Menu parent did not return an itemKey for item', item);
+        log.warn({ item }, 'Menu parent did not return an itemKey for item');
       }
       if (seenItemKeys[key]) {
-        console.warn({ 'Menu items have colliding keys': item }, seenItemKeys[key]);
+        log.warn({ item, collidingWith: seenItemKeys[key] }, 'Menu items have colliding keys');
       }
       seenItemKeys[key] = item;
 

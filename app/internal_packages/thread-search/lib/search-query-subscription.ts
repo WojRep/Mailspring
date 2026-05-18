@@ -6,7 +6,10 @@ import {
   SearchQueryParser,
   ComponentRegistry,
   MutableQuerySubscription,
+  createLogger,
 } from 'actunamail-exports';
+
+const log = createLogger('SearchQuerySubscription');
 
 class SearchQuerySubscription extends MutableQuerySubscription<Thread> {
   _searchQuery: string;
@@ -43,7 +46,7 @@ class SearchQuerySubscription extends MutableQuerySubscription<Thread> {
       const parsedQuery = SearchQueryParser.parse(this._searchQuery);
       dbQuery = dbQuery.structuredSearch(parsedQuery);
     } catch (e) {
-      console.info('Failed to parse local search query, falling back to generic query', e);
+      log.info({ err: e }, 'Failed to parse local search query, falling back to generic query');
       dbQuery = dbQuery.search(this._searchQuery);
     }
     dbQuery = dbQuery

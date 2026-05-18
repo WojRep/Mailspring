@@ -10,6 +10,10 @@ it to exist, or will similarly fall back to document.addEventListener('beforeInp
 One day, we will update Slate to the latest version, but 0.50.x is effectively a rewrite
 and we have many custom plugins that need to be re-built and re-tested.
 */
+import { createLogger } from '../../logger';
+
+const log = createLogger('PatchChromeIme');
+
 delete HTMLElement.prototype.onbeforeinput;
 
 /*
@@ -34,7 +38,7 @@ document.addEventListener(
   (e: CompositionEvent) => {
     if (e.target instanceof HTMLElement && e.target.closest('[data-slate-editor]')) {
       if (!lastTextInputEvent) {
-        console.warn('Manually emitting textInput event for Chrome');
+        log.warn('Manually emitting textInput event for Chrome');
         const t = document.createEvent('TextEvent');
         t.initEvent('textInput', true, true);
         Object.defineProperty(t, 'data', { value: e.data });
@@ -100,7 +104,7 @@ document.addEventListener('beforeinput', (e) => {
   if (substitutionsPanelMayBeOpen) {
     substitutionsPanelMayBeOpen = false;
     if (e.target instanceof HTMLElement && e.target.closest('[data-slate-editor]')) {
-      console.warn('Manually emitting backspace event for Chrome');
+      log.warn('Manually emitting backspace event for Chrome');
 
       // You would think that firing keydown AND keyup would be best, but doing that
       // causes the editor to delete forward if your cursor is not at the end of the text

@@ -1,5 +1,8 @@
 import MailspringStore from 'actunamail-store';
 import _ from 'underscore';
+import { createLogger } from '../../logger';
+
+const log = createLogger('OnlineStatusStore');
 
 const MTC_CHECK_INTERVAL = 1000 * 60 * 5;
 const MTC_LATE_THRESHOLD = 1000 * 60;
@@ -43,10 +46,10 @@ class OnlineStatusStore extends MailspringStore {
     const prevIsOnline = this.isOnline();
 
     if (connectionError && !this._offlineProcesses[accountId]) {
-      console.warn(`Account ${accountId}: offline`);
+      log.warn(`Account ${accountId}: offline`);
       this._offlineProcesses[accountId] = true;
     } else if (!connectionError && this._offlineProcesses[accountId]) {
-      console.warn(`Account ${accountId}: online`);
+      log.warn(`Account ${accountId}: online`);
       delete this._offlineProcesses[accountId];
       this.onMayBeOnline();
     }

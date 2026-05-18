@@ -5,6 +5,9 @@ import ModelQuery from './query';
 import { Model } from './model';
 import { DatabaseChangeRecord } from '../stores/database-change-record';
 import { QueryResultSet } from './query-result-set';
+import { createLogger } from '../../logger';
+
+const log = createLogger('QuerySubscription');
 
 type QuerySubscriptionResult<T extends Model> = QueryResultSet<T> | number | T | T[];
 type QuerySubscriptionCallback<T extends Model> = (result: QuerySubscriptionResult<T>) => void;
@@ -305,7 +308,7 @@ export class QuerySubscription<T extends Model> {
     }
 
     if (error) {
-      console.warn(error);
+      log.warn(error);
       // this._set = null;
       // this.update();
       // return;

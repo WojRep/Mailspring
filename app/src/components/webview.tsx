@@ -6,6 +6,9 @@ import networkErrors from 'chromium-net-errors';
 import { localized } from 'actunamail-exports';
 
 import { rootURLForServer } from '../flux/actunamail-api-request';
+import { createLogger } from '../logger';
+
+const log = createLogger('Webview');
 import { RetinaImg } from './retina-img';
 import { Disposable } from 'event-kit';
 
@@ -159,7 +162,7 @@ export default class Webview extends React.Component<WebviewProps, WebviewState>
     if (/^https?:\/\/.+/i.test(e.message)) {
       shell.openExternal(e.message);
     }
-    console.log('Guest page logged a message:', e.message);
+    log.info(`Guest page logged a message: ${e.message}`);
   };
 
   _webviewDidFrameNavigate = ({

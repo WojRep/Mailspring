@@ -1,6 +1,9 @@
 import AutoupdateImplBase from './autoupdate-impl-base';
 import WindowsUpdater from './windows-updater';
 import { localized } from '../intl';
+import { createLogger } from '../logger';
+
+const log = createLogger('AutoupdateImplWin32');
 
 export default class AutoupdateImplWin32 extends AutoupdateImplBase {
   supportsUpdates() {
@@ -12,7 +15,7 @@ export default class AutoupdateImplWin32 extends AutoupdateImplBase {
       return;
     }
     if (!WindowsUpdater.existsSync()) {
-      console.error('SquirrelUpdate does not exist');
+      log.error('SquirrelUpdate does not exist');
       return;
     }
 

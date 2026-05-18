@@ -1,6 +1,9 @@
 import MailspringStore from 'actunamail-store';
 import * as Actions from '../actions';
 import { Task } from '../tasks/task';
+import { createLogger } from '../../logger';
+
+const log = createLogger('UndoRedoStore');
 
 interface UndoBlock {
   tasks?: Task[];
@@ -91,10 +94,10 @@ class UndoRedoStore extends MailspringStore {
   };
 
   print(): void {
-    console.log('Undo Stack');
-    console.log(this._undo);
-    console.log('Redo Stack');
-    console.log(this._redo);
+    log.info('Undo Stack');
+    log.info(this._undo);
+    log.info('Redo Stack');
+    log.info(this._redo);
   }
 }
 

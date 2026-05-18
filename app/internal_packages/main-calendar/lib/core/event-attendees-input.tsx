@@ -1,8 +1,17 @@
 import React from 'react';
 import _ from 'underscore';
-import { Utils, Contact, ContactStore, RegExpUtils, localized } from 'actunamail-exports';
+import {
+  Utils,
+  Contact,
+  ContactStore,
+  RegExpUtils,
+  localized,
+  createLogger,
+} from 'actunamail-exports';
 import { TokenizingTextField, Menu, InjectedComponentSet } from 'actunamail-component-kit';
 import { EventAttendee } from './calendar-data-source';
+
+const log = createLogger('EventAttendeesInput');
 
 const TokenRenderer = (props: { token: EventAttendee }) => {
   const { email, name } = props.token;
@@ -127,7 +136,7 @@ export class EventAttendeesInput extends React.Component<EventAttendeesInputProp
         click: () =>
           navigator.clipboard
             .writeText(participant.email)
-            .catch((err) => console.error('Failed to copy to clipboard:', err)),
+            .catch((err) => log.error({ err }, 'Failed to copy to clipboard')),
       })
     );
     menu.append(

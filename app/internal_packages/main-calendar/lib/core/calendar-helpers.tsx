@@ -8,7 +8,10 @@ import {
   SyncbackEventTask,
   TaskQueue,
   localized,
+  createLogger,
 } from 'actunamail-exports';
+
+const log = createLogger('CalendarHelpers');
 
 // Cache of calendar colors synced from CalDAV servers
 const calendarColorCache: Map<string, string> = new Map();
@@ -359,6 +362,6 @@ export async function createCalendarEvent(options: CreateCalendarEventOptions): 
     await TaskQueue.waitForPerformRemote(task);
     Actions.focusCalendarEvent({ id: event.id, start: event.recurrenceStart });
   } catch (error) {
-    console.error('Failed to sync new event to server:', error);
+    log.error({ err: error }, 'Failed to sync new event to server');
   }
 }

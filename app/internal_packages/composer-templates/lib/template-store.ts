@@ -6,6 +6,7 @@ import {
   Actions,
   QuotedHTMLTransformer,
   RegExpUtils,
+  createLogger,
 } from 'actunamail-exports';
 
 import MailspringStore from 'actunamail-store';
@@ -15,6 +16,8 @@ import fs from 'fs';
 // Support accented characters in template names
 // https://regex101.com/r/nD3eY8/1
 const INVALID_TEMPLATE_NAME_REGEX = /[^a-zA-Z\u00C0-\u017F0-9_\- ]+/g;
+
+const log = createLogger('TemplateStore');
 
 interface TemplateItem {
   id: string;
@@ -66,7 +69,7 @@ class TemplateStore extends MailspringStore {
         this._watcher = fs.watch(this._templatesDir, () => this._populate());
       } catch (err) {
         // usually an ENOSPC error
-        console.warn(err);
+        log.warn(err);
       }
     }
   }

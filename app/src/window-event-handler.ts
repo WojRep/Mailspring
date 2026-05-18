@@ -2,6 +2,9 @@
 import { shell, ipcRenderer } from 'electron';
 import url from 'url';
 import { localized } from './intl';
+import { createLogger } from './logger';
+
+const log = createLogger('WindowEventHandler');
 
 let ComponentRegistry = null;
 
@@ -281,9 +284,9 @@ export default class WindowEventHandler {
       if (returnValue === false) {
         unloadCallbacksRunning += 1;
       } else if (returnValue !== true) {
-        console.warn(
-          `You registered an "onBeforeUnload" callback that does not return either exactly true or false. It returned ${returnValue}`,
-          callback
+        log.warn(
+          { callback },
+          `You registered an "onBeforeUnload" callback that does not return either exactly true or false. It returned ${returnValue}`
         );
       }
     }
@@ -374,7 +377,7 @@ export default class WindowEventHandler {
             ),
           });
         } else {
-          console.error(`Failed to open link: ${err.message}`);
+          log.error(`Failed to open link: ${err.message}`);
         }
       });
     }

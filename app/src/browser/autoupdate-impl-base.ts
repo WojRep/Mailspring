@@ -2,6 +2,9 @@ import { EventEmitter } from 'events';
 import https from 'https';
 import { shell } from 'electron';
 import url from 'url';
+import { createLogger } from '../logger';
+
+const log = createLogger('AutoupdateImplBase');
 
 const FALLBACK_DOWNLOAD_URL = 'https://getmailspring.com/download';
 
@@ -39,7 +42,7 @@ export default class AutoupdateImplBase extends EventEmitter {
     if (this.listenerCount('error') > 0) {
       this.emit('error', error);
     } else {
-      console.error('Autoupdater error (unhandled):', error.message);
+      log.error(`Autoupdater error (unhandled): ${error.message}`);
     }
   };
 
@@ -51,7 +54,7 @@ export default class AutoupdateImplBase extends EventEmitter {
     // On linux we can't autoupdate, but we can still show the "update available" bar.
     https
       .get({ host: feedHost, path: feedPath }, (res) => {
-        console.log(`Manual update check (${feedHost}${feedPath}) returned ${res.statusCode}`);
+        log.info(`Manual update check (${feedHost}${feedPath}) returned ${res.statusCode}`);
 
         if (res.statusCode === 204) {
           successCallback(false);

@@ -10,6 +10,9 @@ import {
 
 import BaseBlockPlugins from './base-block-plugins';
 import { ComposerEditorPlugin, Rule } from './types';
+import { createLogger } from '../../logger';
+
+const log = createLogger('BaseMarkPlugins');
 
 export const DEFAULT_FONT_SIZE = 2;
 export const DEFAULT_FONT_OPTIONS = [
@@ -221,9 +224,7 @@ const rules: Rule[] = [
             const result = deserialize && deserialize(el, () => []);
             if (result && result.object === 'mark') {
               if (result.object.nodes && result.object.nodes.length) {
-                console.warn(
-                  'base-mark-plugin does not look at nested marks from subsequent plugins'
-                );
+                log.warn('base-mark-plugin does not look at nested marks from subsequent plugins');
               }
               marks.push(result);
             }

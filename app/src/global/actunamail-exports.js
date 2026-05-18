@@ -53,6 +53,9 @@ lazyLoadWithGetter(`getAvailableLanguages`, () => require('../intl').getAvailabl
 lazyLoadWithGetter(`getCurrentLocale`, () => require('../intl').getCurrentLocale);
 lazyLoadWithGetter(`isRTL`, () => require('../intl').isRTL);
 
+// Mandarynka logger (ticket #04 / #61) — structured logging for plugins.
+lazyLoadWithGetter(`createLogger`, () => require('../logger').createLogger);
+
 // Actions
 lazyLoad(`Actions`, 'flux/actions');
 

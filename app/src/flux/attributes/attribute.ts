@@ -1,5 +1,8 @@
 import { Matcher } from './matcher';
 import { SortOrder } from './sort-order';
+import { createLogger } from '../../logger';
+
+const log = createLogger('Attribute');
 
 /*
 Public: The Attribute class represents a single model attribute, like 'account_id'.
@@ -62,7 +65,7 @@ export class Attribute {
       throw new Error(`Attribute.in: you must pass an array of values.`);
     }
     if (val.length === 0) {
-      console.warn(
+      log.warn(
         `Attribute::in (${this.modelKey}) called with an empty set. You should avoid this useless query!`
       );
     }

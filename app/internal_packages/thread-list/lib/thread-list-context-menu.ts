@@ -13,7 +13,10 @@ import {
   AccountStore,
   TaskQueue,
   EmlUtils,
+  createLogger,
 } from 'actunamail-exports';
+
+const log = createLogger('ThreadListContextMenu');
 
 type TemplateItem =
   | {
@@ -326,7 +329,7 @@ export default class ThreadListContextMenu {
         if (!thread) return;
         navigator.clipboard
           .writeText(thread.getMailboxPermalink())
-          .catch((err) => console.error('Failed to copy to clipboard:', err));
+          .catch((err) => log.error({ err }, 'Failed to copy to clipboard'));
       },
     };
   }

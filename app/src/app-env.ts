@@ -10,6 +10,9 @@ import { localized, isRTL, initializeLocalization } from './intl';
 import { APIError } from './flux/errors';
 import WindowEventHandler from './window-event-handler';
 import { isWaylandSession } from './browser/is-wayland';
+import { createLogger } from './logger';
+
+const log = createLogger('AppEnv');
 
 function ensureInteger(f: number, fallback: number) {
   let int = f;
@@ -939,7 +942,7 @@ export default class AppEnvConstructor {
         this.savedState = JSON.parse(stateString);
       }
     } catch (error) {
-      console.warn(`Error parsing window state: ${error.stack}`, error);
+      log.warn({ err: error }, `Error parsing window state: ${error.stack}`);
     }
     if (!this.savedState) {
       this.savedState = {};

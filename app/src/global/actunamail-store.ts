@@ -1,4 +1,7 @@
 import { EventEmitter } from 'events';
+import { createLogger } from '../logger';
+
+const log = createLogger('MailspringStore');
 
 // A very, very simple Flux implementation
 
@@ -30,8 +33,8 @@ export default class MailspringStore implements Listenable {
       return 'Listener is not able to listen to itself';
     }
     if (!(listenable.listen instanceof Function)) {
-      console.log(require('util').inspect(listenable));
-      console.log(new Error().stack);
+      log.warn(require('util').inspect(listenable));
+      log.warn(new Error().stack);
       return listenable + ' is missing a listen method';
     }
     if (listenable.hasListener && listenable.hasListener(this)) {

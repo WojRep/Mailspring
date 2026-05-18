@@ -16,6 +16,9 @@ import { DestroyDraftTask } from '../tasks/destroy-draft-task';
 import { Composer as ComposerExtensionRegistry } from '../../registries/extension-registry';
 import QuotedHTMLTransformer from '../../services/quoted-html-transformer';
 import { SyncbackDraftTask } from '../tasks/syncback-draft-task';
+import { createLogger } from '../../logger';
+
+const log = createLogger('DraftEditingSession');
 
 export type MessageWithEditorState = Message & { bodyEditorState: any };
 
@@ -212,11 +215,11 @@ export class DraftEditingSession extends MailspringStore {
         .include(Message.attributes.body)
         .then((draft) => {
           if (this._destroyed) {
-            console.warn(`Draft loaded but session has been torn down.`);
+            log.warn(`Draft loaded but session has been torn down.`);
             return;
           }
           if (!draft) {
-            console.warn(`Draft ${this.headerMessageId} could not be found. Just deleted?`);
+            log.warn(`Draft ${this.headerMessageId} could not be found. Just deleted?`);
             return;
           }
           this._draft = hotwireDraftBodyState(draft, this);

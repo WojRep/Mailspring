@@ -7,6 +7,9 @@ import { getDoNotDisturb as getWindowsDoNotDisturb } from './dnd-utils-windows';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import { createLogger } from './logger';
+
+const log = createLogger('NativeNotifications');
 
 const platform = process.platform;
 const DEFAULT_ICON = path.resolve(
@@ -377,7 +380,7 @@ ${actionsXml}
     try {
       await ipcRenderer.invoke('notification:display', options);
     } catch (err) {
-      console.error('Failed to display notification:', err);
+      log.error({ err }, 'Failed to display notification');
       this.callbacks.delete(id);
       return null;
     }
@@ -434,7 +437,7 @@ ${actionsXml}
     try {
       await ipcRenderer.invoke('notification:display', options);
     } catch (err) {
-      console.error('Failed to display summary notification:', err);
+      log.error({ err }, 'Failed to display summary notification');
       this.callbacks.delete(id);
       return null;
     }

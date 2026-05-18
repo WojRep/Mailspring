@@ -11,6 +11,9 @@ import { EventEmitter } from 'events';
 import fs from 'fs';
 import { localized } from './intl';
 import { IIdentity, Account } from 'actunamail-exports';
+import { createLogger } from './logger';
+
+const log = createLogger('MailsyncProcess');
 
 import {
   GMAIL_CLIENT_ID,
@@ -105,9 +108,7 @@ export class MailsyncProcess extends EventEmitter {
     // anti-fork self-check (main.cpp:757-765 — substring "mailspring"
     // required in executable path), so the legacy "mailspring/" subdir
     // workaround is gone. build.js no longer relocates the binary.
-    this.binaryPath = path
-      .join(resourcePath, 'mailsync')
-      .replace('app.asar', 'app.asar.unpacked');
+    this.binaryPath = path.join(resourcePath, 'mailsync').replace('app.asar', 'app.asar.unpacked');
   }
 
   _showStatusWindow(mode) {
@@ -178,7 +179,7 @@ export class MailsyncProcess extends EventEmitter {
         mailsyncDbKeyHex = dbKey.toString('hex');
       }
     } catch (err) {
-      console.error('mailsync-process: failed to obtain DBKey:', err);
+      log.error({ err }, 'mailsync-process: failed to obtain DBKey');
     }
     const env = {
       ...process.env,
@@ -203,35 +204,39 @@ export class MailsyncProcess extends EventEmitter {
       ACTUNA_TEST_BODY: [
         localized(
           'This is a test message sent by ActunaMail to verify your SMTP server configuration. ' +
-          'Receiving this message confirms that outbound email is working.'
+            'Receiving this message confirms that outbound email is working.'
         ),
         '',
         localized('ActunaMail is an EU-compliant email client built on the following principles:'),
         '',
-        '  • ' + localized(
-          'GDPR (Regulation (EU) 2016/679) — your contacts, drafts, and metadata stay on ' +
-          'your machine. ActunaMail does not contact analytics, telemetry, or any third-party ' +
-          'identity service at startup.'
-        ),
-        '  • ' + localized(
-          'EU AI Act (Regulation (EU) 2024/1689) — when AI-assisted features are introduced, ' +
-          'they run on your machine or on infrastructure under your control. No prompts, drafts, ' +
-          'or message bodies are sent to third-party model providers.'
-        ),
-        '  • ' + localized(
-          'NIS2 Directive (Directive (EU) 2022/2555) — the security configuration of your ' +
-          'mail account remains under your control. The client does not report incidents to ' +
-          'external SIEM or SOC services without your explicit configuration.'
-        ),
-        '  • ' + localized(
-          'KNF Recommendations D and Z — applicable for entities of the Polish financial sector. ' +
-          'ActunaMail\'s egress profile is documented in SECURITY.md and verified via runtime ' +
-          'traffic inspection.'
-        ),
+        '  • ' +
+          localized(
+            'GDPR (Regulation (EU) 2016/679) — your contacts, drafts, and metadata stay on ' +
+              'your machine. ActunaMail does not contact analytics, telemetry, or any third-party ' +
+              'identity service at startup.'
+          ),
+        '  • ' +
+          localized(
+            'EU AI Act (Regulation (EU) 2024/1689) — when AI-assisted features are introduced, ' +
+              'they run on your machine or on infrastructure under your control. No prompts, drafts, ' +
+              'or message bodies are sent to third-party model providers.'
+          ),
+        '  • ' +
+          localized(
+            'NIS2 Directive (Directive (EU) 2022/2555) — the security configuration of your ' +
+              'mail account remains under your control. The client does not report incidents to ' +
+              'external SIEM or SOC services without your explicit configuration.'
+          ),
+        '  • ' +
+          localized(
+            'KNF Recommendations D and Z — applicable for entities of the Polish financial sector. ' +
+              "ActunaMail's egress profile is documented in SECURITY.md and verified via runtime " +
+              'traffic inspection.'
+          ),
         '',
         localized(
           'A complete list of every external endpoint ActunaMail may contact is published in ' +
-          'SECURITY.md and COMPLIANCE.md in the project repository.'
+            'SECURITY.md and COMPLIANCE.md in the project repository.'
         ),
         '',
         '— ActunaMail (https://github.com/WojRep/ActunaMail)',
@@ -352,7 +357,7 @@ export class MailsyncProcess extends EventEmitter {
   }
 
   kill() {
-    console.warn('Terminating mailsync...');
+    log.warn('Terminating mailsync...');
     this._proc && this._proc.kill();
   }
 
@@ -367,7 +372,7 @@ export class MailsyncProcess extends EventEmitter {
         try {
           outBuffer += added;
         } catch (err) {
-          console.error(`Mailsync process buffer is ${outBuffer.length} chars, out of memory.`);
+          log.error(`Mailsync process buffer is ${outBuffer.length} chars, out of memory.`);
           outBuffer = '';
         }
 
@@ -387,13 +392,13 @@ export class MailsyncProcess extends EventEmitter {
             errBuffer = errBuffer.slice(-100 * 1024);
           }
         } catch (err) {
-          console.error(`Mailsync stderr buffer is ${errBuffer.length} chars, out of memory.`);
+          log.error(`Mailsync stderr buffer is ${errBuffer.length} chars, out of memory.`);
           errBuffer = '';
         }
       });
     }
     this._proc.on('error', (err) => {
-      console.log(`Sync worker exited with ${err}`);
+      log.info(`Sync worker exited with ${err}`);
       this.emit('error', err);
     });
 
@@ -423,13 +428,13 @@ export class MailsyncProcess extends EventEmitter {
         if (outBuffer.length) {
           // Skip debug output that starts with 'dbg::' prefix
           if (outBuffer.startsWith('dbg::')) {
-            console.log('Skipping debug output from mailsync:', outBuffer);
+            log.info({ outBuffer }, 'Skipping debug output from mailsync');
           } else {
             lastJSON = JSON.parse(outBuffer);
           }
         }
       } catch (parseError) {
-        console.warn('Failed to parse mailsync output as JSON:', outBuffer);
+        log.warn({ outBuffer }, 'Failed to parse mailsync output as JSON');
       } finally {
         if (lastJSON) {
           if (lastJSON.error) {
@@ -463,7 +468,7 @@ export class MailsyncProcess extends EventEmitter {
     if (!Utils) {
       Utils = require('actunamail-exports').Utils;
     }
-    console.log(`Sending to mailsync ${this.account ? this.account.id : '?'}`, json);
+    log.info({ json }, `Sending to mailsync ${this.account ? this.account.id : '?'}`);
     const msg = `${JSON.stringify(json)}\n`;
     try {
       this._proc.stdin.write(msg, 'utf-8');
@@ -480,7 +485,7 @@ export class MailsyncProcess extends EventEmitter {
 
   async migrate() {
     try {
-      console.log('Running database migrations');
+      log.info('Running database migrations');
       const { buffer } = await this._spawnAndWait('migrate', {
         onData: (data) => {
           const str = data.toString().toLowerCase();
@@ -488,7 +493,7 @@ export class MailsyncProcess extends EventEmitter {
           if (str.includes('running vacuum')) this._showStatusWindow('vacuum');
         },
       });
-      console.log(buffer.toString());
+      log.info(buffer.toString());
       this._closeStatusWindow();
     } catch (err) {
       this._closeStatusWindow();

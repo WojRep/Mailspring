@@ -3,6 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { localized } from './intl';
 import { Account } from 'actunamail-exports';
+import { createLogger } from './logger';
+
+const log = createLogger('KeyManager');
 
 interface KeySet {
   [key: string]: string;
@@ -93,7 +96,7 @@ class KeyManager {
    * plaintext mode — design memo §5 user decision 2026-05-12.
    */
   getDBKey(): Buffer {
-    if (this._dbKeyCache && this._dbKeyCache.some(b => b !== 0)) {
+    if (this._dbKeyCache && this._dbKeyCache.some((b) => b !== 0)) {
       return this._dbKeyCache;
     }
     const ss = getSafeStorage();
@@ -216,8 +219,7 @@ class KeyManager {
       try {
         raw = getSafeStorage().decryptString(Buffer.from(encryptedCredentials, 'utf-8'));
       } catch (err) {
-        console.error('Mailspring encountered an error reading passwords from the keychain.');
-        console.error(err);
+        log.error({ err }, 'Mailspring encountered an error reading passwords from the keychain.');
       }
     }
     try {

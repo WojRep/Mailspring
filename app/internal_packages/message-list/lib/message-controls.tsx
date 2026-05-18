@@ -10,8 +10,11 @@ import {
   EmlUtils,
   Thread,
   Message,
+  createLogger,
 } from 'actunamail-exports';
 import { RetinaImg, ButtonDropdown, Menu } from 'actunamail-component-kit';
+
+const log = createLogger('MessageControls');
 
 interface MessageControlsProps {
   thread: Thread;
@@ -187,7 +190,7 @@ export default class MessageControls extends React.Component<MessageControlsProp
     `;
     navigator.clipboard
       .writeText(data)
-      .catch((err) => console.error('Failed to copy to clipboard:', err));
+      .catch((err) => log.error({ err }, 'Failed to copy to clipboard'));
   };
 
   render() {

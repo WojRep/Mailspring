@@ -5,6 +5,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { localized, PropTypes, Utils, RegExpUtils } from 'actunamail-exports';
 import { Menu } from 'actunamail-component-kit';
+import { createLogger } from '../logger';
+
+const log = createLogger('TokenizingTextField');
 
 import { RetinaImg } from './retina-img';
 import { KeyCommandsRegion } from './key-commands-region';
@@ -499,7 +502,7 @@ export class TokenizingTextField<T> extends React.Component<
     try {
       items = JSON.parse(json).map(Utils.convertToModel);
     } catch (err) {
-      console.error(err);
+      log.error(err);
       items = null;
     }
 
@@ -900,7 +903,7 @@ export class TokenizingTextField<T> extends React.Component<
         this.setState({ completions: removeUsedTokens(tokens) });
       });
     } else {
-      console.warn(
+      log.warn(
         'onRequestCompletions returned an invalid type. It must return an Array of tokens or a Promise that resolves to an array of tokens'
       );
       this.setState({ completions: [] });

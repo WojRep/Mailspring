@@ -1,6 +1,8 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { createLogger } from './logger';
 
+const log = createLogger('DndUtilsMacos');
 const execFileAsync = promisify(execFile);
 const CACHE_TTL_MS = 5000;
 
@@ -39,7 +41,7 @@ export async function getDoNotDisturb(): Promise<boolean> {
   } catch (e) {
     // The key not existing in defaults means no Focus Mode is active — not an error
     if (!e.message?.includes('does not exist')) {
-      console.warn('Failed to check macOS Do Not Disturb status:', e);
+      log.warn({ err: e }, 'Failed to check macOS Do Not Disturb status');
     }
     cache = { value: false, timestamp: Date.now() };
     return false;

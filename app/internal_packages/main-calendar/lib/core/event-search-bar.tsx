@@ -1,11 +1,21 @@
 import React, { Component } from 'react';
 import moment from 'moment-timezone';
-import { Rx, Event, DatabaseStore, localized, Calendar, Actions } from 'actunamail-exports';
+import {
+  Rx,
+  Event,
+  DatabaseStore,
+  localized,
+  Calendar,
+  Actions,
+  createLogger,
+} from 'actunamail-exports';
 import { RetinaImg, KeyCommandsRegion, BindGlobalCommands } from 'actunamail-component-kit';
 import { EventOccurrence, occurrencesForEvents } from './calendar-data-source';
 import { Disposable } from 'rx-core';
 
 const DISABLED_CALENDARS = 'mailspring.disabledCalendars';
+
+const log = createLogger('EventSearchBar');
 
 interface EventSearchBarState {
   query: string;
@@ -118,7 +128,7 @@ export class EventSearchBar extends Component<Record<string, unknown>, EventSear
         selectedIdx: suggestions.length > 0 ? 0 : -1,
       });
     } catch (error) {
-      console.error('Event search error:', error);
+      log.error({ err: error }, 'Event search error');
       this.setState({ suggestions: [], loading: false });
     }
   };

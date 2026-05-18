@@ -8,6 +8,7 @@ interface DropZoneProps {
   style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void;
   // Ticket 44a — when a DropZone is being used as a clickable navigation
   // element (e.g. outline-view-item.tsx), it needs standard a11y attrs
   // and keyboard handler. These are forwarded via {...otherProps} to the

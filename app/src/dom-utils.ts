@@ -1,4 +1,7 @@
 import _ from 'underscore';
+import { createLogger } from './logger';
+
+const log = createLogger('DOMUtils');
 
 const DOMUtils = {
   findLastTextNode(node: Node) {
@@ -208,7 +211,7 @@ const DOMUtils = {
         if (!isNaN(num)) {
           return num;
         } else {
-          console.warn(`Unable to interpret --${property}:${value}, provide a value in px.`);
+          log.warn(`Unable to interpret --${property}:${value}, provide a value in px.`);
         }
       }
     }

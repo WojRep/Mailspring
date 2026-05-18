@@ -1,11 +1,13 @@
 import { RetinaImg, RovingTabIndexToolbar } from 'actunamail-component-kit';
-import { localized } from 'actunamail-exports';
+import { localized, createLogger } from 'actunamail-exports';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { isWaylandSession } from '../../../../src/browser/is-wayland';
 import SystemTrayIconStore from '../../../system-tray/lib/system-tray-icon-store';
 import { ConfigLike } from '../types';
 import ConfigSchemaItem from './config-schema-item';
+
+const log = createLogger('PreferencesAppearance');
 
 class AppearanceScaleSlider extends React.Component<
   { id: string; config: ConfigLike },
@@ -115,7 +117,7 @@ class MenubarStylePicker extends React.Component<{ config: ConfigLike }> {
             className="btn btn-small"
             style={{ float: 'right' }}
             onClick={() => {
-              console.log('laappearnceng section relaunch');
+              log.info('laappearnceng section relaunch');
               require('@electron/remote').app.relaunch();
               require('@electron/remote').app.quit();
             }}

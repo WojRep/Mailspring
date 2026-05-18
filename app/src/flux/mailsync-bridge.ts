@@ -19,6 +19,9 @@ import KeyManager from '../key-manager';
 import * as Actions from './actions';
 import * as Utils from './models/utils';
 import { Model } from 'actunamail-exports';
+import { createLogger } from '../logger';
+
+const log = createLogger('MailsyncBridge');
 
 const MAX_CRASH_HISTORY = 10;
 
@@ -48,7 +51,7 @@ class CrashTracker {
     fullAccountJSON: { id: string; settings: Record<string, unknown> },
     crash: MailsyncProcessExit
   ) {
-    console.log(`Sync worker exited.`, crash);
+    log.info({ crash }, `Sync worker exited.`);
 
     this._appendCrashToHistory(fullAccountJSON);
 
@@ -179,7 +182,7 @@ export default class MailsyncBridge {
   }
 
   async tailClientLog(accountId: string) {
-    let log = '';
+    let logTail = '';
     const logfile = `mailsync-${accountId}.log`;
     try {
       const logpath = path.join(AppEnv.getConfigDirPath(), logfile);
@@ -188,16 +191,16 @@ export default class MailsyncBridge {
       const buffer = Buffer.alloc(tailSize);
       const fd = fs.openSync(logpath, 'r');
       fs.readSync(fd, buffer, 0, tailSize, size - tailSize);
-      log = buffer.toString('utf-8');
-      log = log.substr(log.indexOf('\n') + 1);
+      logTail = buffer.toString('utf-8');
+      logTail = logTail.substr(logTail.indexOf('\n') + 1);
     } catch (logErr) {
-      console.warn(`Could not append ${logfile} to mailsync exception report: ${logErr}`);
+      log.warn(`Could not append ${logfile} to mailsync exception report: ${logErr}`);
     }
-    return log;
+    return logTail;
   }
 
   sendSyncMailNow() {
-    console.warn('Sending `wake` to all mailsync workers...');
+    log.warn('Sending `wake` to all mailsync workers...');
     for (const client of Object.values(this._clients)) {
       client.sendMessage({ type: 'wake-workers' });
     }
@@ -282,7 +285,7 @@ export default class MailsyncBridge {
     const verboseUntil = AppEnv.config.get(VERBOSE_UNTIL_KEY) || 0;
     const verbose = verboseUntil && verboseUntil / 1 > Date.now();
     if (verbose) {
-      console.warn(`Verbose mailsync logging is enabled until ${new Date(verboseUntil)}`);
+      log.warn(`Verbose mailsync logging is enabled until ${new Date(verboseUntil)}`);
     }
     return { configDirPath, resourcePath, verbose };
   }
@@ -346,13 +349,13 @@ export default class MailsyncBridge {
 
   _onQueueTask(task: Task) {
     if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
-      console.log(task);
+      log.info({ task });
       throw new Error(
         'You must queue a `Task` instance which is registred with the DatabaseObjectRegistry'
       );
     }
     if (!task.id) {
-      console.log(task);
+      log.info({ task });
       throw new Error(
         'Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`'
       );
@@ -399,7 +402,7 @@ export default class MailsyncBridge {
       }
       if (msg[0] !== '{') {
         if (!msg.startsWith('Waiting for')) {
-          console.log(`Sync worker sent non-JSON formatted message: ${msg}`);
+          log.info(`Sync worker sent non-JSON formatted message: ${msg}`);
         }
         continue;
       }
@@ -408,13 +411,13 @@ export default class MailsyncBridge {
       try {
         json = JSON.parse(msg);
       } catch (err) {
-        console.log(`Sync worker sent non-JSON formatted message: ${msg}. ${err}`);
+        log.info({ err }, `Sync worker sent non-JSON formatted message: ${msg}.`);
         continue;
       }
 
       const { type, modelJSONs, modelClass } = json;
       if (!modelJSONs || !type || !modelClass) {
-        console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`);
+        log.info(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`);
         continue;
       }
 

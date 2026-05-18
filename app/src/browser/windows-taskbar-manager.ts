@@ -1,6 +1,9 @@
 import { app, ipcMain, nativeImage, NativeImage } from 'electron';
 import { localized } from '../intl';
 import Application from './application';
+import { createLogger } from '../logger';
+
+const log = createLogger('WindowsTaskbarManager');
 
 /**
  * Manages Windows-specific taskbar integration features:
@@ -66,7 +69,7 @@ class WindowsTaskbarManager {
         },
       ]);
     } catch (e) {
-      console.warn('Failed to set Windows Jump List:', e);
+      log.warn({ err: e }, 'Failed to set Windows Jump List');
     }
   }
 
@@ -102,7 +105,7 @@ class WindowsTaskbarManager {
           : localized('%1$@ unread messages').replace('%1$@', String(unreadCount));
       mainWin.setOverlayIcon(icon, description);
     } catch (e) {
-      console.warn('Failed to set overlay icon:', e);
+      log.warn({ err: e }, 'Failed to set overlay icon');
     }
   }
 
@@ -134,7 +137,7 @@ class WindowsTaskbarManager {
         }, 5000);
       }
     } catch (e) {
-      console.warn('Failed to flash frame:', e);
+      log.warn({ err: e }, 'Failed to flash frame');
     }
   }
 

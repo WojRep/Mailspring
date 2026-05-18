@@ -2,9 +2,18 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import vCard from 'vcf';
-import { Contact, SyncbackContactTask, Actions, AccountStore, localized } from 'actunamail-exports';
+import {
+  Contact,
+  SyncbackContactTask,
+  Actions,
+  AccountStore,
+  localized,
+  createLogger,
+} from 'actunamail-exports';
 import { parse, fromVCF } from './ContactInfoMapping';
 import { formatDisplayName, serializeBirthday, serializeAddress } from './VCFHelpers';
+
+const log = createLogger('VCFImportExport');
 
 /**
  * Convert any contact (CardDAV, Google, or mail-sourced) to a VCF string.
@@ -140,7 +149,7 @@ export function vcfStringToContacts(vcfContent: string, accountId: string): Cont
         name = parsed.data.name?.displayName || formatDisplayName(parsed.data.name) || '';
         email = (parsed.data.emailAddresses?.[0] || { value: '' }).value;
       } catch (err) {
-        console.warn('VCF import: failed to parse vCard:', err);
+        log.warn({ err }, 'VCF import: failed to parse vCard');
       }
 
       // Fallback: extract FN and EMAIL via regex if parsing didn't populate them.
@@ -174,7 +183,7 @@ export function exportContactsToFile(contacts: Contact[]) {
     try {
       fs.writeFileSync(filePath, contactsToVCFFileContent(contacts), 'utf-8');
     } catch (err) {
-      console.error('VCF export failed:', err);
+      log.error({ err }, 'VCF export failed');
     }
   });
 }
@@ -208,7 +217,7 @@ export function importContactsFromPaths(filePaths: string[], accountId: string) 
       const content = fs.readFileSync(filePath, 'utf-8');
       contacts = contacts.concat(vcfStringToContacts(content, accountId));
     } catch (err) {
-      console.error(`VCF import: failed to read ${filePath}:`, err);
+      log.error({ err }, `VCF import: failed to read ${filePath}`);
     }
   }
 

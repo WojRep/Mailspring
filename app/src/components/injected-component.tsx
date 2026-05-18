@@ -5,6 +5,9 @@ import { PropTypes, Utils, ComponentRegistry } from 'actunamail-exports';
 import InjectedComponentErrorBoundary from './injected-component-error-boundary';
 import InjectedComponentLabel from './injected-component-label';
 import { ComponentRegistryDescriptor } from '../registries/component-registry';
+import { createLogger } from '../logger';
+
+const log = createLogger('InjectedComponent');
 
 type InjectedComponentProps = {
   matching: ComponentRegistryDescriptor;
@@ -174,7 +177,7 @@ export default class InjectedComponent extends React.Component<
   _getStateFromStores = (props = this.props) => {
     const components = ComponentRegistry.findComponentsMatching(props.matching);
     if (components.length > 1) {
-      console.warn(
+      log.warn(
         `There are multiple components available for ${JSON.stringify(
           props.matching
         )}. <InjectedComponent> is only rendering the first one.`

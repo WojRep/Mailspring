@@ -2,12 +2,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import fs from 'fs';
-import { localized } from 'actunamail-exports';
+import { localized, createLogger } from 'actunamail-exports';
 import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';
 import LanguageSection from './language-section';
 import { ConfigLike, ConfigSchemaLike } from '../types';
+
+const log = createLogger('PreferencesGeneral');
 
 class PreferencesGeneral extends React.Component<{
   config: ConfigLike;
@@ -21,7 +23,7 @@ class PreferencesGeneral extends React.Component<{
   };
 
   _onReboot = () => {
-    console.log('general relaunch');
+    log.info('general relaunch');
     const app = require('@electron/remote').app;
     app.relaunch();
     app.quit();

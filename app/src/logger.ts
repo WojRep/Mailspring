@@ -23,8 +23,10 @@ function resolveLevel(): pino.LevelWithSilent {
   return process.argv.includes('--dev') ? 'debug' : 'info';
 }
 
-// pino destination: echo to stdout (visible in dev) and, from a renderer,
-// hand the finished JSON line to the main process for disk persistence.
+// pino destination: echo to stdout (visible in dev); from a renderer hand the
+// finished JSON line to the main process over IPC; from the main process
+// append it straight to the log file. Either way the renderer never writes
+// the log file itself.
 const destination = {
   write(line: string) {
     process.stdout.write(line);
@@ -33,6 +35,12 @@ const destination = {
         require('electron').ipcRenderer.send(LOG_IPC_CHANNEL, line);
       } catch {
         // IPC unavailable (e.g. spec runner) — stdout already has the line.
+      }
+    } else {
+      try {
+        require('./browser/log-channel').appendLogLine(line);
+      } catch {
+        // log-channel unavailable (non-Electron child process) — stdout only.
       }
     }
   },

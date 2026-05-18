@@ -10,6 +10,9 @@ import { Thread } from '../models/thread';
 import { Contact } from '../models/contact';
 import * as Utils from '../models/utils';
 import { auditLog } from '../../utils/audit-fanout';
+import { createLogger } from '../../logger';
+
+const log = createLogger('AccountStore');
 
 const configAccountsKey = 'accounts';
 const configVersionKey = 'accountsVersion';
@@ -210,7 +213,7 @@ class _AccountStore extends MailspringStore {
     } else {
       // Clear the cached data for the account and reset secrets once that has completed
       AppEnv.mailsyncBridge.resetCacheForAccount(account, { silent: true }).then(() => {
-        console.log('Account removal complete.');
+        log.info('Account removal complete.');
         KeyManager.deleteAccountSecrets(account);
       });
     }

@@ -16,6 +16,9 @@ import {
 import IFrameSearcher from '../searchable-components/iframe-searcher';
 import url from 'url';
 import _ from 'underscore';
+import { createLogger } from '../logger';
+
+const log = createLogger('EventedIFrame');
 import path from 'path';
 import fs from 'fs';
 
@@ -324,7 +327,7 @@ export class EventedIFrame extends React.Component<
             click() {
               navigator.clipboard
                 .writeText(href.split('mailto:').pop())
-                .catch((err) => console.error('Failed to copy to clipboard:', err));
+                .catch((err) => log.error({ err }, 'Failed to copy to clipboard'));
             },
           })
         );
@@ -343,7 +346,7 @@ export class EventedIFrame extends React.Component<
             click() {
               navigator.clipboard
                 .writeText(href)
-                .catch((err) => console.error('Failed to copy to clipboard:', err));
+                .catch((err) => log.error({ err }, 'Failed to copy to clipboard'));
             },
           })
         );
@@ -429,7 +432,7 @@ export class EventedIFrame extends React.Component<
           click() {
             navigator.clipboard
               .writeText(text)
-              .catch((err) => console.error('Failed to copy to clipboard:', err));
+              .catch((err) => log.error({ err }, 'Failed to copy to clipboard'));
           },
         })
       );

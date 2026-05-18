@@ -3,6 +3,9 @@ import path from 'path';
 import mousetrap from 'mousetrap';
 import { ipcRenderer } from 'electron';
 import { Emitter, Disposable } from 'event-kit';
+import { createLogger } from './logger';
+
+const log = createLogger('KeymapManager');
 
 let suspended = false;
 const templateConfigKey = 'core.keymapTemplate';
@@ -85,7 +88,7 @@ class KeymapFile {
       if (e.code === 'ENOENT') {
         return;
       }
-      console.error(e);
+      log.error(e);
       return;
     }
 
@@ -109,7 +112,7 @@ class KeymapFile {
       fs.watch(this._path, this.load);
     } catch (err) {
       // usually an ENOSPC error
-      console.warn(`Unable to watch your keymap file for changes: ${err.toString()}`);
+      log.warn(`Unable to watch your keymap file for changes: ${err.toString()}`);
     }
   }
 

@@ -3,6 +3,9 @@ import path from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import ini from 'ini';
+import { createLogger } from './logger';
+
+const log = createLogger('LinuxThemeUtils');
 
 const Context = {
   ACTIONS: 'actions',
@@ -85,7 +88,7 @@ function __exec(cmd: string): string {
   try {
     return cmd == null ? null : execSync(cmd).toString().trim().replace(/'/g, '');
   } catch (error) {
-    console.warn(error);
+    log.warn(error);
     return null;
   }
 }
@@ -307,14 +310,14 @@ function convertToPNG(iconName: string, iconPath: string) {
   try {
     const version = execSync('convert --version').toString().trim();
     if (!version) {
-      console.warn('Cannot find ImageMagick');
+      log.warn('Cannot find ImageMagick');
       return null;
     }
     const tmpPath = path.join(os.tmpdir(), `${iconName}-${crypto.randomUUID()}.png`);
     execSync(`convert ${iconPath} -transparent white ${tmpPath}`);
     return tmpPath;
   } catch (error) {
-    console.warn(error);
+    log.warn(error);
   }
   return null;
 }

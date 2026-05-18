@@ -1,8 +1,10 @@
 import MailspringStore from 'actunamail-store';
 import fs from 'fs';
 import path from 'path';
-import { Utils, MessageBodyProcessor, CategoryStore } from 'actunamail-exports';
+import { Utils, MessageBodyProcessor, CategoryStore, createLogger } from 'actunamail-exports';
 import * as AutoloadImagesActions from './autoload-images-actions';
+
+const log = createLogger('AutoloadImagesStore');
 
 class AutoloadImagesStore extends MailspringStore {
   _whitelistEmails = {};
@@ -66,7 +68,7 @@ class AutoloadImagesStore extends MailspringStore {
 
       fs.readFile(this._whitelistEmailsPath, (err, body) => {
         if (err || !body) {
-          console.log(err);
+          log.info(err);
           return;
         }
 
@@ -86,7 +88,7 @@ class AutoloadImagesStore extends MailspringStore {
     const data = Object.keys(this._whitelistEmails).join('\n');
     fs.writeFile(this._whitelistEmailsPath, data, (err) => {
       if (err) {
-        console.error(`AutoloadImagesStore could not save whitelist: ${err.toString()}`);
+        log.error(`AutoloadImagesStore could not save whitelist: ${err.toString()}`);
       }
     });
   };

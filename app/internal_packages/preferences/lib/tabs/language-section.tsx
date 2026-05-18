@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { localized, getAvailableLanguages } from 'actunamail-exports';
+import { localized, getAvailableLanguages, createLogger } from 'actunamail-exports';
+
+const log = createLogger('LanguageSection');
 
 const LanguageSection = ({ config }) => {
   const { automatic, current, verified, experimental } = getAvailableLanguages();
@@ -56,7 +58,7 @@ const LanguageSection = ({ config }) => {
             className="btn btn-small"
             style={{ marginLeft: 9, marginRight: 9 }}
             onClick={() => {
-              console.log('lang section relaunch');
+              log.info('lang section relaunch');
               require('@electron/remote').app.relaunch();
               require('@electron/remote').app.quit();
             }}

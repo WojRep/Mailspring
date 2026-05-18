@@ -13,6 +13,9 @@ let app, errorLogger, webContentsId;
 import _ from 'underscore';
 import { valueForKeyPath, setValueForKeyPath, remove } from './config-utils';
 import { Emitter } from 'event-kit';
+import { createLogger } from './logger';
+
+const log = createLogger('Config');
 
 if (process.type === 'renderer') {
   app = require('@electron/remote').getGlobal('application');
@@ -352,7 +355,7 @@ export default class Config {
 
   _logError(prefix: string, error: Error) {
     error.message = `${prefix}: ${error.message}`;
-    console.error(error.message);
+    log.error(error.message);
     errorLogger.reportError(error);
   }
 
@@ -852,7 +855,7 @@ Config.addSchemaEnforcers({
               childSchema
             );
           } catch (error) {
-            console.warn(`Error setting item in object: ${error.message}`);
+            log.warn(`Error setting item in object: ${error.message}`);
           }
         } else {
           // Just pass through un-schema'd values
@@ -878,7 +881,7 @@ Config.addSchemaEnforcers({
           try {
             newValue.push(this.executeSchemaEnforcers(keyPath, item, itemSchema));
           } catch (error) {
-            console.warn(`Error setting item in array: ${error.message}`);
+            log.warn(`Error setting item in array: ${error.message}`);
           }
         }
         return newValue;

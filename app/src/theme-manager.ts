@@ -5,6 +5,9 @@ import fs from 'fs';
 import { localized } from './intl';
 import LessCompileCache from './compile-cache-less';
 import PackageManager from './package-manager';
+import { createLogger } from './logger';
+
+const log = createLogger('ThemeManager');
 
 const CONFIG_THEME_KEY = 'core.theme';
 const CONFIG_USE_SYSTEM_ACCENT_KEY = 'core.appearance.useSystemAccent';
@@ -48,7 +51,7 @@ export default class ThemeManager {
 
   private _systemAccentColor: string | null = null;
   private _systemAccentDisposable: Disposable | null = null;
-  private _systemDarkMode: boolean = false;
+  private _systemDarkMode = false;
 
   constructor({ packageManager, resourcePath, configDirPath, safeMode }) {
     this.packageManager = packageManager;
@@ -125,7 +128,7 @@ export default class ThemeManager {
   }
 
   reloadCoreStyles() {
-    console.log('Reloading /static and /internal_packages to incorporate LESS changes');
+    log.info('Reloading /static and /internal_packages to incorporate LESS changes');
     const reloadStylesIn = (folder) => {
       (fs.readdirSync(folder, { recursive: true }) as string[])
         .map((f) => path.join(folder, f))
@@ -299,8 +302,8 @@ export default class ThemeManager {
         message = `Error compiling Less stylesheet: ${lessStylesheetPath}`;
         detail = `Line number: ${error.line}\n${error.message}`;
       }
-      console.error(message, { detail, dismissable: true });
-      console.error(detail);
+      log.error({ detail, dismissable: true }, message);
+      log.error(detail);
 
       ipcRenderer.send('encountered-theme-error', { message, detail });
 

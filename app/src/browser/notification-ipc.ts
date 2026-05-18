@@ -2,6 +2,9 @@ import { Notification, IpcMain, IpcMainInvokeEvent, nativeImage } from 'electron
 import path from 'path';
 import os from 'os';
 import { UrlWithParsedQuery } from 'url';
+import { createLogger } from '../logger';
+
+const log = createLogger('NotificationIpc');
 
 interface NotificationOptions {
   id: string;
@@ -73,7 +76,7 @@ const validateIconPath = (iconPath: string | undefined): string | null => {
     }
   }
 
-  console.warn(`Notification icon path rejected - not within allowed directories: ${iconPath}`);
+  log.warn(`Notification icon path rejected - not within allowed directories: ${iconPath}`);
   return null;
 };
 
@@ -99,7 +102,7 @@ const displayNotification = (
 
   // Check if notifications are supported
   if (!Notification.isSupported()) {
-    console.warn('Notifications are not supported on this system');
+    log.warn('Notifications are not supported on this system');
     return null;
   }
 
@@ -202,7 +205,7 @@ const displayNotification = (
 
   // Handle failed event (Windows only)
   notification.on('failed', (failedEvent, error) => {
-    console.error('Notification failed:', error);
+    log.error({ err: error }, 'Notification failed');
   });
 
   notification.show();

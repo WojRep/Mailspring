@@ -1,3 +1,6 @@
+import { createLogger } from './logger';
+
+const log = createLogger('DndUtilsWindows');
 const CACHE_TTL_MS = 5000;
 
 let cache: { value: boolean; timestamp: number } | null = null;
@@ -34,7 +37,7 @@ export async function getDoNotDisturb(): Promise<boolean> {
     // OFF (0), FAILED (-1), and NOT_SUPPORTED (-2) are all treated as inactive.
     dnd = value === 1 || value === 2;
   } catch (e) {
-    console.warn('Failed to check Windows Focus Assist status:', e);
+    log.warn({ err: e }, 'Failed to check Windows Focus Assist status');
   }
 
   cache = { value: dnd, timestamp: Date.now() };

@@ -12,6 +12,7 @@ import {
   ICSEventHelpers,
   CalendarUtils,
   SyncbackEventTask,
+  createLogger,
 } from 'actunamail-exports';
 import {
   DatePicker,
@@ -35,6 +36,8 @@ import { EventPopoverActions } from './event-popover-actions';
 import { TimeZoneSelector } from './timezone-selector';
 import { parseEventIdFromOccurrence } from './calendar-drag-utils';
 import { showRecurringEventDialog } from './recurring-event-dialog';
+
+const log = createLogger('CalendarEventPopover');
 
 /**
  * Convert a RepeatOption UI value to an RRULE string (or null for 'none').
@@ -218,7 +221,7 @@ export class CalendarEventPopover extends React.Component<
     // Fetch the actual Event from the database
     const event = await DatabaseStore.find<Event>(Event, eventId);
     if (!event) {
-      console.error(`Could not find event with id ${eventId} to update`);
+      log.error(`Could not find event with id ${eventId} to update`);
       this.setState({ editing: false });
       return;
     }

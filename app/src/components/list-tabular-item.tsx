@@ -2,6 +2,9 @@ import SwipeContainer from './swipe-container';
 import React from 'react';
 import { PropTypes, Utils } from 'actunamail-exports';
 import { ListTabularColumn } from './list-tabular';
+import { createLogger } from '../logger';
+
+const log = createLogger('ListTabularItem');
 
 type ListTabularItemProps = {
   metrics?: {
@@ -104,7 +107,7 @@ export class ListTabularItem extends React.Component<ListTabularItemProps> {
     const names = {};
     return (this.props.columns || []).map((column) => {
       if (names[column.name]) {
-        console.warn(
+        log.warn(
           `ListTabular: Columns do not have distinct names, will cause React error! \`${column.name}\` twice.`
         );
       }

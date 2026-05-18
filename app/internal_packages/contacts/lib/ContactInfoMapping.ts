@@ -1,6 +1,14 @@
 import vCard from 'vcf';
-import { ContactInfoGoogle, ContactInfoVCF, Contact, Utils } from 'actunamail-exports';
+import {
+  ContactInfoGoogle,
+  ContactInfoVCF,
+  Contact,
+  Utils,
+  createLogger,
+} from 'actunamail-exports';
 import * as VCFHelpers from './VCFHelpers';
+
+const log = createLogger('ContactInfoMapping');
 
 /**
 This file contains business logic that maps two separate "contact.info" formats onto
@@ -188,7 +196,7 @@ export function applyToVCF(contact: Contact, changes: Partial<ContactBase>) {
         delete card.data['note'];
       }
     } else {
-      console.log(`Unsure of how to apply changes to ${key}`);
+      log.info(`Unsure of how to apply changes to ${key}`);
     }
   }
   contact.info = Object.assign(contact.info, { vcf: card.toString().replace(/\n/g, '\r\n') });
@@ -284,7 +292,7 @@ export function parse(contact: Contact): ContactParseResult {
         ? fromVCF(contact.info)
         : fromGoogle(contact.info);
   } catch (err) {
-    console.warn(`Parsing of contact ${contact.email} failed: ${err.toString()}`);
+    log.warn(`Parsing of contact ${contact.email} failed: ${err.toString()}`);
     return fromContact(contact);
   }
 }
@@ -308,7 +316,7 @@ export function apply(contact: Contact, nextData: ContactBase) {
       applyToGoogle(next, changedData);
     }
   } catch (err) {
-    console.warn(`Applying changes to contact ${contact.email} failed: ${err.toString()}`, err);
+    log.warn({ err }, `Applying changes to contact ${contact.email} failed: ${err.toString()}`);
   }
   return next;
 }

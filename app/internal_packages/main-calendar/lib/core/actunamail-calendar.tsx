@@ -12,6 +12,7 @@ import {
   Event,
   SyncbackEventTask,
   ICSEventHelpers,
+  createLogger,
 } from 'actunamail-exports';
 import {
   ScrollRegion,
@@ -51,6 +52,8 @@ import {
 } from './calendar-drag-utils';
 import { showRecurringEventDialog } from './recurring-event-dialog';
 import { modifyEventWithRecurringSupport, EventTimeChangeOptions } from './recurring-event-actions';
+
+const log = createLogger('ActunamailCalendar');
 
 const DISABLED_CALENDARS = 'mailspring.disabledCalendars';
 const CALENDAR_VIEW = 'mailspring.calendarView';
@@ -381,7 +384,7 @@ export class MailspringCalendar extends React.Component<
       // Fetch the full event from database to get ICS data
       const event = await DatabaseStore.find<Event>(Event, eventId);
       if (!event) {
-        console.error('Could not find event to delete:', eventId);
+        log.error({ eventId }, 'Could not find event to delete');
         return;
       }
 
@@ -408,7 +411,7 @@ export class MailspringCalendar extends React.Component<
         await this._deleteEntireEvent(event);
       }
     } catch (error) {
-      console.error('Failed to delete event:', error);
+      log.error({ err: error }, 'Failed to delete event');
       AppEnv.showErrorDialog({
         title: localized('Delete Failed'),
         message: localized('Failed to delete the event. Please try again.'),
@@ -619,7 +622,7 @@ export class MailspringCalendar extends React.Component<
       const event = await DatabaseStore.find<Event>(Event, eventId);
 
       if (!event) {
-        console.error('Could not find event to update:', eventId);
+        log.error({ eventId }, 'Could not find event to update');
         return;
       }
 
@@ -657,7 +660,7 @@ export class MailspringCalendar extends React.Component<
         occurrence.title
       );
     } catch (error) {
-      console.error('Failed to apply keyboard event change:', error);
+      log.error({ err: error }, 'Failed to apply keyboard event change');
       AppEnv.showErrorDialog({
         title: localized('Update Failed'),
         message: localized('Failed to update the event. Please try again.'),
@@ -679,14 +682,14 @@ export class MailspringCalendar extends React.Component<
 
       const event = await DatabaseStore.find<Event>(Event, eventId);
       if (!event) {
-        console.error('Could not find event to update:', eventId);
+        log.error({ eventId }, 'Could not find event to update');
         return;
       }
 
       // Check if calendar is read-only (safety check)
       const calendar = this.state.calendars.find((c) => c.id === event.calendarId);
       if (calendar?.readOnly) {
-        console.warn('Cannot modify event in read-only calendar');
+        log.warn('Cannot modify event in read-only calendar');
         return;
       }
 
@@ -721,7 +724,7 @@ export class MailspringCalendar extends React.Component<
         dragState.event.title
       );
     } catch (error) {
-      console.error('Failed to persist drag change:', error);
+      log.error({ err: error }, 'Failed to persist drag change');
       AppEnv.showErrorDialog({
         title: localized('Update Failed'),
         message: localized('Failed to update the event. Please try again.'),
