@@ -89,7 +89,10 @@ export default class MenuManager {
     const platformMenuPath = path.join(dir, `${process.platform}.js`);
     const { menu } = require(platformMenuPath);
     this.template = [];
-    this.add(menu);
+    // The Developer menu is only useful when running with debug flags / from
+    // source — hide it from end users in production builds.
+    const items = AppEnv.inDevMode() ? menu : menu.filter((item) => item.id !== 'Developer');
+    this.add(items);
   }
 
   // Merges an item in a submenu aware way such that new items are always
