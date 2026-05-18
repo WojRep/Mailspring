@@ -149,6 +149,7 @@ When Actuna ships AI assistance, we will revisit this. Routine email composition
 - Documented supply chain: every external endpoint is in [SECURITY.md](SECURITY.md), every npm dependency in `package-lock.json`, every C++ dependency in `mailsync/Vendor/` and `mailsync/vcpkg.json`.
 - Change management: every modification from upstream is one atomic, individually reviewable commit.
 - Incident response: documented in this file under Article 23 NIS2.
+- **Logging and audit trail (§22).** Application logging uses a structured JSON-line logger (`pino`) with a runtime redaction layer that masks credentials, tokens and DB keys before any record is written; the legacy `debug` fork carrying two ReDoS CVEs is removed. The C++ `mailsync` engine emits the same JSON-line schema. An **opt-in, off-by-default** local audit trail (`core.audit.enabled`) records security-relevant events (account add/remove, sync) to a local file, never transmitted over the network. This moves Recommendation D §22 (audit trail) from *neutral* to *implemented baseline*. Implemented in backlog ticket #04 (Mandarynka logger). Tier-B unlock/password-change audit events are wired when ticket #46 lands.
 
 ### Recommendation Z — Outsourcing risk
 

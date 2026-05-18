@@ -24,6 +24,8 @@ What this means in practice:
 
 8. **Custom URL schemes are internal.** The renderer uses an `actunamail://` scheme for asset loading and a sibling `actuna-attachment://` scheme that streams decrypted inline images to the message iframe. The `actunamail://ai/...` namespace is reserved for future opt-in deep-links to AI features under AI Act Art. 5/52 constraints.
 
+9. **Structured logging with runtime redaction.** Application logs use a structured JSON-line logger (`pino`), replacing the legacy `emorikawa/debug#nylas` fork (which carried two ReDoS CVEs). Every log record passes through a redaction layer that masks credentials — passwords, OAuth/refresh/access tokens, client secrets, cookies, DB keys, Argon2 material, plus JWT-shaped and long base64 values found anywhere in a record — before it is written; in production the user's email address is reduced to an 8-character hash. Renderer log lines are forwarded over IPC to the main process, the only component with log-file access (renderers cannot write the log file). The C++ `mailsync` engine emits the same JSON-line schema. An **opt-in, off-by-default** local audit trail (`core.audit.enabled`) records account and sync events to a local file under the config directory — never transmitted over the network. Implemented in backlog ticket #04.
+
 The full sterilization log — every endpoint removed, every file changed, every line of code patched — is documented in [`COMPLIANCE.md`](COMPLIANCE.md); the per-release history is in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## What goes out over the network by default
