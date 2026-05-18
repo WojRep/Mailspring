@@ -29,6 +29,9 @@ export interface IOutlineViewItem {
   onEdited?: (...args: any[]) => any;
   onExport?: (...args: any[]) => any;
   onCreateChild?: (...args: any[]) => any;
+  // True for folders that already live inside Trash — deleting them is a
+  // permanent removal, so the context menu labels it accordingly (#59).
+  deletePermanently?: boolean;
 }
 
 interface OutlineViewProps {

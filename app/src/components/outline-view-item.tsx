@@ -318,7 +318,10 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
     if (this.props.item.onDelete) {
       menu.append(
         new MenuItem({
-          label: `${localized(`Delete`)} ${contextMenuLabel}`,
+          // A folder already inside Trash is removed permanently (#59).
+          label: this.props.item.deletePermanently
+            ? localized('Delete %@ permanently', contextMenuLabel)
+            : `${localized(`Delete`)} ${contextMenuLabel}`,
           click: this._onDelete,
         })
       );

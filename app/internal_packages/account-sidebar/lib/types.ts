@@ -24,6 +24,7 @@ export interface ISidebarItem {
   editable?: boolean;
   exportable?: boolean;
   deleted?: boolean;
+  deletePermanently?: boolean;
 }
 
 export interface ISidebarSection {

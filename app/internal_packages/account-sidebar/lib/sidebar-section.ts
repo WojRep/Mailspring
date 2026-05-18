@@ -84,12 +84,18 @@ function userCategoryItemsInTrash(account): ISidebarItem[] {
     let item: ISidebarItem;
     if (parent) {
       const itemDisplayName = category.displayName.substr(parentKey.length + 1);
-      item = SidebarItem.forCategories([category], { name: itemDisplayName });
+      item = SidebarItem.forCategories([category], {
+        name: itemDisplayName,
+        deletePermanently: true,
+      });
       parent.children.push(item);
     } else {
       // Direct child of Trash — drop the "Trash/" prefix from the displayed name.
       const itemDisplayName = category.displayName.substr(trashKey.length + 1);
-      item = SidebarItem.forCategories([category], { name: itemDisplayName });
+      item = SidebarItem.forCategories([category], {
+        name: itemDisplayName,
+        deletePermanently: true,
+      });
       items.push(item);
     }
     seenItems[itemKey] = item;

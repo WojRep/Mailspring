@@ -7,6 +7,9 @@ import {
   PropTypes,
   TaskQueue,
   ExpungeAllInFolderTask,
+  DestroyCategoryTask,
+  CategoryStore,
+  RegExpUtils,
   FocusedPerspectiveStore,
   ThreadCountsStore,
 } from 'actunamail-exports';
@@ -21,18 +24,52 @@ interface ThreadListEmptyFolderBarProps {
 class ThreadListEmptyFolderBar extends React.Component<ThreadListEmptyFolderBarProps> {
   static displayName = 'ThreadListEmptyFolderBar';
 
-  _onClick = () => {
-    const { folders } = this.props;
+  // Folders that were moved into Trash (ticket #48) are separate IMAP folders.
+  // ExpungeAllInFolderTask only clears messages, so "Empty Trash" must also
+  // destroy those nested folders (ticket #59 — user report 2026-05-18).
+  _foldersNestedInTrash(): Folder[] {
+    const re = RegExpUtils.subcategorySplitRegex();
+    const nested: Folder[] = [];
+    for (const folder of this.props.folders) {
+      const folderKey = folder.displayName.replace(re, '/');
+      for (const cat of CategoryStore.userCategories(folder.accountId)) {
+        const key = cat.displayName.replace(re, '/');
+        if (key !== folderKey && key.startsWith(`${folderKey}/`) && cat instanceof Folder) {
+          nested.push(cat);
+        }
+      }
+    }
+    return nested;
+  }
 
-    Actions.queueTasks(
-      folders.map(
-        (folder) =>
-          new ExpungeAllInFolderTask({
-            accountId: folder.accountId,
-            folder,
-          })
-      )
-    );
+  _onClick = () => {
+    const { folders, role } = this.props;
+    const nested = this._foldersNestedInTrash();
+
+    const detail = nested.length
+      ? localized(
+          'All messages and %@ folder(s) inside will be permanently deleted.',
+          `${nested.length}`
+        )
+      : localized('All messages inside will be permanently deleted.');
+    const response = require('@electron/remote').dialog.showMessageBoxSync({
+      type: 'warning',
+      message: role === 'trash' ? localized('Empty Trash?') : localized('Empty Spam?'),
+      detail,
+      buttons: [localized('Empty'), localized('Cancel')],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response !== 0) {
+      return;
+    }
+
+    Actions.queueTasks([
+      ...folders.map(
+        (folder) => new ExpungeAllInFolderTask({ accountId: folder.accountId, folder })
+      ),
+      ...nested.map((cat) => new DestroyCategoryTask({ path: cat.path, accountId: cat.accountId })),
+    ]);
   };
 
   render() {
