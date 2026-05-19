@@ -26,6 +26,25 @@ Co to oznacza w praktyce:
 
 Pełny dziennik sterylizacji — każdy usunięty endpoint, każdy zmieniony plik, każda załatana linia kodu — jest udokumentowany w [`COMPLIANCE.md`](COMPLIANCE.md); historia poszczególnych wydań znajduje się w [`CHANGELOG.md`](CHANGELOG.md).
 
+## Kopie zapasowe i przywracanie
+
+Katalog danych aplikacji (`~/Library/Application Support/ActunaMail/` na macOS, odpowiedniki na innych systemach) zawiera zaszyfrowaną bazę `edgehill.db`, zaszyfrowane załączniki w `files/` oraz `db-key.enc` — klucz bazy SQLCipher opakowany przez magazyn poświadczeń systemu za pośrednictwem Electron `safeStorage`.
+
+**Tworzenie kopii zapasowej tego katalogu jest bezpieczne.** Choć kopia obejmuje `db-key.enc`, klucza w środku nie da się odczytać bez systemowego magazynu poświadczeń, a ten jest związany z maszyną/profilem i nie synchronizuje się z chmurą:
+
+- **macOS** — `os_crypt` Chromium (z którego korzysta `safeStorage`) zapisuje klucz „Safe Storage" przez `crypto::AppleKeychain`, czyli starsze API generic-password `SecKeychain*`. Wpisy starszego pęku kluczy strukturalnie **nie** podlegają synchronizacji z iCloud — `kSecAttrSynchronizable` to atrybut wyłącznie nowoczesnego API `SecItem*` (data-protection keychain) i nie da się go ustawić na wpisach starszego typu. Klucz Safe Storage nigdy nie trafia do iCloud Keychain.
+- **Windows** — DPAPI (`CryptProtectData`), w zasięgu profilu użytkownika Windows.
+- **Linux** — Secret Service (GNOME Keyring / KWallet), lokalny dla maszyny.
+
+Kopia `db-key.enc` w backupie chmurowym (Time Machine, iCloud Drive, Dropbox, OneDrive) jest więc na innej maszynie nieczytelnym szyfrogramem — przywrócenie katalogu gdzie indziej **nie** ujawnia treści poczty.
+
+Wynikają z tego dwie konsekwencje:
+
+1. **Przywrócenie profilu na innej maszynie nie otworzy bazy** — klucz opakowujący żyje w magazynie poświadczeń pierwotnej maszyny. To kompromis dostępności, nie wyciek poufności; poczta zsynchronizuje się ponownie z serwera IMAP. Dla przywracania niezależnego od maszyny należy włączyć **Tier B** (hasło główne): hasło główne odszyfrowuje klucz bazy na dowolnej maszynie, a kod odzyskiwania wydany przy konfiguracji jest ścieżką ratunkową.
+2. **Dla poufności wobec atakującego z tego samego konta** (malware działające na koncie użytkownika może odczytać magazyn poświadczeń) Tier A nie wystarcza — należy włączyć **Tier B**.
+
+`db-key.enc` jest celowo trzymany razem z `edgehill.db` w katalogu profilu: przeniesienie go poza typowy zasięg backupu zepsułoby atomowość kopii/przywracania profilu, nie dając korzyści w zakresie poufności (sam szyfrogram bez magazynu poświadczeń maszyny jest bezużyteczny). Zob. ticket #46 (Tier B) — ścieżka hasła głównego.
+
 ## Co domyślnie wychodzi do sieci
 
 | Cel | Przeznaczenie | Kiedy |

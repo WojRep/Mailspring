@@ -28,6 +28,25 @@ What this means in practice:
 
 The full sterilization log — every endpoint removed, every file changed, every line of code patched — is documented in [`COMPLIANCE.md`](COMPLIANCE.md); the per-release history is in [`CHANGELOG.md`](CHANGELOG.md).
 
+## Backup and restore
+
+The application data directory (`~/Library/Application Support/ActunaMail/` on macOS, platform equivalents elsewhere) holds the encrypted database `edgehill.db`, the encrypted attachment files under `files/`, and `db-key.enc` — the SQLCipher database key wrapped by the OS credential store via Electron `safeStorage`.
+
+**Backing up that directory is safe.** Even though the backup includes `db-key.enc`, the key inside it cannot be read without the OS credential store, and that store is machine/profile-bound and not cloud-synced:
+
+- **macOS** — Chromium's `os_crypt` (which `safeStorage` uses) stores the "Safe Storage" key via `crypto::AppleKeychain`, the legacy `SecKeychain*` generic-password API. Legacy keychain items are structurally **not** iCloud-synchronizable — `kSecAttrSynchronizable` is an attribute of the modern `SecItem*` data-protection keychain only and cannot be set on legacy items. The Safe Storage key therefore never syncs to iCloud Keychain.
+- **Windows** — DPAPI (`CryptProtectData`), scoped to the Windows user profile.
+- **Linux** — the Secret Service (GNOME Keyring / KWallet), local to the machine.
+
+So a copy of `db-key.enc` in a cloud backup (Time Machine, iCloud Drive, Dropbox, OneDrive) is opaque ciphertext on any other machine — restoring the folder elsewhere does **not** expose mail content.
+
+Two consequences follow:
+
+1. **Restoring the profile onto a different machine will not open the database** — the wrapping key lives in the original machine's credential store. This is an availability trade-off, not a confidentiality leak; mail re-syncs from the IMAP server. For machine-independent restore, enable **Tier B** (master password): the master password unwraps the database key on any machine, and the recovery code issued at setup is the escrow path.
+2. **For confidentiality against a same-user attacker** (malware running as your user account can read the credential store), Tier A is not sufficient — enable **Tier B**.
+
+`db-key.enc` is deliberately kept co-located with `edgehill.db` in the profile directory: relocating it outside typical backup scope would break atomic profile backup/restore and add no confidentiality benefit (the co-located blob is useless without the machine credential store). See backlog ticket #46 (Tier B) for the master-password path.
+
 ## What goes out over the network by default
 
 | Destination | Purpose | When |
