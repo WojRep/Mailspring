@@ -381,6 +381,16 @@ export default class Application extends EventEmitter {
       locked: mgr.isLocked(),
       config: mgr.config,
     }));
+    // Synchronous channel: a renderer's KeyManager.getDBKey() fetches the
+    // main-process-unwrapped DBKey here (Tier B). Returns null while
+    // locked so the renderer surfaces a proper locked state.
+    ipcMain.on('tier-b-get-dbkey', (evt) => {
+      try {
+        evt.returnValue = KeyManager.isLocked() ? null : KeyManager.getDBKey().toString('hex');
+      } catch (err) {
+        evt.returnValue = null;
+      }
+    });
     ipcMain.handle('tier-b-enable', (_e, password) => {
       try {
         const { recoveryCode } = KeyManager.enableTierB(password);

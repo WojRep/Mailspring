@@ -143,6 +143,28 @@ class KeyManager {
     // through and generate a BRAND-NEW Tier A key (which would orphan
     // the user's encrypted database).
     if (this.isTierBEnabled()) {
+      // The DBKey is unwrapped in the MAIN process (startup gate /
+      // unlock). A renderer process has its OWN KeyManager singleton
+      // with a cold cache — it never ran the Argon2id unwrap. Rather
+      // than throw (which would surface as a "database is locked" error
+      // when the renderer opens DatabaseStore), fetch the already-
+      // unwrapped key from the main process over a synchronous IPC.
+      // getDBKey() stays synchronous. Same DBKey-over-IPC trust model
+      // as Tier A's ACTUNA_DB_KEY env + database-agent dbKeyHex.
+      if (process.type === 'renderer') {
+        try {
+          const hex = require('electron').ipcRenderer.sendSync('tier-b-get-dbkey');
+          if (hex && typeof hex === 'string') {
+            const fromMain = Buffer.from(hex, 'hex');
+            if (fromMain.length === DB_KEY_LENGTH_BYTES) {
+              this._dbKeyCache = fromMain;
+              return this._dbKeyCache;
+            }
+          }
+        } catch (err) {
+          // fall through to throw — main is locked or unreachable
+        }
+      }
       throw new DBKeyLockedError();
     }
     const ss = getSafeStorage();
