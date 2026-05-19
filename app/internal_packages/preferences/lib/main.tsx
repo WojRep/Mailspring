@@ -59,6 +59,15 @@ export function activate() {
       order: 7,
     })
   );
+  // Ticket 46c — Security tab: SQLCipher Tier B master-password management.
+  PreferencesUIStore.registerPreferencesTab(
+    new PreferencesUIStore.TabItem({
+      tabId: 'Security',
+      displayName: localized('Security'),
+      componentClassFn: () => require('./tabs/preferences-security').default,
+      order: 8,
+    })
+  );
 
   WorkspaceStore.defineSheet(
     'Preferences',
