@@ -237,6 +237,15 @@ export default class Application extends EventEmitter {
     }
     return new Promise<boolean>((resolve) => {
       let settled = false;
+      // The gate window is the FIRST app window. Electron quits the app
+      // by default when the last window closes and no `window-all-closed`
+      // listener exists yet — and handleEvents() registers the real one
+      // only LATER in start(). Destroying the gate window on a correct
+      // password would therefore quit the app instead of continuing the
+      // boot (the symptom: "the password is accepted but the app just
+      // closes"). Register a no-op listener now to suppress that default;
+      // the real handler added later still fires and is unaffected.
+      app.on('window-all-closed', () => {});
       const win = new BrowserWindow({
         width: 420,
         height: 280,
