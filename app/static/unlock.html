@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ActunaMail — Unlock</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline';">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #fcfcfc;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      color: #333;
+      -webkit-user-select: none;
+    }
+    body {
+      box-sizing: border-box;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 1.05em;
+      margin: 0 0 4px 0;
+    }
+    p.sub {
+      font-size: 0.82em;
+      color: #888;
+      margin: 0 0 16px 0;
+    }
+    label {
+      font-size: 0.8em;
+      color: #666;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 7px 9px;
+      font-size: 0.95em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #4087f2;
+    }
+    #error {
+      color: #d0021b;
+      font-size: 0.8em;
+      min-height: 1.1em;
+      margin: 8px 0 0 0;
+    }
+    .row {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    button {
+      padding: 7px 18px;
+      font-size: 0.9em;
+      border-radius: 4px;
+      border: 1px solid #3072e0;
+      background: #4087f2;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    a {
+      font-size: 0.8em;
+      color: #4087f2;
+      cursor: pointer;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">Unlock ActunaMail</h1>
+  <p class="sub" id="subtitle">Enter your master password to open the encrypted database.</p>
+  <form id="form">
+    <label id="field-label" for="secret">Master password</label>
+    <input type="password" id="secret" autocomplete="off" spellcheck="false">
+    <div id="error"></div>
+    <div class="row">
+      <a id="mode-toggle">Use recovery code</a>
+      <button type="submit" id="submit">Unlock</button>
+    </div>
+  </form>
+  <script src="unlock.js"></script>
+</body>
+</html>

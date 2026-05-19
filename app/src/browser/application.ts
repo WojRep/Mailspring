@@ -1,6 +1,15 @@
 /* eslint global-require: "off" */
 
-import { BrowserWindow, Menu, app, ipcMain, dialog, nativeImage, shell } from 'electron';
+import {
+  BrowserWindow,
+  Menu,
+  app,
+  ipcMain,
+  dialog,
+  nativeImage,
+  shell,
+  powerMonitor,
+} from 'electron';
 
 import fs from 'fs';
 import url from 'url';
@@ -31,6 +40,7 @@ import {
   registerNotificationIPCHandlers,
 } from './notification-ipc';
 import WindowsTaskbarManager from './windows-taskbar-manager';
+import { LockStateManager, LockConfig } from './lock-state-manager';
 
 const log = createLogger('Application');
 
@@ -59,6 +69,7 @@ export default class Application extends EventEmitter {
   systemAccentWatcher: SystemAccentWatcher;
   systemTrayManager: SystemTrayManager;
   windowsTaskbarManager?: WindowsTaskbarManager;
+  lockStateManager?: LockStateManager;
 
   _sourceWindows: { [taskId: string]: BrowserWindow } = {};
   _resettingAndRelaunching: boolean;
@@ -95,6 +106,17 @@ export default class Application extends EventEmitter {
     // renderer processes to the OS log directory.
     installLogChannel();
     logAppStarted(version);
+
+    // Ticket 46b — SQLCipher Tier B startup unlock gate. When the
+    // master-password tier is enabled the DBKey is wrapped on disk and
+    // unavailable until the user unlocks. This MUST complete before
+    // mailsync spawns or the renderer opens the database — otherwise
+    // getDBKey() throws DBKeyLockedError. Tier A installs skip it.
+    const unlocked = await this._runTierBUnlockGate();
+    if (!unlocked) {
+      app.quit();
+      return;
+    }
 
     try {
       const mailsync = new MailsyncProcess(options);
@@ -171,6 +193,11 @@ export default class Application extends EventEmitter {
 
     this.handleEvents();
 
+    // Ticket 46b — Tier B lock/unlock management: idle timer,
+    // powerMonitor suspend / screen-lock triggers, and the IPC surface
+    // consumed by Preferences > Security (46c) + the lock overlay.
+    this._wireTierBLockManagement();
+
     // Mark initialization complete, then process the initial launch options
     // followed by any second-instance options that arrived while we were
     // still awaiting async initialization steps above.
@@ -189,6 +216,219 @@ export default class Application extends EventEmitter {
     } else {
       app.setAsDefaultProtocolClient('mailspring');
     }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // SQLCipher Tier B — startup unlock gate + lock management (ticket 46b)
+  // ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Tier B startup unlock gate. Resolves `true` to continue boot,
+   * `false` to quit. On a Tier A install (no wrapped key blob) it
+   * resolves `true` immediately. Otherwise it opens a small modal
+   * window that collects the master password / recovery code; the
+   * Argon2id unwrap runs in THIS (main) process and warms KeyManager's
+   * DBKey cache so the subsequent synchronous boot path is unchanged.
+   */
+  async _runTierBUnlockGate(): Promise<boolean> {
+    const KeyManager = require('../key-manager').default;
+    if (this.specMode || !KeyManager.isTierBEnabled()) {
+      return true;
+    }
+    return new Promise<boolean>((resolve) => {
+      let settled = false;
+      const win = new BrowserWindow({
+        width: 420,
+        height: 280,
+        show: false,
+        center: true,
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        autoHideMenuBar: true,
+        title: 'ActunaMail',
+        webPreferences: {
+          nodeIntegration: true,
+          contextIsolation: false,
+        },
+      });
+      const cleanup = (ok: boolean) => {
+        if (settled) return;
+        settled = true;
+        ipcMain.removeHandler('tier-b-gate-strings');
+        ipcMain.removeHandler('tier-b-gate-unlock');
+        ipcMain.removeHandler('tier-b-gate-unlock-recovery');
+        if (!win.isDestroyed()) win.destroy();
+        resolve(ok);
+      };
+      ipcMain.handle('tier-b-gate-strings', () => this._tierBUnlockStrings());
+      ipcMain.handle('tier-b-gate-unlock', (_e, password) => {
+        try {
+          KeyManager.unlockTierB(password);
+          cleanup(true);
+          return { ok: true };
+        } catch (err) {
+          return { ok: false, error: this._tierBUnlockError(err) };
+        }
+      });
+      ipcMain.handle('tier-b-gate-unlock-recovery', (_e, code) => {
+        try {
+          KeyManager.unlockWithRecoveryCode(code);
+          cleanup(true);
+          return { ok: true };
+        } catch (err) {
+          return { ok: false, error: this._tierBUnlockError(err) };
+        }
+      });
+      // Closing the window without unlocking = the user chose not to proceed.
+      win.on('closed', () => cleanup(false));
+      win.once('ready-to-show', () => win.show());
+      win.loadURL(`file://${this.resourcePath}/static/unlock.html`);
+    });
+  }
+
+  _tierBUnlockError(err: any): string {
+    if (err && err.name === 'WrongSecretError') {
+      return localized('Incorrect master password or recovery code.');
+    }
+    return (err && err.message) || localized('Unlock failed. Please try again.');
+  }
+
+  _tierBUnlockStrings() {
+    return {
+      title: localized('Unlock ActunaMail'),
+      subtitle: localized('Enter your master password to open the encrypted database.'),
+      passwordLabel: localized('Master password'),
+      recoveryLabel: localized('Recovery code'),
+      unlock: localized('Unlock'),
+      unlocking: localized('Unlocking…'),
+      useRecovery: localized('Use recovery code'),
+      usePassword: localized('Use master password'),
+      failed: localized('Unlock failed. Please try again.'),
+    };
+  }
+
+  /**
+   * Instantiate the lock-state machine, subscribe OS triggers
+   * (powerMonitor suspend / screen-lock, window focus → activity), and
+   * register the Tier B IPC surface used by Preferences > Security and
+   * the lock overlay.
+   */
+  _wireTierBLockManagement(): void {
+    if (this.specMode) return;
+    const KeyManager = require('../key-manager').default;
+
+    const stored = (this.config && this.config.get('core.security.tierB')) || {};
+    const lockConfig: Partial<LockConfig> = {};
+    if (typeof stored.idleMs === 'number') lockConfig.idleMs = stored.idleMs;
+    if (typeof stored.lockOnSuspend === 'boolean') lockConfig.lockOnSuspend = stored.lockOnSuspend;
+    if (typeof stored.lockOnScreenLock === 'boolean') {
+      lockConfig.lockOnScreenLock = stored.lockOnScreenLock;
+    }
+
+    const mgr = new LockStateManager(lockConfig);
+    this.lockStateManager = mgr;
+
+    mgr.on('locked', (reason) => {
+      log.info(`Tier B database locked (${reason}).`);
+      try {
+        KeyManager.lock();
+      } catch (err) {
+        log.error({ err }, 'KeyManager.lock() failed');
+      }
+      this.windowManager.sendToAllWindows('db-lock-state-changed', {}, { state: 'LOCKED', reason });
+    });
+    mgr.on('unlocked', () => {
+      log.info('Tier B database unlocked.');
+      this.windowManager.sendToAllWindows('db-lock-state-changed', {}, { state: 'UNLOCKED' });
+    });
+
+    // `lock-screen` fires on macOS + Windows; Linux lacks it and the
+    // idle timer compensates (design memo §4).
+    powerMonitor.on('suspend', () => mgr.onSuspend());
+    try {
+      powerMonitor.on('lock-screen', () => mgr.onScreenLock());
+    } catch (err) {
+      /* platform without a lock-screen event — idle timer compensates */
+    }
+    app.on('browser-window-focus', () => mgr.noteActivity());
+
+    this._registerTierBIPCHandlers(mgr, KeyManager);
+  }
+
+  _registerTierBIPCHandlers(mgr: LockStateManager, KeyManager: any): void {
+    const persistConfig = () => {
+      if (!this.config) return;
+      this.config.set('core.security.tierB', {
+        idleMs: mgr.config.idleMs,
+        lockOnSuspend: mgr.config.lockOnSuspend,
+        lockOnScreenLock: mgr.config.lockOnScreenLock,
+      });
+    };
+
+    ipcMain.handle('tier-b-status', () => ({
+      enabled: KeyManager.isTierBEnabled(),
+      locked: mgr.isLocked(),
+      config: mgr.config,
+    }));
+    ipcMain.handle('tier-b-enable', (_e, password) => {
+      try {
+        const { recoveryCode } = KeyManager.enableTierB(password);
+        return { ok: true, recoveryCode };
+      } catch (err) {
+        return { ok: false, error: (err && err.message) || 'Failed to enable Tier B.' };
+      }
+    });
+    ipcMain.handle('tier-b-disable', (_e, password) => {
+      try {
+        KeyManager.disableTierB(password);
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: this._tierBUnlockError(err) };
+      }
+    });
+    ipcMain.handle('tier-b-change-password', (_e, oldPw, newPw) => {
+      try {
+        KeyManager.changeTierBPassword(oldPw, newPw);
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: this._tierBUnlockError(err) };
+      }
+    });
+    ipcMain.handle('tier-b-regenerate-recovery', (_e, password) => {
+      try {
+        const { recoveryCode } = KeyManager.regenerateRecoveryCode(password);
+        return { ok: true, recoveryCode };
+      } catch (err) {
+        return { ok: false, error: this._tierBUnlockError(err) };
+      }
+    });
+    ipcMain.handle('tier-b-unlock', (_e, password) => {
+      try {
+        KeyManager.unlockTierB(password);
+        mgr.unlock();
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: this._tierBUnlockError(err) };
+      }
+    });
+    ipcMain.handle('tier-b-unlock-recovery', (_e, code) => {
+      try {
+        KeyManager.unlockWithRecoveryCode(code);
+        mgr.unlock();
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: this._tierBUnlockError(err) };
+      }
+    });
+    ipcMain.handle('tier-b-configure', (_e, partial) => {
+      mgr.configure(partial || {});
+      persistConfig();
+      return { ok: true, config: mgr.config };
+    });
+    ipcMain.on('tier-b-lock-now', () => mgr.lockNow());
+    ipcMain.on('tier-b-note-activity', () => mgr.noteActivity());
   }
 
   getMainWindow() {
