@@ -45,6 +45,17 @@ Wynikają z tego dwie konsekwencje:
 
 `db-key.enc` jest celowo trzymany razem z `edgehill.db` w katalogu profilu: przeniesienie go poza typowy zasięg backupu zepsułoby atomowość kopii/przywracania profilu, nie dając korzyści w zakresie poufności (sam szyfrogram bez magazynu poświadczeń maszyny jest bezużyteczny). Zob. ticket #46 (Tier B) — ścieżka hasła głównego.
 
+## Logi i dziennik audytowy at-rest
+
+W odróżnieniu od bazy danych i załączników, log diagnostyczny (`<logs>/<data>.log`) oraz opcjonalny dziennik audytowy (`<config>/audit/<data>.audit.log`) zapisywane są jako pliki **tekstowe**. Po redakcji nie niosą już poświadczeń, ale nadal zawierają dane osobowe w rozumieniu RODO — identyfikatory kont, nazwy dostawców, zahaszowany adres e-mail i tekst wiadomości w polu `msg`. To jedyny artefakt PII at-rest poza szyfrowaniem SQLCipher / AES-GCM.
+
+- **Ochrona at-rest** — logi należy chronić włączając szyfrowanie całego wolumenu (FileVault na macOS, BitLocker na Windows, LUKS na Linux). ActunaMail nie szyfruje plików logów osobno; szyfrowanie wolumenu jest oczekiwanym środkiem. Wdrożenia regulowane powinny objąć katalog logów i audytu swoimi środkami ochrony danych.
+- **Bypass redakcji tylko w buildzie dev** — warstwę redakcji można wyłączyć przez `ACTUNA_LOG_LEVEL=debug` na potrzeby debugowania, ale wyłącznie w niespakowanym buildzie **dev**. Spakowany build produkcyjny zawsze redaguje, nawet gdy ta zmienna środowiskowa jest ustawiona — sama zmienna nie ujawni poświadczeń w wydanej aplikacji.
+- **Retencja dziennika audytowego** — pliki audytu rotują się dziennie; pliki starsze niż 90 dni są automatycznie usuwane. Ten lokalny domyślny limit ogranicza zużycie dysku; podmiot wdrażający ustala własny prawny okres retencji i — gdy potrzebuje dłuższej retencji lub tamper-evidence — powinien przekazywać pliki audytu do swojego SIEM / systemu archiwizacji. Lokalny dziennik jest append-only z konwencji, ale **nie** jest kryptograficznie odporny na manipulację (tamper-evident).
+- **Kanał IPC `actuna-log`** — linie logu renderera są przekazywane do procesu głównego kanałem IPC `actuna-log`, który dopisuje je do współdzielonego pliku logu. Skompromitowany renderer mógłby wpisać do logu dowolny string. To ryzyko niskiej wagi: renderer i tak wykonuje kod aplikacji, a log jest wyłącznie lokalny. Odnotowane tu dla kompletności modelu zagrożeń.
+
+> **Nota dla zespołu** (nie-compliance): reguła `BASE64_VALUE` warstwy redakcji maskuje każdy samodzielny string dłuższy niż 40 znaków base64. Może to maskować także długie *legalne* identyfikatory niebędące sekretami (np. fragment Message-ID czy granicę MIME). To celowy bias fail-safe — nadmiarowa redakcja nie-sekretu jest lepsza niż wyciek sekretu.
+
 ## Co domyślnie wychodzi do sieci
 
 | Cel | Przeznaczenie | Kiedy |

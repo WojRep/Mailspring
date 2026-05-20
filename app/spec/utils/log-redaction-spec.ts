@@ -2,10 +2,10 @@ import { createHash } from 'crypto';
 import { redactLogObject } from '../../src/utils/log-redaction';
 
 // Ticket #04 phase 04b — Mandarynka logger redaction layer.
-//
-// Redaction is active in production; `ACTUNA_LOG_LEVEL=debug` disables it so
-// developers can see full tokens. Each test that depends on the mode sets and
-// restores the env var explicitly.
+// Ticket #60 — the debug bypass is gated on a DEV build, not the env var
+// alone: a packaged production build always redacts even with
+// `ACTUNA_LOG_LEVEL=debug` set. Tests that depend on the mode set and
+// restore both `ACTUNA_LOG_LEVEL` and `process.defaultApp` explicitly.
 describe('log-redaction', () => {
   describe('redactLogObject — denylisted keys', () => {
     it('redacts a `password` value', () => {
@@ -91,25 +91,47 @@ describe('log-redaction', () => {
     });
   });
 
-  describe('redactLogObject — dev mode bypass', () => {
-    it('leaves secrets untouched when ACTUNA_LOG_LEVEL is debug', () => {
-      const prev = process.env.ACTUNA_LOG_LEVEL;
-      process.env.ACTUNA_LOG_LEVEL = 'debug';
-      try {
-        expect(redactLogObject({ password: 'hunter2' }).password).toEqual('hunter2');
-      } finally {
-        process.env.ACTUNA_LOG_LEVEL = prev;
-      }
+  describe('redactLogObject — dev-build debug bypass (ticket #60)', () => {
+    let prevLevel: string | undefined;
+    let prevDefaultApp: any;
+
+    beforeEach(() => {
+      prevLevel = process.env.ACTUNA_LOG_LEVEL;
+      prevDefaultApp = (process as any).defaultApp;
     });
 
-    it('leaves `email` un-hashed when ACTUNA_LOG_LEVEL is debug', () => {
-      const prev = process.env.ACTUNA_LOG_LEVEL;
-      process.env.ACTUNA_LOG_LEVEL = 'debug';
-      try {
-        expect(redactLogObject({ email: 'user@example.com' }).email).toEqual('user@example.com');
-      } finally {
-        process.env.ACTUNA_LOG_LEVEL = prev;
+    afterEach(() => {
+      if (prevLevel === undefined) {
+        delete process.env.ACTUNA_LOG_LEVEL;
+      } else {
+        process.env.ACTUNA_LOG_LEVEL = prevLevel;
       }
+      (process as any).defaultApp = prevDefaultApp;
+    });
+
+    it('leaves secrets untouched in a DEV build with debug logging', () => {
+      process.env.ACTUNA_LOG_LEVEL = 'debug';
+      (process as any).defaultApp = true;
+      expect(redactLogObject({ password: 'hunter2' }).password).toEqual('hunter2');
+    });
+
+    it('leaves `email` un-hashed in a DEV build with debug logging', () => {
+      process.env.ACTUNA_LOG_LEVEL = 'debug';
+      (process as any).defaultApp = true;
+      expect(redactLogObject({ email: 'user@example.com' }).email).toEqual('user@example.com');
+    });
+
+    it('STILL redacts in a packaged build even with ACTUNA_LOG_LEVEL=debug', () => {
+      // process.defaultApp is absent in a packaged production build.
+      process.env.ACTUNA_LOG_LEVEL = 'debug';
+      (process as any).defaultApp = undefined;
+      expect(redactLogObject({ password: 'hunter2' }).password).toEqual('[REDACTED]');
+    });
+
+    it('STILL hashes `email` in a packaged build even with debug logging', () => {
+      process.env.ACTUNA_LOG_LEVEL = 'debug';
+      (process as any).defaultApp = undefined;
+      expect(redactLogObject({ email: 'user@example.com' }).email).not.toEqual('user@example.com');
     });
   });
 });

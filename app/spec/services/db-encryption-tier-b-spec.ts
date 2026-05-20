@@ -316,3 +316,88 @@ describe('KeyManager — SQLCipher Tier B (ticket 46a)', () => {
     });
   });
 });
+
+describe('KeyManager — Tier B audit events (ticket #62)', () => {
+  let dir: string;
+  const remoteSafeStorage = () => require('@electron/remote').safeStorage;
+  const argon2Module = () => require('@noble/hashes/argon2');
+  const auditModule = () => require('../../src/utils/audit-fanout');
+  let events: string[];
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'actuna-tierb-audit-'));
+    (KeyManager as any).wipeDBKey();
+    events = [];
+    spyOn(AppEnv, 'getConfigDirPath').andReturn(dir);
+    spyOn(remoteSafeStorage(), 'isEncryptionAvailable').andReturn(true);
+    spyOn(remoteSafeStorage(), 'encryptString').andCallFake((s: string) =>
+      Buffer.from(`enc:${s}`, 'utf-8')
+    );
+    spyOn(remoteSafeStorage(), 'decryptString').andCallFake((b: Buffer) =>
+      b.toString('utf-8').replace(/^enc:/, '')
+    );
+    spyOn(argon2Module(), 'argon2id').andCallFake((secret: any, salt: any, opts: any) => {
+      const h = crypto
+        .createHash('sha256')
+        .update(Buffer.concat([Buffer.from(secret), Buffer.from(salt)]))
+        .digest();
+      return new Uint8Array(h.subarray(0, opts.dkLen));
+    });
+    spyOn(auditModule(), 'auditLog').andCallFake((event: string) => {
+      events.push(event);
+    });
+  });
+
+  afterEach(() => {
+    (KeyManager as any).wipeDBKey();
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+    } catch (err) {
+      /* best effort */
+    }
+  });
+
+  it('emits tier-b-enabled on enableTierB', () => {
+    KeyManager.getDBKey();
+    KeyManager.enableTierB('master-pw');
+    expect(events).toContain('tier-b-enabled');
+  });
+
+  it('emits tier-b-unlocked on a successful unlock', () => {
+    KeyManager.getDBKey();
+    KeyManager.enableTierB('master-pw');
+    KeyManager.lock();
+    KeyManager.unlockTierB('master-pw');
+    expect(events).toContain('tier-b-unlocked');
+  });
+
+  it('emits tier-b-unlock-failed on an incorrect password', () => {
+    KeyManager.getDBKey();
+    KeyManager.enableTierB('master-pw');
+    KeyManager.lock();
+    thrown(() => KeyManager.unlockTierB('wrong-pw'));
+    expect(events).toContain('tier-b-unlock-failed');
+  });
+
+  it('emits tier-b-unlocked-recovery on a recovery-code unlock', () => {
+    KeyManager.getDBKey();
+    const { recoveryCode } = KeyManager.enableTierB('master-pw');
+    KeyManager.lock();
+    KeyManager.unlockWithRecoveryCode(recoveryCode);
+    expect(events).toContain('tier-b-unlocked-recovery');
+  });
+
+  it('emits tier-b-password-changed on changeTierBPassword', () => {
+    KeyManager.getDBKey();
+    KeyManager.enableTierB('old-pw');
+    KeyManager.changeTierBPassword('old-pw', 'new-pw');
+    expect(events).toContain('tier-b-password-changed');
+  });
+
+  it('emits tier-b-disabled on disableTierB', () => {
+    KeyManager.getDBKey();
+    KeyManager.enableTierB('master-pw');
+    KeyManager.disableTierB('master-pw');
+    expect(events).toContain('tier-b-disabled');
+  });
+});

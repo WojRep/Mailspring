@@ -10,6 +10,7 @@ import {
   generateRecoveryCode,
   normalizeRecoveryCode,
 } from './key-manager-tier-b';
+import { auditLog } from './utils/audit-fanout';
 
 const log = createLogger('KeyManager');
 
@@ -148,12 +149,17 @@ class KeyManager {
       // with a cold cache — it never ran the Argon2id unwrap. Rather
       // than throw (which would surface as a "database is locked" error
       // when the renderer opens DatabaseStore), fetch the already-
-      // unwrapped key from the main process over a synchronous IPC.
-      // getDBKey() stays synchronous. Same DBKey-over-IPC trust model
-      // as Tier A's ACTUNA_DB_KEY env + database-agent dbKeyHex.
+      // unwrapped key the main process publishes on a global.
+      //
+      // `@electron/remote`.getGlobal is synchronous and — unlike
+      // `ipcRenderer.sendSync`, which BLOCKS the renderer forever when
+      // no ipcMain handler is registered — returns `undefined` cleanly
+      // when the global is unset. getDBKey() stays synchronous. Same
+      // DBKey trust model as Tier A's ACTUNA_DB_KEY env + the
+      // database-agent dbKeyHex envelope.
       if (process.type === 'renderer') {
         try {
-          const hex = require('electron').ipcRenderer.sendSync('tier-b-get-dbkey');
+          const hex = require('@electron/remote').getGlobal('actunaTierBKeyHex');
           if (hex && typeof hex === 'string') {
             const fromMain = Buffer.from(hex, 'hex');
             if (fromMain.length === DB_KEY_LENGTH_BYTES) {
@@ -234,6 +240,20 @@ class KeyManager {
   }
 
   /**
+   * Unwrap a Tier B blob, emitting a `tier-b-unlock-failed` audit event
+   * on an incorrect secret (ticket #62). The secret itself is never
+   * passed to `auditLog` — only the `method` discriminator.
+   */
+  private _unwrapWithAudit(blob: Buffer, secret: string, method: string): Buffer {
+    try {
+      return unwrapDBKey(blob, secret);
+    } catch (err) {
+      auditLog('tier-b-unlock-failed', { method });
+      throw err;
+    }
+  }
+
+  /**
    * Enable Tier B. Reads the current Tier A DBKey, wraps it under the
    * master password AND under a freshly generated recovery code, writes
    * both blobs, then removes `db-key.enc`. Returns the recovery code so
@@ -262,6 +282,7 @@ class KeyManager {
     }
     this._dbKeyCache = dbKey;
     log.info('Tier B enabled (master password + recovery code).');
+    auditLog('tier-b-enabled', {});
     return { recoveryCode };
   }
 
@@ -274,7 +295,12 @@ class KeyManager {
     if (!fs.existsSync(blobPath)) {
       throw new Error('Tier B is not enabled.');
     }
-    this._dbKeyCache = unwrapDBKey(fs.readFileSync(blobPath), password);
+    this._dbKeyCache = this._unwrapWithAudit(
+      fs.readFileSync(blobPath),
+      password,
+      'master-password'
+    );
+    auditLog('tier-b-unlocked', {});
   }
 
   /**
@@ -286,7 +312,12 @@ class KeyManager {
     if (!fs.existsSync(blobPath)) {
       throw new Error('Tier B recovery code is not configured.');
     }
-    this._dbKeyCache = unwrapDBKey(fs.readFileSync(blobPath), normalizeRecoveryCode(code));
+    this._dbKeyCache = this._unwrapWithAudit(
+      fs.readFileSync(blobPath),
+      normalizeRecoveryCode(code),
+      'recovery-code'
+    );
+    auditLog('tier-b-unlocked-recovery', {});
   }
 
   /**
@@ -302,10 +333,11 @@ class KeyManager {
     if (!fs.existsSync(blobPath)) {
       throw new Error('Tier B is not enabled.');
     }
-    const dbKey = unwrapDBKey(fs.readFileSync(blobPath), oldPassword); // verifies oldPassword
+    const dbKey = this._unwrapWithAudit(fs.readFileSync(blobPath), oldPassword, 'change-password'); // verifies oldPassword
     atomicWrite(blobPath, wrapDBKey(dbKey, newPassword));
     this._dbKeyCache = dbKey;
     log.info('Tier B master password changed.');
+    auditLog('tier-b-password-changed', {});
   }
 
   /**
@@ -321,7 +353,7 @@ class KeyManager {
     if (!fs.existsSync(blobPath)) {
       throw new Error('Tier B is not enabled.');
     }
-    const dbKey = unwrapDBKey(fs.readFileSync(blobPath), password); // verifies password
+    const dbKey = this._unwrapWithAudit(fs.readFileSync(blobPath), password, 'regenerate-recovery'); // verifies password
     const recoveryCode = generateRecoveryCode();
     atomicWrite(
       path.join(dir, DB_KEY_RECOVERY_FILENAME),
@@ -329,6 +361,7 @@ class KeyManager {
     );
     this._dbKeyCache = dbKey;
     log.info('Tier B recovery code regenerated.');
+    auditLog('tier-b-recovery-regenerated', {});
     return { recoveryCode };
   }
 
@@ -344,7 +377,7 @@ class KeyManager {
     if (!fs.existsSync(blobPath)) {
       throw new Error('Tier B is not enabled.');
     }
-    const dbKey = unwrapDBKey(fs.readFileSync(blobPath), password); // verifies password
+    const dbKey = this._unwrapWithAudit(fs.readFileSync(blobPath), password, 'disable'); // verifies password
     const ss = getSafeStorage();
     if (!ss || !ss.isEncryptionAvailable()) {
       throw new Error(
@@ -361,6 +394,7 @@ class KeyManager {
     }
     this._dbKeyCache = dbKey;
     log.info('Tier B disabled — reverted to Tier A safeStorage key.');
+    auditLog('tier-b-disabled', {});
   }
 
   /** Lock the database: zero the DBKey from RAM. Alias of wipeDBKey(). */

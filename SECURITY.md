@@ -47,6 +47,17 @@ Two consequences follow:
 
 `db-key.enc` is deliberately kept co-located with `edgehill.db` in the profile directory: relocating it outside typical backup scope would break atomic profile backup/restore and add no confidentiality benefit (the co-located blob is useless without the machine credential store). See backlog ticket #46 (Tier B) for the master-password path.
 
+## Logs and audit trail at rest
+
+Unlike the database and attachments, the diagnostic log (`<logs>/<date>.log`) and the opt-in audit trail (`<config>/audit/<date>.audit.log`) are written as **plaintext** files. After redaction they no longer carry credentials, but they still contain personal data in the GDPR sense — account identifiers, provider names, a hashed email, and free-text message strings. They are the only PII artefact at rest outside the SQLCipher / AES-GCM encryption.
+
+- **At-rest protection** — protect the logs by enabling full-volume encryption (FileVault on macOS, BitLocker on Windows, LUKS on Linux). ActunaMail does not separately encrypt the log files; volume encryption is the expected control. Regulated deployments should treat the log and audit directories as in-scope for their data-protection measures.
+- **Redaction bypass is dev-only** — the redaction layer can be disabled with `ACTUNA_LOG_LEVEL=debug` for debugging, but only in a non-packaged **dev build**. A packaged production build always redacts, even if that environment variable is set — the variable alone cannot expose credentials in a shipped build.
+- **Audit-trail retention** — audit files rotate per day; files older than 90 days are pruned automatically. This local default bounds disk use; a deploying organisation sets its own legal retention period and, where it needs longer retention or tamper-evidence, should forward the audit files to its SIEM / archival system. The local trail is append-only by convention but is **not** cryptographically tamper-evident.
+- **`actuna-log` IPC channel** — renderer log lines are forwarded to the main process over an `actuna-log` IPC channel, which appends them to the shared log file. A compromised renderer could write arbitrary strings into the log. This is a low-severity threat: a renderer already executes application code, and the log is local-only. It is recorded here for completeness of the threat model.
+
+> **Developer note** (non-compliance): the redaction layer's `BASE64_VALUE` rule masks any standalone string longer than 40 base64 characters. This can also mask long *legitimate* identifiers that are not secrets (e.g. part of a Message-ID or a MIME boundary). This is a deliberate fail-safe bias — over-redacting a non-secret is preferable to leaking one.
+
 ## What goes out over the network by default
 
 | Destination | Purpose | When |

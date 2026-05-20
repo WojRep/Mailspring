@@ -3,9 +3,14 @@
 // Strips secrets (passwords, OAuth tokens, DB keys, …) from objects before
 // they reach the pino log output, so production logs never carry credentials.
 //
-// Redaction is active in production only. When the app runs with debug-level
-// logging (`ACTUNA_LOG_LEVEL=debug`, set by --dev) the input is returned
+// Redaction is active in production only. When a DEV build runs with
+// debug-level logging (`ACTUNA_LOG_LEVEL=debug`) the input is returned
 // untouched, so developers can inspect full tokens while debugging.
+//
+// Ticket #60 — the bypass is gated on the build being a non-packaged DEV
+// build, NOT merely on the env var: a packaged production build started
+// with `ACTUNA_LOG_LEVEL=debug` in its environment must STILL redact, so
+// the env var alone can never expose credentials in a shipped build.
 //
 // A function rather than pino's native `redact` option: JWT / base64 value
 // redaction needs to inspect values, which pino's key-path redact cannot do.
@@ -46,9 +51,24 @@ const JWT_VALUE = /eyJ[A-Za-z0-9_-]{20,}/;
 // encoded secret (key material, encoded token) — redacted by value.
 const BASE64_VALUE = /^[A-Za-z0-9+/]{41,}={0,2}$/;
 
-// Redaction is disabled when the app runs with debug logging.
+// True only for a non-packaged DEV build. Electron sets `process.defaultApp`
+// when the app is started unpackaged (`electron .` / `npm start` / --dev);
+// a packaged production build never has it. The agent process (a plain
+// `child_process` fork) also lacks it — treated as non-dev, i.e. redaction
+// always on, which is the safe default.
+function isDevBuild(): boolean {
+  return (process as any).defaultApp === true;
+}
+
+// Redaction is disabled ONLY in a dev build running with debug logging.
+// A packaged production build always redacts, even if the environment
+// carries `ACTUNA_LOG_LEVEL=debug` — the env var alone cannot expose
+// credentials in a shipped build (#60).
 function isRedactionEnabled(): boolean {
-  return process.env.ACTUNA_LOG_LEVEL !== 'debug';
+  if (process.env.ACTUNA_LOG_LEVEL === 'debug' && isDevBuild()) {
+    return false;
+  }
+  return true;
 }
 
 // Email is identifying but useful for support — keep a stable 8-char hash

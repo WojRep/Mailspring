@@ -275,6 +275,7 @@ export default class Application extends EventEmitter {
       ipcMain.handle('tier-b-gate-unlock', (_e, password) => {
         try {
           KeyManager.unlockTierB(password);
+          this._publishTierBKey();
           cleanup(true);
           return { ok: true };
         } catch (err) {
@@ -284,6 +285,7 @@ export default class Application extends EventEmitter {
       ipcMain.handle('tier-b-gate-unlock-recovery', (_e, code) => {
         try {
           KeyManager.unlockWithRecoveryCode(code);
+          this._publishTierBKey();
           cleanup(true);
           return { ok: true };
         } catch (err) {
@@ -319,6 +321,26 @@ export default class Application extends EventEmitter {
   }
 
   /**
+   * Publish (or clear) the unwrapped Tier B DBKey on a main-process
+   * `global` so a renderer's `KeyManager.getDBKey()` can read it
+   * synchronously via `@electron/remote`.getGlobal — `getGlobal` returns
+   * `undefined` cleanly when unset, unlike `ipcRenderer.sendSync` which
+   * would block a renderer with no handler. Set only while Tier B is
+   * enabled AND unlocked; cleared otherwise.
+   */
+  _publishTierBKey(): void {
+    const KeyManager = require('../key-manager').default;
+    try {
+      (global as any).actunaTierBKeyHex =
+        KeyManager.isTierBEnabled() && !KeyManager.isLocked()
+          ? KeyManager.getDBKey().toString('hex')
+          : undefined;
+    } catch (err) {
+      (global as any).actunaTierBKeyHex = undefined;
+    }
+  }
+
+  /**
    * Instantiate the lock-state machine, subscribe OS triggers
    * (powerMonitor suspend / screen-lock, window focus → activity), and
    * register the Tier B IPC surface used by Preferences > Security and
@@ -346,6 +368,7 @@ export default class Application extends EventEmitter {
       } catch (err) {
         log.error({ err }, 'KeyManager.lock() failed');
       }
+      this._publishTierBKey();
       this.windowManager.sendToAllWindows('db-lock-state-changed', {}, { state: 'LOCKED', reason });
     });
     mgr.on('unlocked', () => {
@@ -381,19 +404,10 @@ export default class Application extends EventEmitter {
       locked: mgr.isLocked(),
       config: mgr.config,
     }));
-    // Synchronous channel: a renderer's KeyManager.getDBKey() fetches the
-    // main-process-unwrapped DBKey here (Tier B). Returns null while
-    // locked so the renderer surfaces a proper locked state.
-    ipcMain.on('tier-b-get-dbkey', (evt) => {
-      try {
-        evt.returnValue = KeyManager.isLocked() ? null : KeyManager.getDBKey().toString('hex');
-      } catch (err) {
-        evt.returnValue = null;
-      }
-    });
     ipcMain.handle('tier-b-enable', (_e, password) => {
       try {
         const { recoveryCode } = KeyManager.enableTierB(password);
+        this._publishTierBKey();
         return { ok: true, recoveryCode };
       } catch (err) {
         return { ok: false, error: (err && err.message) || 'Failed to enable Tier B.' };
@@ -402,6 +416,7 @@ export default class Application extends EventEmitter {
     ipcMain.handle('tier-b-disable', (_e, password) => {
       try {
         KeyManager.disableTierB(password);
+        this._publishTierBKey();
         return { ok: true };
       } catch (err) {
         return { ok: false, error: this._tierBUnlockError(err) };
@@ -410,6 +425,7 @@ export default class Application extends EventEmitter {
     ipcMain.handle('tier-b-change-password', (_e, oldPw, newPw) => {
       try {
         KeyManager.changeTierBPassword(oldPw, newPw);
+        this._publishTierBKey();
         return { ok: true };
       } catch (err) {
         return { ok: false, error: this._tierBUnlockError(err) };
@@ -418,6 +434,7 @@ export default class Application extends EventEmitter {
     ipcMain.handle('tier-b-regenerate-recovery', (_e, password) => {
       try {
         const { recoveryCode } = KeyManager.regenerateRecoveryCode(password);
+        this._publishTierBKey();
         return { ok: true, recoveryCode };
       } catch (err) {
         return { ok: false, error: this._tierBUnlockError(err) };
@@ -427,6 +444,7 @@ export default class Application extends EventEmitter {
       try {
         KeyManager.unlockTierB(password);
         mgr.unlock();
+        this._publishTierBKey();
         return { ok: true };
       } catch (err) {
         return { ok: false, error: this._tierBUnlockError(err) };
@@ -436,6 +454,7 @@ export default class Application extends EventEmitter {
       try {
         KeyManager.unlockWithRecoveryCode(code);
         mgr.unlock();
+        this._publishTierBKey();
         return { ok: true };
       } catch (err) {
         return { ok: false, error: this._tierBUnlockError(err) };
