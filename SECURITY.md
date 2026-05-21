@@ -72,6 +72,35 @@ That is the full list. There are no other defaults. If your network monitor sees
 
 **Empirical baseline:** the runtime egress regression reports under [`verification/`](verification/) (KROK 5 procedure — a tcpdump capture during a fresh launch, and longer with an active IMAP/SMTP/CardDAV account) confirm **zero hits** to forbidden hosts: `*.getmailspring.com`, `*.sentry.io`, `*.gravatar.com`, `*.wp.com`. The egress posture is re-verified after every release.
 
+## Optional egress — AI Assistant (opt-in, off by default)
+
+The optional **AI Assistant** (the `actuna-ai` plugin) can send the
+content of a conversation you select to an external AI model. This is
+**not a default**: the feature is off on a fresh install and must be
+turned on per account in Preferences → AI Assistant.
+
+| Destination | Purpose | When |
+|---|---|---|
+| `api.anthropic.com` | AI processing of a conversation you explicitly act on | Only when the AI Assistant is enabled, the account is opted in, and you run an AI action |
+
+Properties of this path:
+
+- **Bring-Your-Own.** The request goes through *your own* `claude` CLI,
+  authenticated to *your own* Anthropic account. Actuna Mail does not
+  mediate, store or relay AI credentials and does not resell inference.
+- **Separate process.** The AI logic runs in a separate `actuna-engine`
+  process, not inside Actuna Mail. The mail client never embeds it.
+- **Consent-gated twice.** The plugin will not send a request without
+  per-account consent; the engine independently refuses any request that
+  does not carry consent.
+- **Verifiable.** The KROK 5 egress regression confirms **zero hits** to
+  `api.anthropic.com` when the AI Assistant is off or idle; hits appear
+  only while an AI action you started is running.
+- **Transfer outside the EEA.** `api.anthropic.com` is operated in the
+  USA. Before enabling this for regulated or sensitive correspondence,
+  read the Data Protection Impact Assessment
+  (`../docs/legal/dpia-ai-sidebar.md`).
+
 ## How to verify
 
 Independent verification is the point of this project. We provide:

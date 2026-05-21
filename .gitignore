@@ -83,3 +83,8 @@ client_secret.json
 ##### Local backup files
 **/*.bak
 **/*.bak.*
+
+##### Vendored build artifact — actuna-ai GPL plugin.
+##### Source of truth: the actunamail-ai monorepo (plugin-gpl/).
+##### Re-created by actunamail-ai/scripts/vendor-plugin.mjs at build time.
+/app/internal_packages/actuna-ai/
