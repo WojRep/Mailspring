@@ -100,6 +100,14 @@ Properties of this path:
   USA. Before enabling this for regulated or sensitive correspondence,
   read the Data Protection Impact Assessment
   (`../docs/legal/dpia-ai-sidebar.md`).
+- **Agentic chat — actions are local.** The AI Assistant includes a chat
+  that can also *perform* mailbox actions (move, label, send, etc.). Those
+  actions run locally through Actuna Mail's own task system — they add **no**
+  new network egress. Every mailbox-changing action requires an explicit
+  per-action confirmation click. The egress host above is unchanged: the
+  only thing that leaves the device is the AI request, to `api.anthropic.com`,
+  via your own `claude` CLI. See the DPIA Addendum A for the agentic-chat
+  risk assessment.
 
 ## How to verify
 
