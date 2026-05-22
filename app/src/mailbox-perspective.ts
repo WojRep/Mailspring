@@ -59,6 +59,13 @@ export class MailboxPerspective {
     return new StarredMailboxPerspective(accountsOrIds);
   }
 
+  // Virtual folder of an explicit, caller-supplied set of threads — used
+  // by the Actuna AI assistant to surface AI-selected results in the main
+  // thread list. Non-mutating: a pure view.
+  static forThreadIds(threadIds: string[], accountIds: string[], name?: string) {
+    return new ThreadIdListPerspective(threadIds, accountIds, name);
+  }
+
   static forUnread(categories: Category[]) {
     return categories.length > 0 ? new UnreadMailboxPerspective(categories) : this.forNothing();
   }
@@ -82,6 +89,10 @@ export class MailboxPerspective {
       }
       if (json.type === DraftsMailboxPerspective.name) {
         return this.forDrafts(json.accountIds);
+      }
+      if (json.type === ThreadIdListPerspective.name) {
+        const j = json as typeof json & { threadIds?: string[]; name?: string };
+        return this.forThreadIds(j.threadIds || [], j.accountIds, j.name);
       }
       return this.forInbox(json.accountIds);
     } catch (error) {
@@ -318,6 +329,68 @@ class StarredMailboxPerspective extends MailboxPerspective {
       source: 'Removed From List',
     });
     return [task];
+  }
+}
+
+/*
+ * A perspective that shows an explicit, caller-supplied list of threads —
+ * a "virtual folder" of threads selected by a feature (e.g. the Actuna AI
+ * assistant). Non-mutating: it applies no labels, folders or flags; it is
+ * purely a view. Threads are ordered by date (most recent first).
+ */
+class ThreadIdListPerspective extends MailboxPerspective {
+  _threadIds: string[];
+  name: string;
+  iconName = 'search.png';
+
+  constructor(threadIds: string[], accountIds: string[], name?: string) {
+    super(accountIds);
+    if (!Array.isArray(threadIds)) {
+      throw new Error('ThreadIdListPerspective: threadIds must be an array');
+    }
+    this._threadIds = threadIds;
+    this.name = name || localized('AI Assistant');
+  }
+
+  toJSON() {
+    const json = super.toJSON() as ReturnType<MailboxPerspective['toJSON']> & {
+      threadIds: string[];
+      name: string;
+    };
+    json.threadIds = this._threadIds;
+    json.name = this.name;
+    return json;
+  }
+
+  isEqual(other: MailboxPerspective) {
+    return (
+      super.isEqual(other) &&
+      other instanceof ThreadIdListPerspective &&
+      _.isEqual(this._threadIds, other._threadIds)
+    );
+  }
+
+  threads() {
+    const query = DatabaseStore.findAll<Thread>(Thread).limit(0);
+    if (this._threadIds.length > 0) {
+      query.where(Thread.attributes.id.in(this._threadIds));
+    } else {
+      // Never-matching condition — an empty virtual folder, no crash.
+      query.where(Thread.attributes.id.equal('__actuna_none__'));
+    }
+    return new MutableQuerySubscription<Thread>(query, {
+      emitResultSet: true,
+      updateOnSeparateThread: true,
+    });
+  }
+
+  // A view only — no drag-drop in, no special removal behaviour.
+  canReceiveThreadsFromAccountIds() {
+    return false;
+  }
+
+  tasksForRemovingItems() {
+    return [];
   }
 }
 
