@@ -359,6 +359,7 @@
   "Could not extract plugin: %@": "Plugin konnte nicht entpackt werden: %@",
   "Reload now": "Jetzt neu laden",
   "Reload Window": "Fenster neu laden",
+  "Could not create draft": "Entwurf konnte nicht erstellt werden",
   "Later": "Später",
   "%@ has been installed. Reload the window to activate it fully.": "%@ wurde installiert. Laden Sie das Fenster neu, um es vollständig zu aktivieren.",
   "Install Theme": "Theme installieren",
