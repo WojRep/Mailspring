@@ -51,20 +51,31 @@ function setupWindow(loadSettings) {
 
   // Make host modules findable by user-installed plugins outside
   // app.asar (~/Library/Application Support/ActunaMail/packages/...).
-  // Node falls back to Module.globalPaths after the caller's own
-  // module.paths walk fails — so adding the app's node_modules and
-  // src/global here makes `require('react')`, `require('actunamail-
-  // exports')` etc. resolvable from a user package's compiled JS.
+  // Module.globalPaths is no longer consulted by the resolver in current
+  // Electron/Node, so we monkey-patch Module._resolveFilename to retry
+  // against the host's node_modules and src/global if normal resolution
+  // fails. Internal packages keep working — the patch only kicks in on
+  // a primary-resolve failure, so it never overrides existing behavior.
   try {
     var hostModule = require('module');
     var hostPath = require('path');
     var hostNodeModules = hostPath.join(__dirname, '..', 'node_modules');
     var hostSrcGlobal = hostPath.join(__dirname, '..', 'src', 'global');
-    if (hostModule.globalPaths.indexOf(hostNodeModules) === -1) {
-      hostModule.globalPaths.push(hostNodeModules);
-    }
-    if (hostModule.globalPaths.indexOf(hostSrcGlobal) === -1) {
-      hostModule.globalPaths.push(hostSrcGlobal);
+    if (!hostModule.__actunaResolvePatched) {
+      var origResolve = hostModule._resolveFilename;
+      hostModule._resolveFilename = function (request, parent, isMain, options) {
+        try {
+          return origResolve.call(this, request, parent, isMain, options);
+        } catch (err) {
+          var fallback = { paths: [hostNodeModules, hostSrcGlobal] };
+          try {
+            return origResolve.call(this, request, parent, isMain, fallback);
+          } catch (err2) {
+            throw err;
+          }
+        }
+      };
+      hostModule.__actunaResolvePatched = true;
     }
   } catch (e) {
     /* fall through — internal packages still work */
