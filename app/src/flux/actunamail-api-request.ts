@@ -42,8 +42,8 @@ export function rootURLForServer(server: 'identity') {
   if (server === 'identity') {
     return {
       development: 'http://localhost:5101',
-      staging: 'https://id-staging.getmailspring.com',
-      production: 'https://id.getmailspring.com',
+      staging: 'https://id-staging.actuna.email',
+      production: 'https://id.actuna.email',
     }[env];
   }
   throw new Error('rootURLForServer: You must provide a valid `server` value');

@@ -367,7 +367,7 @@ export default class MailspringWindow extends EventEmitter {
           type: 'warning',
           buttons: ['Close Window', 'Reload', 'Keep It Open'],
           message: 'Mailspring has crashed',
-          detail: 'Please report this issue to us at support@getmailspring.com.',
+          detail: 'Please report this issue to us at tech@actuna.pl.',
         });
         if (chosen === 0) {
           this.browserWindow.destroy();

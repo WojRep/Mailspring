@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import classnames from 'classnames';
 
-require('moment-round'); // overrides moment
+import '../utils/moment-round'; // overrides moment (local replacement for CC-BY-SA-3.0 upstream)
 
 const INTERVAL: [any, string] = [30, 'minutes'];
 

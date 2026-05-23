@@ -34,7 +34,7 @@ export class DefaultClientHelperWindows implements DCH {
               callback(err1 || err2);
               return;
             }
-            callback(output.includes('Mailspring'));
+            callback(output.includes('ActunaMail'));
           }
         );
       }
@@ -42,13 +42,13 @@ export class DefaultClientHelperWindows implements DCH {
   }
 
   async resetURLScheme() {
-    // On Windows 11 21H2+ (with April 2023 update), we can deep link directly to Mailspring's
+    // On Windows 11 21H2+ (with April 2023 update), we can deep link directly to ActunaMail's
     // default app settings page. On older Windows versions, this falls back to the main
     // Default Apps page, which is still better than opening a web browser.
-    shell.openExternal('ms-settings:defaultapps?registeredAppUser=Mailspring').catch((err) => {
+    shell.openExternal('ms-settings:defaultapps?registeredAppUser=ActunaMail').catch((err) => {
       AppEnv.showErrorDialog({
         title: localized('Failed to Open Settings'),
-        message: localized('Mailspring was unable to open Windows Settings.\n\n%@', err.message),
+        message: localized('ActunaMail was unable to open Windows Settings.\n\n%@', err.message),
       });
     });
   }
@@ -78,22 +78,22 @@ export class DefaultClientHelperWindows implements DCH {
             buttons: [localized('Open Settings'), localized('Cancel')],
             defaultId: 0,
             message: localized(
-              'Visit Windows Settings to finish making Mailspring your mail client'
+              'Visit Windows Settings to finish making ActunaMail your mail client'
             ),
             detail: localized(
-              "Click 'Open Settings' to open Windows Settings where you can set Mailspring as your default email app."
+              "Click 'Open Settings' to open Windows Settings where you can set ActunaMail as your default email app."
             ),
           });
           if (response === 0) {
             // On Windows 11 21H2+ (with April 2023 update), this deep links directly to
-            // Mailspring's default app settings. On older versions, falls back to Default Apps.
+            // ActunaMail's default app settings. On older versions, falls back to Default Apps.
             shell
-              .openExternal('ms-settings:defaultapps?registeredAppUser=Mailspring')
+              .openExternal('ms-settings:defaultapps?registeredAppUser=ActunaMail')
               .catch((err) => {
                 AppEnv.showErrorDialog({
                   title: localized('Failed to Open Settings'),
                   message: localized(
-                    'Mailspring was unable to open Windows Settings.\n\n%@',
+                    'ActunaMail was unable to open Windows Settings.\n\n%@',
                     err.message
                   ),
                 });

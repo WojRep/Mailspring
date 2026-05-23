@@ -17,7 +17,7 @@
   },
   "isOptional": true,
   "engines": {
-    "mailspring": "*"
+    "actunamail": "*"
   },
   "license": "GPL-3.0"
 }

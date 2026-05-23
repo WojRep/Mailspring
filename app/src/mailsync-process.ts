@@ -34,7 +34,7 @@ export const LocalizedErrorStrings = {
   ),
   ErrorInvalidAccount: localized(
     'This account is invalid or Mailspring could not find the Inbox or All Mail folder. %@',
-    'http://support.getmailspring.com/hc/en-us/articles/115001881912'
+    'https://github.com/WojRep/ActunaMail/discussions'
   ),
   ErrorTLSNotAvailable: localized('TLS Not Available'),
   ErrorParse: localized('Parsing Error'),
@@ -81,7 +81,7 @@ export const LocalizedErrorStrings = {
   ),
   ErrorIdentityMissingFields: localized(
     'Your Mailspring ID is missing required fields - you may need to reset Mailspring. %@',
-    'http://support.getmailspring.com/hc/en-us/articles/115002012491'
+    'https://github.com/WojRep/ActunaMail/discussions'
   ),
 };
 
@@ -244,7 +244,7 @@ export class MailsyncProcess extends EventEmitter {
     };
     // WS2-D: removed the renderer-side override that previously set
     // IDENTITY_SERVER from rootURLForServer('identity'), which resolved
-    // to https://id.getmailspring.com.
+    // to https://id.actuna.email.
 
     const args = [`--mode`, mode];
     if (this.verbose) {

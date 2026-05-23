@@ -25,7 +25,7 @@ class WindowsTaskbarManager {
    * Set up the Windows Jump List with quick actions.
    * Jump Lists appear when users right-click the app's taskbar icon.
    *
-   * Uses mailto: and mailspring: protocol URLs so that clicks are routed
+   * Uses mailto: and actunamail: protocol URLs so that clicks are routed
    * through the existing protocol handler in application.ts, which works
    * for both first launch and second-instance scenarios.
    */
@@ -59,7 +59,7 @@ class WindowsTaskbarManager {
             {
               type: 'task',
               title: localized('Preferences'),
-              description: localized('Open Mailspring preferences'),
+              description: localized('Open ActunaMail preferences'),
               program: process.execPath,
               args: 'actunamail://open-preferences',
               iconPath: process.execPath,

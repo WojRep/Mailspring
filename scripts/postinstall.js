@@ -2,12 +2,9 @@
 /* eslint global-require: 0 */
 /* eslint quote-props: 0 */
 const path = require('path');
-const https = require('https');
 const fs = require('fs');
 const rimraf = require('rimraf');
-const targz = require('targz');
 const { safeExec } = require('./utils/child-process-wrapper.js');
-const { execSync } = require('child_process');
 
 const appDependencies = require('../app/package.json').dependencies;
 const rootDependencies = require('../package.json').dependencies;
@@ -44,68 +41,13 @@ function npm(cmd, options) {
   });
 }
 
-function getMailsyncURL(callback) {
-  const distKey = `${process.platform}-${process.arch}`;
-  const distDir = {
-    'darwin-x64': 'osx',
-    'darwin-arm64': 'osx',
-    'win32-x64': 'win-ia32', // At this time, Mailsync is still 32-bit
-    'win32-ia32': 'win-ia32',
-    'linux-x64': 'linux',
-    'linux-arm64': 'linux-arm64',
-    'linux-ia32': null,
-  }[distKey];
-
-  if (!distDir) {
-    console.error(
-      `\nSorry, a Mailspring Mailsync build for your machine (${distKey}) is not yet available.`
-    );
-    return;
-  }
-
-  const out = execSync('git submodule status ./mailsync');
-  const [_, hash] = /[\+-]([A-Za-z0-9]{8})/.exec(out.toString());
-  callback(
-    `https://mailspring-builds.s3.amazonaws.com/mailsync/${hash}/${distDir}/mailsync.tar.gz`
-  );
-}
-
-function downloadMailsync() {
-  getMailsyncURL(distS3URL => {
-    https.get(distS3URL, response => {
-      if (response.statusCode === 200) {
-        response.pipe(fs.createWriteStream(`app/mailsync.tar.gz`));
-        response.on('end', () => {
-          console.log(
-            `\nDownloaded Mailsync prebuilt binary from ${distS3URL} to ./app/mailsync.tar.gz.`
-          );
-          targz.decompress(
-            {
-              src: `app/mailsync.tar.gz`,
-              dest: 'app/',
-            },
-            err => {
-              if (!err) {
-                console.log(`\nUnpackaged Mailsync into ./app.`);
-              } else {
-                console.error(`\nEncountered an error unpacking: ${err}`);
-              }
-            }
-          );
-        });
-      } else {
-        console.error(
-          `Sorry, an error occurred while fetching the Mailspring Mailsync build for your machine\n(${distS3URL})\n`
-        );
-        if (process.env.CI) {
-          throw new Error('Mailsync build not available.');
-        }
-        response.pipe(process.stderr);
-        response.on('end', () => console.error('\n'));
-      }
-    });
-  });
-}
+// NOTE: Upstream Mailspring downloaded a prebuilt `mailsync` binary from an
+// S3 bucket under Foundry376 control when the submodule was absent. ActunaMail
+// always builds `mailsync` from our own fork submodule
+// (https://github.com/WojRep/Mailspring-Sync, branch DEV.compliance), so this
+// S3 fallback is removed — both as dead code and to shrink the supply-chain
+// attack surface. See `analysis/24-license-compliance-audit.md` §9 Strefa G.1
+// and `backlog/74-license-mailsync-binary-checksum.md`.
 
 // For speed, we cache app/node_modules. However, we need to
 // be sure to do a full rebuild of native node modules when the
@@ -170,16 +112,23 @@ async function run() {
   // write the marker with the electron version
   fs.writeFileSync(cacheVersionPath, npmElectronTarget);
 
-  // if the user hasn't cloned the mailsync module, download
-  // the binary for their operating system that was shipped to S3.
+  // ActunaMail requires the `mailsync` submodule to be present and built
+  // locally. The upstream S3 prebuilt-binary fallback has been removed (see
+  // note at top of file). If the submodule is missing the contributor must
+  // run `git submodule update --init --recursive` and build mailsync from
+  // source per `mailsync/BUILDING.md`.
   if (!fs.existsSync('./mailsync/build.sh')) {
-    console.log(`\n-- Downloading the last released version of Mailspring mailsync --`);
-    downloadMailsync();
+    console.error(
+      `\n-- ERROR: mailsync submodule not initialised. Run:\n` +
+        `   git submodule update --init --recursive\n` +
+        `   cd mailsync && ./build.sh\n` +
+        `   See mailsync/BUILDING.md for full build instructions. --\n`
+    );
+    process.exit(1);
   } else {
     console.log(
-      `\n-- You have the Mailspring mailsync submodule. If you'd prefer ` +
-        `to develop with a pre-built binary, remove the submodule and re-run ` +
-        `'npm run postinstall' to download the latest binary for your machine. --`
+      `\n-- mailsync submodule detected (` +
+        `${process.platform}-${process.arch}). Build it locally with mailsync/build.sh. --`
     );
   }
 }

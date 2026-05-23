@@ -62,12 +62,12 @@ class DefaultMailClientItem extends React.Component<
                 helper.registerForURLScheme('mailto');
               } else {
                 shell.openExternal(
-                  'https://community.getmailspring.com/t/choose-mailspring-as-the-default-mail-client-on-linux/191'
+                  'https://github.com/WojRep/ActunaMail/discussions'
                 );
               }
             }}
           >
-            {localized('Use Mailspring as default mail client')}
+            {localized('Use ActunaMail as default mail client')}
           </div>
         </div>
       );
@@ -81,7 +81,7 @@ class DefaultMailClientItem extends React.Component<
           checked={this.state.defaultClient}
           onChange={this.toggleDefaultMailClient}
         />
-        <label htmlFor="default-client">{localized('Use Mailspring as default mail client')}</label>
+        <label htmlFor="default-client">{localized('Use ActunaMail as default mail client')}</label>
       </div>
     );
   }
@@ -185,7 +185,7 @@ const WorkspaceSection = (props) => {
       {process.platform === 'linux' && (
         <div className="platform-note">
           {localized(
-            `"Launch on system start" only works in XDG-compliant desktop environments. To enable the Mailspring icon in the system tray, you may need to install libappindicator or libayatana-appindicator.`
+            `"Launch on system start" only works in XDG-compliant desktop environments. To enable the ActunaMail icon in the system tray, you may need to install libappindicator or libayatana-appindicator.`
           )}
         </div>
       )}

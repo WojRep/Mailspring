@@ -72,6 +72,142 @@ GNU General Public License for more details.</p>
 <a href="https://github.com/Foundry376/Mailspring-Sync/blob/master/LICENSE.md">https://github.com/Foundry376/Mailspring-Sync/blob/master/LICENSE.md</a></p>
 <div style="height: 40px;"></div>
 
+<h2 id="mailsync-system-libs">System libraries linked by mailsync / Biblioteki systemowe linkowane przez mailsync</h2>
+
+<h3>Polski</h3>
+<p>Silnik synchronizacji poczty <code>mailsync</code> (C++, GPL-3.0) jest budowany lokalnie z naszego forka
+(<a href="https://github.com/WojRep/Mailspring-Sync">github.com/WojRep/Mailspring-Sync</a>, branch
+<code>DEV.compliance</code>) i linkowany do następujących bibliotek systemowych
+(zależnie od systemu operacyjnego):</p>
+<ul>
+  <li><strong>glib-2.0</strong> — GNU LGPL v2.1 lub późniejsza
+      (<a href="https://gitlab.gnome.org/GNOME/glib/-/blob/main/COPYING">link</a>).
+      Statycznie linkowane w aplikacji GPL-3.0; kompatybilne per LGPL §6 (upgrade
+      do warunków GPL-3.0).</li>
+  <li><strong>lzma (xz-utils)</strong> — GNU LGPL v2.1 lub późniejsza
+      (<a href="https://github.com/tukaani-project/xz/blob/master/COPYING">link</a>).
+      Status jak glib.</li>
+  <li><strong>OpenSSL 3.x</strong> — Apache License 2.0
+      (<a href="https://www.openssl.org/source/license.html">link</a>).
+      Kompatybilne z GPL-3.0 (FSF list).</li>
+  <li><strong>curl</strong> — licencja podobna do MIT (curl license)
+      (<a href="https://curl.se/docs/copyright.html">link</a>).</li>
+  <li><strong>libxml2</strong> — MIT.</li>
+  <li><strong>libcares (c-ares)</strong> — MIT.</li>
+  <li><strong>libuuid (util-linux)</strong> — BSD-3-Clause.</li>
+  <li><strong>libtidy</strong> — MIT (HTACG Tidy).</li>
+  <li><strong>ICU (International Components for Unicode)</strong> — Unicode License
+      (permissive; FSF-listed jako wolnościowa).</li>
+  <li><strong>zlib</strong> — zlib License.</li>
+  <li><strong>cyrus-sasl</strong> — custom BSD-like (CMU SASL License).</li>
+</ul>
+
+<h3>English</h3>
+<p>The mail-sync engine <code>mailsync</code> (C++, GPL-3.0) is built locally from our fork
+(<a href="https://github.com/WojRep/Mailspring-Sync">github.com/WojRep/Mailspring-Sync</a>, branch
+<code>DEV.compliance</code>) and links against the following system libraries
+(depending on the operating system):</p>
+<ul>
+  <li><strong>glib-2.0</strong> — GNU LGPL v2.1 or later
+      (<a href="https://gitlab.gnome.org/GNOME/glib/-/blob/main/COPYING">link</a>).
+      Statically linked in the GPL-3.0 application; compatible per LGPL §6
+      (upgrade to GPL-3.0 terms).</li>
+  <li><strong>lzma (xz-utils)</strong> — GNU LGPL v2.1 or later
+      (<a href="https://github.com/tukaani-project/xz/blob/master/COPYING">link</a>).
+      Same status as glib.</li>
+  <li><strong>OpenSSL 3.x</strong> — Apache License 2.0
+      (<a href="https://www.openssl.org/source/license.html">link</a>).
+      Compatible with GPL-3.0 (FSF list).</li>
+  <li><strong>curl</strong> — MIT-like (curl license)
+      (<a href="https://curl.se/docs/copyright.html">link</a>).</li>
+  <li><strong>libxml2</strong> — MIT.</li>
+  <li><strong>libcares (c-ares)</strong> — MIT.</li>
+  <li><strong>libuuid (util-linux)</strong> — BSD-3-Clause.</li>
+  <li><strong>libtidy</strong> — MIT (HTACG Tidy).</li>
+  <li><strong>ICU (International Components for Unicode)</strong> — Unicode License
+      (permissive; FSF-listed as free).</li>
+  <li><strong>zlib</strong> — zlib License.</li>
+  <li><strong>cyrus-sasl</strong> — custom BSD-like (CMU SASL License).</li>
+</ul>
+
+<div style="height: 40px;"></div>
+
+<h2 id="bundled-assets-attribution">Bundled assets — attribution / Zasoby dołączone — atrybucja</h2>
+
+<h3>Polski</h3>
+<p>Aplikacja dystrybuuje również nie-npm zasoby; ich atrybucja jest poniżej.</p>
+<ul>
+  <li><strong>Tumult Hype runtime (HYPE-526)</strong> — animacje w
+      <code>app/static/animations/inbox-zero/</code> zostały wyeksportowane
+      z narzędzia Tumult Hype (<a href="https://tumult.com/hype/">tumult.com/hype</a>).
+      Plik <code>HYPE-526.thin.min.js</code> i <code>HYPE-526.full.min.js</code>
+      to runtime Tumult Hype dystrybuowany na warunkach Tumult Hype Runtime License
+      (część End User License Agreement Tumult Hype), zezwalającej na osadzanie
+      w produktach komercyjnych i nie-komercyjnych pod warunkiem zachowania
+      atrybucji do twórcy. Zasoby SVG/PNG/PLIST w katalogu
+      <code>*.hyperesources/</code> są oryginalnymi assetami stworzonymi przez
+      autorów ActunaMail/Mailspring.</li>
+  <li><strong>chrome-i18n polyfill</strong> (<code>app/static/extensions/chrome-i18n/main.js</code>)
+      — prosty wrapper (kilka linii) udostępniający <code>chrome.i18n.detectLanguage</code>
+      przez postMessage. Kod własny ActunaMail/Mailspring, dystrybuowany pod
+      tą samą licencją GPL-3.0 co host.</li>
+</ul>
+
+<h3>English</h3>
+<p>The application also bundles non-npm assets; their attribution is below.</p>
+<ul>
+  <li><strong>Tumult Hype runtime (HYPE-526)</strong> — the animations under
+      <code>app/static/animations/inbox-zero/</code> were exported from the
+      Tumult Hype tool (<a href="https://tumult.com/hype/">tumult.com/hype</a>).
+      The files <code>HYPE-526.thin.min.js</code> and <code>HYPE-526.full.min.js</code>
+      are the Tumult Hype runtime distributed under the Tumult Hype Runtime
+      License (part of the Tumult Hype End User License Agreement), which
+      permits embedding in commercial and non-commercial products subject to
+      preservation of creator attribution. The SVG/PNG/PLIST assets in
+      <code>*.hyperesources/</code> directories are original assets created
+      by the ActunaMail/Mailspring authors.</li>
+  <li><strong>chrome-i18n polyfill</strong> (<code>app/static/extensions/chrome-i18n/main.js</code>)
+      — a small wrapper (a few lines) exposing <code>chrome.i18n.detectLanguage</code>
+      via postMessage. Original ActunaMail/Mailspring code, distributed under
+      the same GPL-3.0 licence as the host.</li>
+</ul>
+
+<div style="height: 40px;"></div>
+
+<h2 id="dual-licensed-branch-choices">Dual-licensed dependencies — selected branches / Pakiety z licencją podwójną — wybrane gałęzie</h2>
+
+<h3>Polski</h3>
+<p>Następujące zależności są oferowane przez ich autorów na warunkach więcej niż jednej licencji
+do wyboru (licencje podwójne). Niniejszym dystrybutor ActunaMail (Actuna) jednoznacznie wybiera
+poniższe gałęzie:</p>
+<ul>
+  <li><strong>jszip</strong> (autor: Stuart Knightley; oryginalny SPDX: <code>(MIT OR GPL-3.0-or-later)</code>)
+      — wybrana gałąź: <strong>MIT</strong>. Prostsza, bardziej permisywna, nie wprowadza dodatkowych
+      zobowiązań copyleftu dla użytkowników jszip.</li>
+  <li><strong>dompurify</strong> (oryginalny SPDX: <code>(MPL-2.0 OR Apache-2.0)</code>)
+      — obie gałęzie kompatybilne z GPL-3.0 hostingu; ActunaMail dystrybuuje pod
+      <strong>Apache-2.0</strong>.</li>
+  <li><strong>pako</strong> (oryginalny SPDX: <code>(MIT AND Zlib)</code>) — to koniunkcja, nie alternatywa;
+      obie licencje obowiązują jednocześnie. Tutaj nie ma wyboru.</li>
+</ul>
+
+<h3>English</h3>
+<p>The following dependencies are offered by their authors under more than one licence to choose from
+(dual licences). The ActunaMail distributor (Actuna) hereby explicitly selects the branches below:</p>
+<ul>
+  <li><strong>jszip</strong> (author: Stuart Knightley; original SPDX:
+      <code>(MIT OR GPL-3.0-or-later)</code>) — selected branch: <strong>MIT</strong>.
+      Simpler, more permissive, introduces no additional copyleft obligations for downstream
+      jszip consumers.</li>
+  <li><strong>dompurify</strong> (original SPDX: <code>(MPL-2.0 OR Apache-2.0)</code>) —
+      both branches compatible with the GPL-3.0 host; ActunaMail distributes under
+      <strong>Apache-2.0</strong>.</li>
+  <li><strong>pako</strong> (original SPDX: <code>(MIT AND Zlib)</code>) — this is a conjunction,
+      not a choice; both licences apply simultaneously. No selection needed.</li>
+</ul>
+
+<div style="height: 40px;"></div>
+
 <h2 id="third-party-packages">Third-party Packages</h2>
 <p>This application bundles the following third-party packages in accordance
 with the following licenses:</p>

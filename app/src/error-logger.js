@@ -111,7 +111,7 @@ module.exports = ErrorLogger = (function () {
 
   // _startCrashReporter intentionally removed in WS2-A.
   // The previous implementation called electron.crashReporter.start with
-  // submitURL: 'https://id.getmailspring.com/report-crash' and
+  // submitURL: 'https://id.actuna.email/report-crash' and
   // uploadToServer: true, which made the operating system's native crash
   // handler post minidumps of process memory to Foundry servers in the
   // United States on every crash. See README.md and SECURITY.md.

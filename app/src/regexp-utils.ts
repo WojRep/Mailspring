@@ -74,7 +74,7 @@ const RegExpUtils = {
   },
 
   mailspringCommandRegex() {
-    return new RegExp(/mailspring:\S+/i);
+    return new RegExp(/actunamail:\S+/i);
   },
 
   // Test cases: https://regex101.com/r/pD7iS5/4

@@ -529,7 +529,7 @@ async function createDebInstaller() {
     linuxShareDir: '/usr/share/mailspring',
     arch: linuxArch,
     section: 'mail',
-    maintainer: 'Mailspring Team <support@getmailspring.com>',
+    maintainer: 'Actuna <tech@actuna.pl>',
     installedSize,
   };
   writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data);

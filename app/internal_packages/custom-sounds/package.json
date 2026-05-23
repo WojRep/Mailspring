@@ -6,7 +6,7 @@
   "license": "Proprietary",
   "private": true,
   "engines": {
-    "mailspring": "*"
+    "actunamail": "*"
   },
   "windowTypes": {
     "all": true

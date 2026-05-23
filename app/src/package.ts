@@ -101,7 +101,9 @@ export default class Package {
   }
 
   isEngineSet() {
-    return !!this.json.engines.mailspring;
+    // Accept both new "actunamail" and legacy upstream "mailspring" engines key
+    // so that pre-rebrand external plugins keep working without modification.
+    return !!(this.json.engines.actunamail || this.json.engines.mailspring);
   }
 
   isIdentityRequired() {

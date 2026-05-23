@@ -6,7 +6,7 @@
   "description": "A minimal approach to email in Mailspring",
   "license": "MIT",
   "engines": {
-    "mailspring": "*"
+    "actunamail": "*"
   },
   "private": true
 }

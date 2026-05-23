@@ -49,7 +49,7 @@ export default class AutoUpdateManager extends EventEmitter {
 
   // WS2-E: updateFeedURL stubbed.
   // Upstream Mailspring constructed a feed URL at
-  //   https://updates.getmailspring.com/check/<platform>/<arch>/<version>/<identity.id>/<channel>
+  //   https://updates.actuna.email/check/<platform>/<arch>/<version>/<identity.id>/<channel>
   // which leaked app + identity metadata to Foundry on every check.
   // Actuna Mail keeps the method on the class for API compatibility but
   // assigns an empty feedURL so no upstream request can be issued.

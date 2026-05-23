@@ -192,7 +192,7 @@ class PreferencesAccountDetails extends Component<
   };
 
   _onContactSupport = () => {
-    shell.openExternal('https://support.getmailspring.com/hc/en-us/requests/new');
+    shell.openExternal('https://github.com/WojRep/ActunaMail/discussions');
   };
 
   _onShowErrorDetails = async () => {

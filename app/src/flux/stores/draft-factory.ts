@@ -62,7 +62,7 @@ class DraftFactory {
       version: 0,
       unread: false,
       starred: false,
-      headerMessageId: `${crypto.randomUUID().toUpperCase()}@getmailspring.com`,
+      headerMessageId: `${crypto.randomUUID().toUpperCase()}@actuna.email`,
       from: [account.defaultMe()],
       date: new Date(),
       draft: true,

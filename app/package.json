@@ -2,7 +2,7 @@
   "name": "actunamail",
   "productName": "ActunaMail",
   "desktopName": "ActunaMail.desktop",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/WojRep/ActunaMail.git"
@@ -42,7 +42,6 @@
     "lru-cache": "^10.4.3",
     "mammoth": "^1.11.0",
     "moment": "^2.30.1",
-    "moment-round": "^1.0.1",
     "moment-timezone": "^0.6.0",
     "mousetrap": "^1.6.5",
     "node-emoji": "^2.2.0",

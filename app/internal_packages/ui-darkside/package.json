@@ -6,7 +6,7 @@
   "description": "A customizable, dark sidebar theme for Mailspring.",
   "license": "MIT",
   "engines": {
-    "mailspring": "*"
+    "actunamail": "*"
   },
   "private": true
 }

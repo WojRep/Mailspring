@@ -181,7 +181,7 @@ export default class Webview extends React.Component<WebviewProps, WebviewState>
 
     if (httpResponseCode >= 400) {
       const error = localized(
-        `Could not reach Mailspring. Please try again or contact support@getmailspring.com if the issue persists. (%@: %@)`,
+        `Could not reach Mailspring. Please try again or contact tech@actuna.pl if the issue persists. (%@: %@)`,
         navigatedUrl,
         httpResponseCode
       );

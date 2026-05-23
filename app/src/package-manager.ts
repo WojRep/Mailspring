@@ -138,9 +138,9 @@ export default class PackageManager {
       // don't use AppEnv.reportError, I don't want to know about these.
       log.error(
         localized(
-          `This plugin or theme %@ does not list "mailspring" in it's package.json's "engines" field. Ask the developer to test the plugin with Mailspring and add it, or follow the instructions here: %@`,
+          `This plugin or theme %@ does not list "actunamail" or "mailspring" in its package.json's "engines" field. Ask the developer to test the plugin with ActunaMail and add it, or follow the instructions here: %@`,
           pkg.name,
-          `http://support.getmailspring.com/hc/en-us/articles/115001918391`
+          `https://github.com/WojRep/ActunaMail/discussions`
         )
       );
       return;
@@ -334,12 +334,12 @@ export default class PackageManager {
       );
     }
 
-    if (!json.engines || !json.engines.mailspring) {
+    if (!json.engines || (!json.engines.actunamail && !json.engines.mailspring)) {
       return callback(
         new Error(
           localized(
-            `The plugin or theme you selected has not been upgraded to support Mailspring. If you're the developer, update the package.json's engines field to include "mailspring".\n\nFor more information, see this migration guide: %@`,
-            `http://support.getmailspring.com/hc/en-us/articles/115001918391`
+            `The plugin or theme you selected has not been upgraded to support ActunaMail. If you're the developer, update the package.json's engines field to include "actunamail" (the legacy "mailspring" key is still accepted for compatibility).\n\nFor more information, see this migration guide: %@`,
+            `https://github.com/WojRep/ActunaMail/discussions`
           )
         )
       );

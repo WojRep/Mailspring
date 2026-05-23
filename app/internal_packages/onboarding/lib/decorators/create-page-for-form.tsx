@@ -257,11 +257,11 @@ const CreatePageForForm = (FormComponent) => {
       if (account.emailAddress.includes('@yahoo.com')) {
         message = localized('Have you enabled access through Yahoo?');
         articleURL =
-          'http://support.getmailspring.com//hc/en-us/articles/115001882372-Authorizing-Use-with-Yahoo';
+          'https://github.com/WojRep/ActunaMail/discussions';
       } else {
         message = localized('Some providers require an app password.');
         articleURL =
-          'http://support.getmailspring.com/hc/en-us/articles/115001876051-App-Passwords';
+          'https://github.com/WojRep/ActunaMail/discussions';
       }
       // We don't use a FormErrorMessage component because the content
       // we need to display has HTML.

@@ -481,7 +481,7 @@ class KeyManager {
       try {
         raw = getSafeStorage().decryptString(Buffer.from(encryptedCredentials, 'utf-8'));
       } catch (err) {
-        log.error({ err }, 'Mailspring encountered an error reading passwords from the keychain.');
+        log.error({ err }, 'ActunaMail encountered an error reading passwords from the keychain.');
       }
     }
     try {
@@ -496,12 +496,12 @@ class KeyManager {
       const platformHint =
         process.platform === 'linux'
           ? localized(
-              ' On Linux, Mailspring requires a secret service such as GNOME Keyring or KWallet. Please ensure one is installed and running, then restart Mailspring.'
+              ' On Linux, ActunaMail requires a secret service such as GNOME Keyring or KWallet. Please ensure one is installed and running, then restart ActunaMail.'
             )
           : '';
       throw new Error(
         localized(
-          `Mailspring could not store your password securely because encryption is not available on this system.`
+          `ActunaMail could not store your password securely because encryption is not available on this system.`
         ) + platformHint
       );
     }
@@ -512,18 +512,18 @@ class KeyManager {
   _reportFatalError(err: Error) {
     const clickedButton = require('@electron/remote').dialog.showMessageBoxSync({
       type: 'error',
-      buttons: [localized('Mailspring Help'), localized('Quit')],
+      buttons: [localized('ActunaMail Help'), localized('Quit')],
       message:
         err.message ||
         localized(
-          `Mailspring could not store your password securely. For more information, visit %@`,
-          'https://community.getmailspring.com/t/password-management-error/199'
+          `ActunaMail could not store your password securely. For more information, visit %@`,
+          'https://github.com/WojRep/ActunaMail/discussions'
         ),
     });
 
     if (clickedButton == 0) {
       const shell = require('electron').shell;
-      shell.openExternal('https://community.getmailspring.com/t/password-management-error/199');
+      shell.openExternal('https://github.com/WojRep/ActunaMail/discussions');
     }
 
     // tell the app to exit and rethrow the error to ensure code relying

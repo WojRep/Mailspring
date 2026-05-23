@@ -6,7 +6,7 @@ import { createLogger } from '../logger';
 
 const log = createLogger('AutoupdateImplBase');
 
-const FALLBACK_DOWNLOAD_URL = 'https://getmailspring.com/download';
+const FALLBACK_DOWNLOAD_URL = 'https://github.com/WojRep/ActunaMail/download';
 
 function safeHttpUrl(value: unknown): string | null {
   if (typeof value !== 'string') return null;

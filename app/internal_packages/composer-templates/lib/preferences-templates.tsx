@@ -86,7 +86,7 @@ class TemplateEditor extends React.Component<
         <div className="section note">
           {localizedReactFragment(
             'Changes are saved automatically. View the %@ for tips and tricks.',
-            <a href="https://community.getmailspring.com/t/reply-faster-with-email-templates/167">
+            <a href="https://github.com/WojRep/ActunaMail/discussions">
               {localized('Templates Guide')}
             </a>
           )}
