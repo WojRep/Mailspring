@@ -12,6 +12,7 @@ module.exports = {
         { label: localized('Preferences'), command: 'application:open-preferences' },
         { label: localized('Change Theme') + '...', command: 'window:launch-theme-picker' },
         { label: localized('Install Theme') + '...', command: 'window:install-package' },
+        { label: localized('Install a Plugin') + '...', command: 'window:install-package' },
         { type: 'separator' },
         {
           label: localized('Add Account') + '...',

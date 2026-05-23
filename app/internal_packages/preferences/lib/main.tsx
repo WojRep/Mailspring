@@ -68,6 +68,14 @@ export function activate() {
       order: 8,
     })
   );
+  PreferencesUIStore.registerPreferencesTab(
+    new PreferencesUIStore.TabItem({
+      tabId: 'Plugins',
+      displayName: localized('Plugins'),
+      componentClassFn: () => require('./tabs/preferences-plugins').default,
+      order: 9,
+    })
+  );
 
   WorkspaceStore.defineSheet(
     'Preferences',
