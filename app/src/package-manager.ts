@@ -1,5 +1,7 @@
 import path from 'path';
+import os from 'os';
 import fs from 'fs';
+import { execFileSync } from 'child_process';
 import { shell } from 'electron';
 import { localized } from './intl';
 import Package, { isValidPackageName } from './package';
@@ -197,9 +199,15 @@ export default class PackageManager {
     }
     AppEnv.showOpenDialog(
       {
-        title: localized('Choose Directory'),
-        buttonLabel: localized('Choose'),
-        properties: ['openDirectory'],
+        title: localized('Choose plugin file'),
+        buttonLabel: localized('Install'),
+        properties: ['openFile'],
+        filters: [
+          {
+            name: localized('Plugin package'),
+            extensions: ['actunamail-plugin', 'zip'],
+          },
+        ],
       },
       (filenames) => {
         if (!filenames || filenames.length === 0) {
@@ -223,7 +231,72 @@ export default class PackageManager {
     );
   }
 
-  installPackageFromPath(packagePath: string, callback) {
+  installPackageFromPath(packagePathArg: string, originalCallback) {
+    // Accepts either a directory (legacy) or a single ARCHIVE FILE
+    // (`*.actunamail-plugin` / `*.zip`). When a file is given, extract it
+    // to a temp dir, locate the package root, and proceed. Temp dir is
+    // cleaned up on every exit path via the wrapped callback.
+    let packagePath = packagePathArg;
+    let extractedTempDir: string | null = null;
+    const callback = (err: Error | null, name?: string) => {
+      if (extractedTempDir) {
+        try {
+          fs.rmSync(extractedTempDir, { recursive: true, force: true });
+        } catch {
+          /* best effort */
+        }
+      }
+      originalCallback(err, name);
+    };
+
+    try {
+      const stat = fs.statSync(packagePath);
+      if (stat.isFile()) {
+        extractedTempDir = path.join(
+          os.tmpdir(),
+          `actunamail-install-${Date.now()}-${process.pid}`,
+        );
+        fs.mkdirSync(extractedTempDir, { recursive: true });
+        try {
+          execFileSync(
+            '/usr/bin/unzip',
+            ['-q', packagePath, '-d', extractedTempDir],
+            { stdio: 'pipe' },
+          );
+        } catch (extractErr: any) {
+          return callback(
+            new Error(
+              localized(
+                'Could not extract plugin: %@',
+                extractErr && extractErr.message
+                  ? extractErr.message
+                  : String(extractErr),
+              ),
+            ),
+          );
+        }
+        // Resolve the package root: either the extract root (rare), or a
+        // single top-level folder inside it (the usual `zip -r` shape).
+        let candidate = extractedTempDir;
+        if (!fs.existsSync(path.join(candidate, 'package.json'))) {
+          const entries = fs
+            .readdirSync(extractedTempDir)
+            .filter((e) => !e.startsWith('.') && e !== '__MACOSX');
+          if (entries.length === 1) {
+            const sub = path.join(extractedTempDir, entries[0]);
+            if (fs.statSync(sub).isDirectory()) candidate = sub;
+          }
+        }
+        packagePath = candidate;
+      }
+    } catch (statErr: any) {
+      return callback(
+        new Error(
+          (statErr && statErr.message) || String(statErr),
+        ),
+      );
+    }
+
     // check that the path contains a package.json file
     let json = null;
     try {

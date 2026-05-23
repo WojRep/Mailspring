@@ -89,6 +89,21 @@ export default class PreferencesPlugins extends React.Component<
     }
   };
 
+  _install = () => {
+    try {
+      (AppEnv as any).packages.installPackageManually();
+    } catch {
+      try {
+        AppEnv.commands.dispatch('window:install-package');
+      } catch {
+        /* ignore */
+      }
+    }
+    // Refresh shortly after — the install dialog is async; this catches
+    // the case where the user confirms quickly.
+    setTimeout(this._refresh, 1500);
+  };
+
   _remove = (row: PluginRow) => {
     const remote = require('@electron/remote');
     const choice = remote.dialog.showMessageBoxSync({
@@ -127,11 +142,20 @@ export default class PreferencesPlugins extends React.Component<
             )}
           </p>
 
+          <div className="plugin-install-bar">
+            <button className="btn btn-emphasis" onClick={this._install}>
+              {localized('Install a Plugin')}…
+            </button>
+            <span className="plugin-install-hint">
+              {localized(
+                'Pick a plugin file (.actunamail-plugin or .zip) — ActunaMail installs it for you.',
+              )}
+            </span>
+          </div>
+
           {plugins.length === 0 ? (
             <p className="platform-note">
-              {localized(
-                'No user-installed plugins. Use the menu „Install a Plugin…" to add one.',
-              )}
+              {localized('No plugins installed yet.')}
             </p>
           ) : (
             <ul className="plugin-list">
