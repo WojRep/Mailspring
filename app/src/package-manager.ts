@@ -219,12 +219,34 @@ export default class PackageManager {
               title: localized('Could not install plugin'),
               message: err.message,
             });
-          } else {
-            const message = localized(
-              `%@ has been installed and enabled. No need to restart! If you don't see the plugin loaded, check the console for errors.`,
-              packageName
-            );
-            AppEnv.showErrorDialog({ title: localized('Plugin installed! 🎉'), message });
+            return;
+          }
+          // Plugin is copied + `activate()` ran — but sidebar/sheet
+          // registrations only flow into the workspace on a fresh boot,
+          // so offer to reload the window. (The legacy „no restart"
+          // message was misleading.)
+          const remote = require('@electron/remote');
+          const choice = remote.dialog.showMessageBoxSync({
+            type: 'info',
+            buttons: [localized('Reload now'), localized('Later')],
+            defaultId: 0,
+            cancelId: 1,
+            message: localized('Plugin installed! 🎉'),
+            detail: localized(
+              '%@ has been installed. Reload the window to activate it fully.',
+              packageName,
+            ),
+          });
+          if (choice === 0) {
+            try {
+              AppEnv.commands.dispatch('window:reload');
+            } catch {
+              try {
+                remote.getCurrentWindow().reload();
+              } catch {
+                /* user can reload manually */
+              }
+            }
           }
         });
       }
