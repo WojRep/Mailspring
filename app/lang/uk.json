@@ -352,6 +352,7 @@
   "Plugin package": "Пакет розширення",
   "Could not extract plugin: %@": "Не вдалося розпакувати розширення: %@",
   "Reload now": "Перезавантажити зараз",
+  "Reload Window": "Перезавантажити вікно",
   "Later": "Пізніше",
   "%@ has been installed. Reload the window to activate it fully.": "%@ встановлено. Перезавантажте вікно, щоб повністю активувати.",
   "Install Theme": "Встановити тему",

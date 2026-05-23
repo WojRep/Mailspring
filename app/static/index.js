@@ -49,6 +49,27 @@ function setupWindow(loadSettings) {
     require('../src/compile-cache-ts-unsupported');
   }
 
+  // Make host modules findable by user-installed plugins outside
+  // app.asar (~/Library/Application Support/ActunaMail/packages/...).
+  // Node falls back to Module.globalPaths after the caller's own
+  // module.paths walk fails — so adding the app's node_modules and
+  // src/global here makes `require('react')`, `require('actunamail-
+  // exports')` etc. resolvable from a user package's compiled JS.
+  try {
+    var hostModule = require('module');
+    var hostPath = require('path');
+    var hostNodeModules = hostPath.join(__dirname, '..', 'node_modules');
+    var hostSrcGlobal = hostPath.join(__dirname, '..', 'src', 'global');
+    if (hostModule.globalPaths.indexOf(hostNodeModules) === -1) {
+      hostModule.globalPaths.push(hostNodeModules);
+    }
+    if (hostModule.globalPaths.indexOf(hostSrcGlobal) === -1) {
+      hostModule.globalPaths.push(hostSrcGlobal);
+    }
+  } catch (e) {
+    /* fall through — internal packages still work */
+  }
+
   require(loadSettings.bootstrapScript);
 }
 

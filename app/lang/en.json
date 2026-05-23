@@ -388,6 +388,7 @@
   "Plugin package": "Plugin package",
   "Could not extract plugin: %@": "Could not extract plugin: %@",
   "Reload now": "Reload now",
+  "Reload Window": "Reload Window",
   "Later": "Later",
   "%@ has been installed. Reload the window to activate it fully.": "%@ has been installed. Reload the window to activate it fully.",
   "Install Theme": "Install Theme",

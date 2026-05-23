@@ -156,6 +156,8 @@ module.exports = {
           command: 'window:toggle-full-screen',
           visible: false,
         },
+        { type: 'separator' },
+        { label: localized('Reload Window'), command: 'window:reload' },
       ],
     },
 
