@@ -48,7 +48,7 @@ export default class UpdateNotification extends React.Component<
   };
 
   _onViewChangelog = () => {
-    shell.openExternal('https://github.com/Foundry376/Mailspring/releases/latest');
+    shell.openExternal('https://github.com/Foundry376/ActunaMail/releases/latest');
   };
 
   render() {
@@ -61,8 +61,8 @@ export default class UpdateNotification extends React.Component<
       <Notification
         priority="4"
         title={localized(
-          `An update to Mailspring is available %@`,
-          version ? `(${version.replace('Mailspring', '').trim()})` : ''
+          `An update to ActunaMail is available %@`,
+          version ? `(${version.replace('ActunaMail', '').trim()})` : ''
         )}
         subtitle={localized('View changelog')}
         subtitleAction={this._onViewChangelog}

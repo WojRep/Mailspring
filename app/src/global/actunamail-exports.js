@@ -60,7 +60,7 @@ lazyLoadWithGetter(`createLogger`, () => require('../logger').createLogger);
 lazyLoad(`Actions`, 'flux/actions');
 
 // API Endpoints
-lazyLoad(`MailspringAPIRequest`, 'flux/actunamail-api-request');
+lazyLoad(`ActunaMailAPIRequest`, 'flux/actunamail-api-request');
 lazyLoad(`MailsyncProcess`, 'mailsync-process');
 // The Database
 lazyLoad(`Matcher`, 'flux/attributes/matcher');
@@ -226,7 +226,7 @@ lazyLoad(`SystemStartService`, 'system-start-service');
 
 // Testing
 lazyLoadWithGetter(
-  `MailspringTestUtils`,
+  `ActunaMailTestUtils`,
   () => require('../../spec/actunamail-test-utils').default
 );
 

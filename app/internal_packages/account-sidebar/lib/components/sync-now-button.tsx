@@ -3,7 +3,7 @@ import { localized } from 'actunamail-exports';
 import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 
 // Toolbar button that forces an immediate mail + folder-list sync. Upstream
-// Mailspring relied solely on the IMAP IDLE loop and the background sync
+// ActunaMail relied solely on the IMAP IDLE loop and the background sync
 // cycle, leaving no visible "receive now" control — this fills that gap.
 // Clicking it wakes every account's mailsync worker right away.
 export default class SyncNowButton extends React.Component<

@@ -13,17 +13,17 @@ const { version } = require(path.join(appDir, 'package.json'));
 const config = {
   usePackageJson: false,
   outputDirectory: path.join(appDir, 'dist'),
-  appDirectory: path.join(appDir, 'dist', 'mailspring-win32-x64'),
+  appDirectory: path.join(appDir, 'dist', 'actunamail-win32-x64'),
   loadingGif: path.join(appDir, 'build', 'resources', 'win', 'loading.gif'),
-  iconUrl: 'http://mailspring-builds.s3.amazonaws.com/assets/actunamail-square.ico',
-  description: 'Mailspring',
+  iconUrl: 'http://github.com/WojRep/ActunaMail/assets/actunamail-square.ico',
+  description: 'ActunaMail',
   version: version,
-  title: 'Mailspring',
+  title: 'ActunaMail',
   authors: 'Foundry 376, LLC',
   setupIcon: path.join(appDir, 'build', 'resources', 'win', 'actunamail-square.ico'),
-  setupExe: 'MailspringSetup.exe',
-  exe: 'mailspring.exe',
-  name: 'Mailspring',
+  setupExe: 'ActunaMailSetup.exe',
+  exe: 'actunamail.exe',
+  name: 'ActunaMail',
 };
 
 console.log(config);

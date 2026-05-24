@@ -1,6 +1,6 @@
 import React from 'react';
-import { Message, localized, PropTypes, Thread } from 'mailspring-exports';
-import { RetinaImg, BindGlobalCommands } from 'mailspring-component-kit';
+import { Message, localized, PropTypes, Thread } from 'actunamail-exports';
+import { RetinaImg, BindGlobalCommands } from 'actunamail-component-kit';
 
 function unsubscribe(message) {
   //

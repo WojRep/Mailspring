@@ -69,7 +69,7 @@ lazyLoad('DatePickerPopover', 'date-picker-popover');
 lazyLoad('Modal', 'modal');
 lazyLoad('Webview', 'webview');
 // FeatureUsedUpModal, BillingModal removed in WS1-C (no Pro tier).
-// OpenIdentityPageButton removed in WS1-D (no Mailspring ID flow).
+// OpenIdentityPageButton removed in WS1-D (no ActunaMail ID flow).
 lazyLoad('Flexbox', 'flexbox');
 lazyLoad('RetinaImg', 'retina-img');
 lazyLoad('SwipeContainer', 'swipe-container');

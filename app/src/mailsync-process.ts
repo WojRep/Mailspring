@@ -33,7 +33,7 @@ export const LocalizedErrorStrings = {
     'Connection Error - Unable to connect to the server / port you provided.'
   ),
   ErrorInvalidAccount: localized(
-    'This account is invalid or Mailspring could not find the Inbox or All Mail folder. %@',
+    'This account is invalid or ActunaMail could not find the Inbox or All Mail folder. %@',
     'https://github.com/WojRep/ActunaMail/discussions'
   ),
   ErrorTLSNotAvailable: localized('TLS Not Available'),
@@ -80,7 +80,7 @@ export const LocalizedErrorStrings = {
     'Sorry, your SMTP server does not support basic username / password authentication.'
   ),
   ErrorIdentityMissingFields: localized(
-    'Your Mailspring ID is missing required fields - you may need to reset Mailspring. %@',
+    'Your ActunaMail ID is missing required fields - you may need to reset ActunaMail. %@',
     'https://github.com/WojRep/ActunaMail/discussions'
   ),
 };
@@ -191,12 +191,12 @@ export class MailsyncProcess extends EventEmitter {
       // checks for empty in NetworkRequestUtils.cpp (WS2-F) and
       // short-circuits any Foundry endpoint, including
       // /api/resolve-dav-hosts which previously fired for new
-      // CardDAV/CalDAV setups even with no Mailspring ID. See
+      // CardDAV/CalDAV setups even with no ActunaMail ID. See
       // analysis/06-mailsync-cpp-audit.md D4 and D6.
       IDENTITY_SERVER: '',
       // v0.2.f: localized SMTP test-email content. Mailcore2 patched
       // (Vendor/mailcore2/src/core/smtp/MCSMTPSession.cpp) to read
-      // these env vars with fallback to the original Mailspring text
+      // these env vars with fallback to the original ActunaMail text
       // when not set, so a stock mailsync still works.
       ACTUNA_TEST_SUBJECT: localized('ActunaMail SMTP test — account configuration verification'),
       ACTUNA_TEST_FROM_NAME: 'ActunaMail',

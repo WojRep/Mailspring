@@ -119,7 +119,7 @@ export default class AppEnvConstructor {
     // require of actunamail-observables
     require('actunamail-observables');
 
-    // Mailspring exports is designed to provide a lazy-loaded set of globally
+    // ActunaMail exports is designed to provide a lazy-loaded set of globally
     // accessible objects to all packages. Upon require, actunamail-exports will
     // fill the StoreRegistry, and DatabaseObjectRegistries
     // with various constructors.
@@ -164,7 +164,7 @@ export default class AppEnvConstructor {
       'Start Menu',
       'Programs',
       'Startup',
-      'Mailspring.lnk'
+      'ActunaMail.lnk'
     );
     const fs = require('fs');
     const exists = fs.existsSync(shortcutPath);
@@ -358,7 +358,7 @@ export default class AppEnvConstructor {
     return this.getLoadSettings().isSpec;
   }
 
-  // Public: Get the version of Mailspring.
+  // Public: Get the version of ActunaMail.
   //
   // Returns the version text {String}.
   private appVersion;
@@ -375,7 +375,7 @@ export default class AppEnvConstructor {
     return !/\w{7}/.test(this.getVersion());
   }
 
-  // Public: Get the directory path to Mailspring's configuration area.
+  // Public: Get the directory path to ActunaMail's configuration area.
   getConfigDirPath() {
     return this.getLoadSettings().configDirPath;
   }
@@ -399,7 +399,7 @@ export default class AppEnvConstructor {
   }
 
   /*
-  Section: Managing The Mailspring Window
+  Section: Managing The ActunaMail Window
   */
 
   // Essential: Close the current window.
@@ -822,7 +822,7 @@ export default class AppEnvConstructor {
 
   initializeReactRoot() {
     // Put state back into sheet-container? Restore app state here
-    const item = document.createElement('mailspring-workspace');
+    const item = document.createElement('actunamail-workspace');
     item.setAttribute('id', 'sheet-container');
     item.setAttribute('class', 'sheet-container');
     item.setAttribute('tabIndex', '-1');
@@ -972,7 +972,7 @@ export default class AppEnvConstructor {
   // work and then call finishUnload. We do not support cancelling quit!
   // https://phab.mailspring.com/D1932#inline-11722
   //
-  // Also see logic in browser/MailspringWindow::handleEvents where we listen
+  // Also see logic in browser/ActunaMailWindow::handleEvents where we listen
   // to the browserWindow.on 'close' event to catch "unclosable" windows.
   onBeforeUnload(callback) {
     return this.windowEventHandler.addUnloadCallback(callback);

@@ -1,6 +1,6 @@
 // WS2-A: stub replacement for the upstream Sentry error reporter.
 //
-// Upstream behaviour (Mailspring 1.21.0):
+// Upstream behaviour (ActunaMail 1.21.0):
 //   const DSN = 'https://...@o70907.ingest.us.sentry.io/4511340571000832';
 //   constructor: getMac() -> SHA-256(MAC) as deviceHash and user.id;
 //   reportError -> https.request POST /api/<project>/envelope/ with

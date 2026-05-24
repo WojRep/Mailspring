@@ -2,7 +2,7 @@ import React from 'react';
 import moment, { Moment } from 'moment-timezone';
 import { ScrollRegion, InjectedComponentSet } from 'actunamail-component-kit';
 import { localized, Actions } from 'actunamail-exports';
-import { MailspringCalendarViewProps } from './actunamail-calendar';
+import { ActunaMailCalendarViewProps } from './actunamail-calendar';
 import { CalendarView } from './calendar-constants';
 import { HeaderControls } from './header-controls';
 import { CalendarEventPopover } from './calendar-event-popover';
@@ -21,13 +21,13 @@ interface AgendaViewState {
   events: EventOccurrence[];
 }
 
-export class AgendaView extends React.Component<MailspringCalendarViewProps, AgendaViewState> {
+export class AgendaView extends React.Component<ActunaMailCalendarViewProps, AgendaViewState> {
   static displayName = 'AgendaView';
 
   _mounted = false;
   _sub?: Disposable;
 
-  constructor(props: MailspringCalendarViewProps) {
+  constructor(props: ActunaMailCalendarViewProps) {
     super(props);
     this.state = {
       events: [],
@@ -39,7 +39,7 @@ export class AgendaView extends React.Component<MailspringCalendarViewProps, Age
     this.updateSubscription();
   }
 
-  componentDidUpdate(prevProps: MailspringCalendarViewProps) {
+  componentDidUpdate(prevProps: ActunaMailCalendarViewProps) {
     if (
       prevProps.focusedMoment !== this.props.focusedMoment ||
       prevProps.disabledCalendars !== this.props.disabledCalendars

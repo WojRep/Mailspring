@@ -6,10 +6,10 @@ import {
   ContactBook,
   MutableQuerySubscription,
 } from 'actunamail-exports';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import { ListTabular } from 'actunamail-component-kit';
 
-class ContactsWindowStore extends MailspringStore {
+class ContactsWindowStore extends ActunaMailStore {
   _perspective: ContactsPerspective = { type: 'unified' };
   _listSource = new ListTabular.DataSource.DumbArrayDataSource<Contact>();
 

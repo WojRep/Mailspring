@@ -5,24 +5,24 @@ import { localized, DatabaseStore, Thread, Matcher, Actions } from 'actunamail-e
 
 const DATE_EPSILON = 60; // Seconds
 
-interface MailspringLinkParams {
+interface ActunaMailLinkParams {
   subject: string;
   lastDate?: number;
   date?: number;
 }
 
-const _parseOpenThreadUrl = (mailspringUrlString: string) => {
-  const parsedUrl = url.parse(mailspringUrlString);
+const _parseOpenThreadUrl = (actunamailUrlString: string) => {
+  const parsedUrl = url.parse(actunamailUrlString);
   const params = querystring.parse(parsedUrl.query) as any;
   return {
     subject: params.subject,
     date: params.date ? parseInt(params.date, 10) : undefined,
     lastDate: params.lastDate ? parseInt(params.lastDate, 10) : undefined,
-  } as MailspringLinkParams;
+  } as ActunaMailLinkParams;
 };
 
 const _findCorrespondingThread = (
-  { subject, lastDate, date }: MailspringLinkParams,
+  { subject, lastDate, date }: ActunaMailLinkParams,
   dateEpsilon = DATE_EPSILON
 ) => {
   const dateClause = date
@@ -47,8 +47,8 @@ const _findCorrespondingThread = (
   ]);
 };
 
-const _onOpenThreadFromWeb = (event, mailspringUrl: string) => {
-  const params = _parseOpenThreadUrl(mailspringUrl);
+const _onOpenThreadFromWeb = (event, actunamailUrl: string) => {
+  const params = _parseOpenThreadUrl(actunamailUrl);
 
   _findCorrespondingThread(params)
     .then((thread) => {

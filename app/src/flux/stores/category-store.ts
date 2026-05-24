@@ -1,5 +1,5 @@
 import { Categories } from 'actunamail-observables';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import { AccountStore } from './account-store';
 import { Account } from '../models/account';
 import { Category } from '../models/category';
@@ -20,7 +20,7 @@ const asAccountId = (a: Account | string) => {
   return a instanceof Account ? a.id : a;
 };
 
-class CategoryStore extends MailspringStore {
+class CategoryStore extends ActunaMailStore {
   _categoryCache = {};
   _standardCategories: { [accountId: string]: Array<Folder | Label> } = {};
   _userCategories: { [accountId: string]: Array<Folder | Label> } = {};

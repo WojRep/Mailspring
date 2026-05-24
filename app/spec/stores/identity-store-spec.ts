@@ -8,7 +8,7 @@
 
 import { Utils, KeyManager } from 'actunamail-exports';
 import { IdentityStore } from '../../src/flux/stores/identity-store';
-import * as MailspringAPIRequest from '../../src/flux/actunamail-api-request';
+import * as ActunaMailAPIRequest from '../../src/flux/actunamail-api-request';
 
 const TEST_NYLAS_ID = 'icihsnqh4pwujyqihlrj70vh';
 
@@ -17,7 +17,7 @@ xdescribe('IdentityStore', function identityStoreSpec() {
     this.identityJSON = {
       firstName: 'Mailspring 050',
       lastName: 'Test',
-      email: 'mailspring050test@evanmorikawa.com',
+      email: 'test050@example.com',
       id: TEST_NYLAS_ID,
       featureUsage: {
         feat: {
@@ -91,12 +91,12 @@ xdescribe('IdentityStore', function identityStoreSpec() {
     it('saves the identity returned', async () => {
       const resp = Utils.deepClone(this.identityJSON);
       resp.featureUsage.feat.quota = 5;
-      spyOn(MailspringAPIRequest, 'makeRequest').andCallFake(() => {
+      spyOn(ActunaMailAPIRequest, 'makeRequest').andCallFake(() => {
         return Promise.resolve(resp);
       });
       await IdentityStore.fetchIdentity();
-      expect(MailspringAPIRequest.makeRequest).toHaveBeenCalled();
-      const options = (MailspringAPIRequest.makeRequest as jasmine.Spy).calls[0].args[0];
+      expect(ActunaMailAPIRequest.makeRequest).toHaveBeenCalled();
+      const options = (ActunaMailAPIRequest.makeRequest as jasmine.Spy).calls[0].args[0];
       expect(options.path).toEqual('/api/me');
       expect(IdentityStore.saveIdentity).toHaveBeenCalled();
       const newIdent = (IdentityStore.saveIdentity as jasmine.Spy).calls[0].args[0];
@@ -105,7 +105,7 @@ xdescribe('IdentityStore', function identityStoreSpec() {
     });
 
     it('errors if the json is invalid', async () => {
-      spyOn(MailspringAPIRequest, 'makeRequest').andCallFake(() => {
+      spyOn(ActunaMailAPIRequest, 'makeRequest').andCallFake(() => {
         return Promise.resolve({});
       });
       await IdentityStore.fetchIdentity();

@@ -9,13 +9,13 @@ xdescribe('ContactStore', function () {
 
   describe('when searching for a contact', function () {
     beforeEach(function () {
-      this.c1 = new Contact({ name: '', email: '1test@mailspring.com', refs: 7 });
-      this.c2 = new Contact({ name: 'First', email: '2test@mailspring.com', refs: 6 });
-      this.c3 = new Contact({ name: 'First Last', email: '3test@mailspring.com', refs: 5 });
-      this.c4 = new Contact({ name: 'Fit', email: 'fit@mailspring.com', refs: 4 });
-      this.c5 = new Contact({ name: 'Fins', email: 'fins@mailspring.com', refs: 3 });
-      this.c6 = new Contact({ name: 'Fill', email: 'fill@mailspring.com', refs: 2 });
-      this.c7 = new Contact({ name: 'Fin', email: 'fin@mailspring.com', refs: 1 });
+      this.c1 = new Contact({ name: '', email: '1test@actunamail.test', refs: 7 });
+      this.c2 = new Contact({ name: 'First', email: '2test@actunamail.test', refs: 6 });
+      this.c3 = new Contact({ name: 'First Last', email: '3test@actunamail.test', refs: 5 });
+      this.c4 = new Contact({ name: 'Fit', email: 'fit@actunamail.test', refs: 4 });
+      this.c5 = new Contact({ name: 'Fins', email: 'fins@actunamail.test', refs: 3 });
+      this.c6 = new Contact({ name: 'Fill', email: 'fill@actunamail.test', refs: 2 });
+      this.c7 = new Contact({ name: 'Fin', email: 'fin@actunamail.test', refs: 1 });
     });
 
     it('can find by first name', function () {
@@ -91,7 +91,7 @@ xdescribe('ContactStore', function () {
       expect(
         ContactStore.isValidContact({
           name: 'Ben',
-          email: 'ben@mailspring.com',
+          email: 'ben@actunamail.test',
         } as unknown as Contact)
       ).toBe(false));
 
@@ -102,24 +102,24 @@ xdescribe('ContactStore', function () {
   describe('parseContactsInString', function () {
     const testCases = {
       // Single contact test cases
-      'evan@mailspring.com': [
-        new Contact({ name: 'evan@mailspring.com', email: 'evan@mailspring.com' }),
+      'evan@actunamail.test': [
+        new Contact({ name: 'evan@actunamail.test', email: 'evan@actunamail.test' }),
       ],
       'Evan Morikawa': [],
-      "'evan@mailspring.com'": [
-        new Contact({ name: 'evan@mailspring.com', email: 'evan@mailspring.com' }),
+      "'evan@actunamail.test'": [
+        new Contact({ name: 'evan@actunamail.test', email: 'evan@actunamail.test' }),
       ],
-      '"evan@mailspring.com"': [
-        new Contact({ name: 'evan@mailspring.com', email: 'evan@mailspring.com' }),
+      '"evan@actunamail.test"': [
+        new Contact({ name: 'evan@actunamail.test', email: 'evan@actunamail.test' }),
       ],
-      "'evan@mailspring.com": [
-        new Contact({ name: "'evan@mailspring.com", email: "'evan@mailspring.com" }),
+      "'evan@actunamail.test": [
+        new Contact({ name: "'evan@actunamail.test", email: "'evan@actunamail.test" }),
       ],
-      'Evan Morikawa <evan@mailspring.com>': [
-        new Contact({ name: 'Evan Morikawa', email: 'evan@mailspring.com' }),
+      'Evan Morikawa <evan@actunamail.test>': [
+        new Contact({ name: 'Evan Morikawa', email: 'evan@actunamail.test' }),
       ],
-      'Evan Morikawa (evan@mailspring.com)': [
-        new Contact({ name: 'Evan Morikawa', email: 'evan@mailspring.com' }),
+      'Evan Morikawa (evan@actunamail.test)': [
+        new Contact({ name: 'Evan Morikawa', email: 'evan@actunamail.test' }),
       ],
       'spang (Christine Spang) <noreply+phabricator@nilas.com>': [
         new Contact({ name: 'spang (Christine Spang)', email: 'noreply+phabricator@nilas.com' }),
@@ -130,9 +130,9 @@ xdescribe('ContactStore', function () {
       'spang "Christine Spang" <noreply+phabricator@nilas.com>': [
         new Contact({ name: 'spang "Christine Spang"', email: 'noreply+phabricator@nilas.com' }),
       ],
-      'Evan (evan@mailspring.com)': [new Contact({ name: 'Evan', email: 'evan@mailspring.com' })],
-      '"Michael" (mg@mailspring.com)': [
-        new Contact({ name: 'Michael', email: 'mg@mailspring.com' }),
+      'Evan (evan@actunamail.test)': [new Contact({ name: 'Evan', email: 'evan@actunamail.test' })],
+      '"Michael" (mg@actunamail.test)': [
+        new Contact({ name: 'Michael', email: 'mg@actunamail.test' }),
       ],
       'announce-uc.1440659566.kankcagcmaacemjlnoma-security=mailspring.com@lists.openwall.com': [
         new Contact({
@@ -143,19 +143,19 @@ xdescribe('ContactStore', function () {
       ],
 
       // Multiple contact test cases
-      'Evan Morikawa <evan@mailspring.com>, Ben <ben@mailspring.com>': [
-        new Contact({ name: 'Evan Morikawa', email: 'evan@mailspring.com' }),
-        new Contact({ name: 'Ben', email: 'ben@mailspring.com' }),
+      'Evan Morikawa <evan@actunamail.test>, Ben <ben@actunamail.test>': [
+        new Contact({ name: 'Evan Morikawa', email: 'evan@actunamail.test' }),
+        new Contact({ name: 'Ben', email: 'ben@actunamail.test' }),
       ],
-      'Evan Morikawa <evan@mailspring.com>; Ben <ben@mailspring.com>': [
-        new Contact({ name: 'Evan Morikawa', email: 'evan@mailspring.com' }),
-        new Contact({ name: 'Ben', email: 'ben@mailspring.com' }),
+      'Evan Morikawa <evan@actunamail.test>; Ben <ben@actunamail.test>': [
+        new Contact({ name: 'Evan Morikawa', email: 'evan@actunamail.test' }),
+        new Contact({ name: 'Ben', email: 'ben@actunamail.test' }),
       ],
-      'mark@mailspring.com\nGleb (gleb@mailspring.com)\rEvan Morikawa <evan@mailspring.com>, spang (Christine Spang) <noreply+phabricator@nilas.com>':
+      'mark@actunamail.test\nGleb (gleb@actunamail.test)\rEvan Morikawa <evan@actunamail.test>, spang (Christine Spang) <noreply+phabricator@nilas.com>':
         [
-          new Contact({ name: '', email: 'mark@mailspring.com' }),
-          new Contact({ name: 'Gleb', email: 'gleb@mailspring.com' }),
-          new Contact({ name: 'Evan Morikawa', email: 'evan@mailspring.com' }),
+          new Contact({ name: '', email: 'mark@actunamail.test' }),
+          new Contact({ name: 'Gleb', email: 'gleb@actunamail.test' }),
+          new Contact({ name: 'Evan Morikawa', email: 'evan@actunamail.test' }),
           new Contact({ name: 'spang (Christine Spang)', email: 'noreply+phabricator@nilas.com' }),
         ],
     };

@@ -303,8 +303,8 @@ Hey
   First Middle Last-Last
   <span dir="ltr">
     &lt;
-    <a href="mailto:test@mailspring.com" target="_blank" rel="noopener noreferrer">
-      test@mailspring.com
+    <a href="mailto:test@actunamail.test" target="_blank" rel="noopener noreferrer">
+      test@actunamail.test
     </a>
     &gt;
   </span>
@@ -376,7 +376,7 @@ On Thu, Mar 3, 2016 I went to my writing club and wrote:
       const input0 = `\
 <br><br><blockquote class="gmail_quote"
   style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-  On Dec 16 2015, at 7:08 pm, Juan Tejada &lt;juan@mailspring.com&gt; wrote:
+  On Dec 16 2015, at 7:08 pm, Juan Tejada &lt;juan@actunamail.test&gt; wrote:
   <br>
 
 

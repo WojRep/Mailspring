@@ -17,10 +17,10 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = args => {
-  // WS3-Branding: config dir renamed Mailspring -> ActunaMail per user
+  // WS3-Branding: config dir renamed ActunaMail -> ActunaMail per user
   // directive 2026-05-09 ("Czy mozesz zmienić nazwe aplikacji na ActunaMail?").
-  // Note: existing users with a Mailspring config in
-  // ~/Library/Application Support/Mailspring will be treated as fresh
+  // Note: existing users with a ActunaMail config in
+  // ~/Library/Application Support/ActunaMail will be treated as fresh
   // installs by Actuna Mail. v0.2 may add a one-time migration helper.
   let dirname = 'ActunaMail';
   if (args.devMode) {
@@ -71,7 +71,7 @@ const declareOptions = argv => {
   const optimist = require('optimist');
   const options = optimist(argv);
   options.usage(
-    `ActunaMail\n\nUsage: actunamail [options] [recipient] [attachment]\n\nRun ActunaMail: privacy-first, EU-compliant email client (fork of Mailspring 1.21.0)\n\n\`actunamail mailto:user@example.com\` to compose an e-mail.\n\`actunamail ./attachment.txt\` to compose an e-mail with a text file attached.\n\`actunamail --dev\` to start the client in dev mode.\n\`actunamail --test\` to run unit tests.`
+    `ActunaMail\n\nUsage: actunamail [options] [recipient] [attachment]\n\nRun ActunaMail: privacy-first, EU-compliant email client (fork of ActunaMail 1.21.0)\n\n\`actunamail mailto:user@example.com\` to compose an e-mail.\n\`actunamail ./attachment.txt\` to compose an e-mail with a text file attached.\n\`actunamail --dev\` to start the client in dev mode.\n\`actunamail --test\` to run unit tests.`
   );
   options
     .alias('d', 'dev')
@@ -87,7 +87,7 @@ const declareOptions = argv => {
       'safe',
       'Do not load packages from the settings `packages` or `dev/packages` folders.'
     );
-  // The options --enable-crashpad and --allow-file-access-from-files are added to the command line options by electron when opening a second instance of Mailspring.
+  // The options --enable-crashpad and --allow-file-access-from-files are added to the command line options by electron when opening a second instance of ActunaMail.
   // If they are not defined as boolean options here, they will "swallow" every argument that is passed after them. This leads to the "Send To" functionality not working
   // if mailspring is already running.
   options.boolean('enable-crashpad');
@@ -104,7 +104,7 @@ const declareOptions = argv => {
   options
     .alias('c', 'config-dir-path')
     .string('c')
-    .describe('c', 'Override the path to the Mailspring configuration directory');
+    .describe('c', 'Override the path to the ActunaMail configuration directory');
   options
     .alias('s', 'spec-directory')
     .string('s')
@@ -123,7 +123,7 @@ const declareOptions = argv => {
   options
     .alias('b', 'background')
     .boolean('b')
-    .describe('b', 'Start Mailspring in the background');
+    .describe('b', 'Start ActunaMail in the background');
   return options;
 };
 
@@ -173,7 +173,7 @@ const parseCommandLine = argv => {
     if (path.resolve(arg) === resourcePath) {
       continue;
     }
-    if (arg.startsWith('mailto:') || arg.startsWith('mailspring:')) {
+    if (arg.startsWith('mailto:') || arg.startsWith('actunamail:')) {
       urlsToOpen.push(arg);
     } else if (arg[0] !== '-' && arg[0] !== '?' && /[/|\\]/.test(arg)) {
       pathsToOpen.push(arg);
@@ -295,8 +295,8 @@ const start = () => {
   }
 
   // On Windows, register the AppUserModelId with a display name so notifications
-  // show "Mailspring" instead of "com.squirrel.mailspring.mailspring".
-  // Also register mailto: protocol handler so Windows knows Mailspring can handle
+  // show "Mailspring" instead of "com.squirrel.actuna.actunamail".
+  // Also register mailto: protocol handler so Windows knows ActunaMail can handle
   // mailto: links (this doesn't make it the default, just registers it as an option).
   // This handles existing installations and ensures registration completes even if
   // the Squirrel install hook's detached processes didn't finish in time.

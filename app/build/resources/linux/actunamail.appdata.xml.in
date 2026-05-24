@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id><%= name %></id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name><%= productName %></name>
+  <summary><%= description %></summary>
+  <description>
+    <p>
+      ActunaMail is a privacy-first, EU-compliant email client. It is a fork of Mailspring
+      1.21.0 (originally a fork of Nylas Mail) with a C++ sync engine. ActunaMail removes
+      upstream telemetry (Sentry, Gravatar, getmailspring.com), disables auto-update, and
+      maps its compliance posture to GDPR, the EU AI Act, the NIS2 Directive, and Polish
+      KNF Recommendations D and Z.
+    </p>
+    <p>
+      ActunaMail comes with powerful features like Unified Inbox, Snooze, Send Later, Mail
+      Rules, Templates, and more. All features run in the client — ActunaMail does not send
+      your email credentials to the cloud.
+    </p>
+  </description>
+  <url type="homepage">https://github.com/WojRep/ActunaMail</url>
+  <url type="bugtracker">https://github.com/WojRep/ActunaMail/issues</url>
+  <url type="help">https://github.com/WojRep/ActunaMail/discussions</url>
+  <url type="vcs-browser">https://github.com/WojRep/ActunaMail</url>
+  <launchable type="desktop-id"><%= productName %>.desktop</launchable>
+
+  <developer id="pl.actuna">
+    <name>Actuna</name>
+  </developer>
+  <project_license>GPL-3.0+</project_license>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>ActunaMail</caption>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="0.4.1" date="2026-05-23" />
+    <release version="0.4.0" date="2026-05-18" />
+  </releases>
+  <content_rating type="oars-1.0" />
+</component>

@@ -1,4 +1,4 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import {
   Rx,
   Message,
@@ -13,7 +13,7 @@ import {
 } from 'actunamail-exports';
 import { ListTabular, ListDataSource } from 'actunamail-component-kit';
 
-class DraftListStore extends MailspringStore {
+class DraftListStore extends ActunaMailStore {
   constructor() {
     super();
     this.listenTo(FocusedPerspectiveStore, this._onPerspectiveChanged);

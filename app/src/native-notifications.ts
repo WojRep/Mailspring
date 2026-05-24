@@ -16,7 +16,7 @@ const DEFAULT_ICON = path.resolve(
   AppEnv.getLoadSettings().resourcePath,
   'static',
   'images',
-  'mailspring.png'
+  'actunamail.png'
 );
 
 type INotificationCallback = (args: {
@@ -131,10 +131,10 @@ class NativeNotifications {
   }
 
   /**
-   * Get notification icon. Only works on linux, otherwise the Mailspring default icon wil be read
+   * Get notification icon. Only works on linux, otherwise the ActunaMail default icon wil be read
    * from resources.
    *
-   * Reading the icon name from the desktop file of Mailspring. If the icon is a name, reads the
+   * Reading the icon name from the desktop file of ActunaMail. If the icon is a name, reads the
    * icon theme directory for this icon. As the notification only works with PNG files, SVG files
    * must be converted to PNG
    *
@@ -149,7 +149,7 @@ class NativeNotifications {
       os.homedir() + '/.local/share/applications/',
       '/usr/share/applications/',
     ];
-    const desktopFileNames = ['mailspring.desktop', 'Mailspring.desktop'];
+    const desktopFileNames = ['actunamail.desktop', 'ActunaMail.desktop'];
     // check the applications directories, the user directory has a higher priority
     for (const baseDir of desktopBaseDirs) {
       // check multiple spellings

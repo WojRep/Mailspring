@@ -275,7 +275,7 @@ class DraftFactory {
     }
 
     return this.createDraft({
-      from: [new Contact({ email: account.emailAddress, name: `${account.name} via Mailspring` })],
+      from: [new Contact({ email: account.emailAddress, name: `${account.name} via ActunaMail` })],
       to: [account.defaultMe()],
       cc: [],
       pristine: false,

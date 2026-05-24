@@ -16,8 +16,8 @@ export type Actions = typeof import('../flux/actions');
 export const Actions: Actions;
 
 // API Endpoints
-export type MailspringAPIRequest = typeof import('../flux/actunamail-api-request').default;
-export const MailspringAPIRequest: MailspringAPIRequest;
+export type ActunaMailAPIRequest = typeof import('../flux/actunamail-api-request').default;
+export const ActunaMailAPIRequest: ActunaMailAPIRequest;
 export * from '../mailsync-process';
 
 // The Database
@@ -254,5 +254,5 @@ export type SystemStartService = typeof import('../system-start-service').defaul
 export const SystemStartService: SystemStartService;
 
 // Testing
-export type MailspringTestUtils = typeof import('../../spec/actunamail-test-utils').default;
-export const MailspringTestUtils: MailspringTestUtils;
+export type ActunaMailTestUtils = typeof import('../../spec/actunamail-test-utils').default;
+export const ActunaMailTestUtils: ActunaMailTestUtils;

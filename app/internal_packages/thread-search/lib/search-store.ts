@@ -1,4 +1,4 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import { Actions, AccountStore, FocusedPerspectiveStore } from 'actunamail-exports';
 
 import SearchMailboxPerspective from './search-mailbox-perspective';
@@ -8,7 +8,7 @@ import SearchMailboxPerspective from './search-mailbox-perspective';
 // for changes in selectedThread, "DatabaseStore" for changes to the underlying database,
 // and vends up the array used for that view.
 
-class SearchStore extends MailspringStore {
+class SearchStore extends ActunaMailStore {
   _searchQuery = (FocusedPerspectiveStore.current() as any).searchQuery || '';
   _isSearching = false;
   _perspectiveBeforeSearch = null;

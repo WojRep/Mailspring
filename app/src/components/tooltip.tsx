@@ -3,7 +3,7 @@
 // Facade component decoupling call sites from underlying implementation.
 //
 // Today: @floating-ui/react@^0.20 (React 16 compatible).
-//   Pinned to 0.20.x because Mailspring slate editor requires React 16.9.
+//   Pinned to 0.20.x because ActunaMail slate editor requires React 16.9.
 //   Upgrade path: when Slate is migrated to TipTap/Lexical (deferred ticket,
 //   per Sprint 4 architectural deferral), React goes 16 → 17+, and we bump
 //   @floating-ui/react to ^0.27.x — same API surface, drop-in.

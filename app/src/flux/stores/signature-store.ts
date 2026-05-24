@@ -1,5 +1,5 @@
 import { localized, Actions, AccountStore } from 'actunamail-exports';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import _ from 'underscore';
 
 export interface IDefaultSignatures {
@@ -20,7 +20,7 @@ export interface ISignatureSet {
   [key: string]: ISignature;
 }
 
-class _SignatureStore extends MailspringStore {
+class _SignatureStore extends ActunaMailStore {
   signatures: ISignatureSet;
   defaultSignatures: IDefaultSignatures;
   selectedSignatureId: string;

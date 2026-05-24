@@ -25,7 +25,7 @@ export function activate() {
       order: 2,
     })
   );
-  // Subscription tab removed in WS1-D: no Mailspring ID / Pro tier in Actuna Mail.
+  // Subscription tab removed in WS1-D: no ActunaMail ID / Pro tier in Actuna Mail.
   PreferencesUIStore.registerPreferencesTab(
     new PreferencesUIStore.TabItem({
       tabId: 'Appearance',

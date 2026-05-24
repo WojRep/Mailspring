@@ -284,8 +284,8 @@ export default class ComposerView extends React.Component<ComposerViewProps, Com
   };
 
   _nonNativeFilePathForDrop = (event) => {
-    if (event.dataTransfer.types.includes('text/mailspring-file-url')) {
-      const downloadURL = event.dataTransfer.getData('text/mailspring-file-url');
+    if (event.dataTransfer.types.includes('text/actunamail-file-url')) {
+      const downloadURL = event.dataTransfer.getData('text/actunamail-file-url');
       const downloadFilePath = downloadURL.split('file://')[1];
       if (downloadFilePath) {
         return downloadFilePath;

@@ -205,7 +205,7 @@ function buildPackagerOptions() {
     appVersion: packageJSON.version,
     platform,
     protocols: [
-      { name: 'Mailspring Protocol', schemes: ['mailspring'] },
+      { name: 'ActunaMail Protocol', schemes: ['actunamail'] },
       { name: 'Mailto Protocol', schemes: ['mailto'] },
     ],
     dir: appDir,
@@ -326,9 +326,9 @@ function buildPackagerOptions() {
       : undefined,
     win32metadata: {
       CompanyName: 'Foundry 376, LLC',
-      FileDescription: 'Mailspring',
+      FileDescription: 'ActunaMail',
       LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
-      ProductName: 'Mailspring',
+      ProductName: 'ActunaMail',
     },
     // NOTE: The following plist keys can NOT be set in the extra.plist since
     // they are manually overridden by electron-packager based on this config:
@@ -508,7 +508,7 @@ const linuxArch = { ia32: 'i386', x64: 'amd64', arm64: 'arm64' }[process.arch];
 async function createDebInstaller() {
   if (!linuxArch) throw new Error(`Unsupported arch ${process.arch}`);
 
-  const contentsDir = path.join(outputDir, `mailspring-linux-${process.arch}`);
+  const contentsDir = path.join(outputDir, `actunamail-linux-${process.arch}`);
   const linuxAssetsDir = path.resolve(path.join(buildDir, 'resources', 'linux'));
 
   // `du` failures (e.g. permission errors) are non-fatal — fall back to a
@@ -526,28 +526,28 @@ async function createDebInstaller() {
     name: packageJSON.name,
     description: packageJSON.description,
     productName: packageJSON.productName,
-    linuxShareDir: '/usr/share/mailspring',
+    linuxShareDir: '/usr/share/actunamail',
     arch: linuxArch,
     section: 'mail',
     maintainer: 'Actuna <tech@actuna.pl>',
     installedSize,
   };
   writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data);
-  writeFromTemplate(path.join(linuxAssetsDir, 'Mailspring.desktop.in'), data);
-  writeFromTemplate(path.join(linuxAssetsDir, 'mailspring.appdata.xml.in'), data);
+  writeFromTemplate(path.join(linuxAssetsDir, 'ActunaMail.desktop.in'), data);
+  writeFromTemplate(path.join(linuxAssetsDir, 'actunamail.appdata.xml.in'), data);
 
   const icon = path.join(appDir, 'build', 'resources', 'linux', 'icons', '512.png');
   await spawn({
     cmd: path.join(appDir, 'script', 'mkdeb'),
     args: [packageJSON.version, linuxArch, icon, linuxAssetsDir, contentsDir, outputDir],
   });
-  console.log(`Created ${outputDir}/mailspring-${packageJSON.version}-${linuxArch}.deb`);
+  console.log(`Created ${outputDir}/actunamail-${packageJSON.version}-${linuxArch}.deb`);
 }
 
 async function createRpmInstaller() {
   if (!linuxArch) throw new Error(`Unsupported arch ${process.arch}`);
 
-  const contentsDir = path.join(outputDir, `mailspring-linux-${process.arch}`);
+  const contentsDir = path.join(outputDir, `actunamail-linux-${process.arch}`);
   const linuxAssetsDir = path.resolve(path.join(buildDir, 'resources', 'linux'));
   const rpmDir = path.join(outputDir, 'rpm');
   if (fs.existsSync(rpmDir)) {
@@ -559,14 +559,14 @@ async function createRpmInstaller() {
     version: packageJSON.version,
     description: packageJSON.description,
     productName: packageJSON.productName,
-    linuxShareDir: '/usr/local/share/mailspring',
+    linuxShareDir: '/usr/local/share/actunamail',
     linuxAssetsDir,
     contentsDir,
   };
 
-  writeFromTemplate(path.join(linuxAssetsDir, 'redhat', 'mailspring.spec.in'), templateData);
-  writeFromTemplate(path.join(linuxAssetsDir, 'Mailspring.desktop.in'), templateData);
-  writeFromTemplate(path.join(linuxAssetsDir, 'mailspring.appdata.xml.in'), templateData);
+  writeFromTemplate(path.join(linuxAssetsDir, 'redhat', 'actunamail.spec.in'), templateData);
+  writeFromTemplate(path.join(linuxAssetsDir, 'ActunaMail.desktop.in'), templateData);
+  writeFromTemplate(path.join(linuxAssetsDir, 'actunamail.appdata.xml.in'), templateData);
 
   await spawn({
     cmd: path.join(appDir, 'script', 'mkrpm'),

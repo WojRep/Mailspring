@@ -2,7 +2,7 @@ import _ from 'underscore';
 import { app, BrowserWindow, screen } from 'electron';
 import WindowLauncher from './window-launcher';
 import { localized } from '../intl';
-import MailspringWindow from './actunamail-window';
+import ActunaMailWindow from './actunamail-window';
 
 const MAIN_WINDOW = 'default';
 const SPEC_WINDOW = 'spec';
@@ -18,7 +18,7 @@ export default class WindowManager {
   static CONTACTS_WINDOW = CONTACTS_WINDOW;
 
   initializeInBackground: boolean;
-  _windows: { [key: string]: MailspringWindow } = {};
+  _windows: { [key: string]: ActunaMailWindow } = {};
   windowLauncher: WindowLauncher;
 
   constructor({
@@ -226,7 +226,7 @@ export default class WindowManager {
   }
 
   quitWinLinuxIfNoWindows() {
-    // Typically, Mailspring stays running in the background on all platforms,
+    // Typically, ActunaMail stays running in the background on all platforms,
     // since it has a status icon you can use to quit it.
 
     // However, on Windows and Linux we /do/ want to quit if the app is somehow

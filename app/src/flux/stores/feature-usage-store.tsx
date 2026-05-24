@@ -1,7 +1,7 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
 // Actuna Mail does not have a Pro tier, a Foundry-backed identity, or a
-// quota system. The original FeatureUsageStore from Mailspring upstream
+// quota system. The original FeatureUsageStore from ActunaMail upstream
 // gated 'Pro' features (snooze, send-later, grammar-check, etc.) against
 // per-user quotas served by id.getmailspring.com. In Actuna Mail every
 // feature is unconditionally available.
@@ -23,7 +23,7 @@ export interface FeatureLexicon {
   iconUrl: string;
 }
 
-class _FeatureUsageStore extends MailspringStore {
+class _FeatureUsageStore extends ActunaMailStore {
   NoProAccessError = NoProAccessError;
 
   // No-op: there is no upgrade flow in Actuna Mail.

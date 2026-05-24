@@ -10,7 +10,7 @@ import {
   localized,
   createLogger,
 } from 'actunamail-exports';
-import MailspringProviderSettings from './actunamail-provider-settings.json';
+import ActunaMailProviderSettings from './actunamail-provider-settings.json';
 import MailcoreProviderSettings from './mailcore-provider-settings.json';
 import dns from 'dns';
 import {
@@ -145,12 +145,12 @@ export async function expandAccountWithCommonSettings(account: Account) {
   // this matches the acccount type presets ("yahoo") and common domains against
   // data derived from Thunderbirds ISPDB.
   let mstemplate =
-    MailspringProviderSettings[domain] || MailspringProviderSettings[account.provider];
+    ActunaMailProviderSettings[domain] || ActunaMailProviderSettings[account.provider];
   if (mstemplate) {
     if (mstemplate.alias) {
-      mstemplate = MailspringProviderSettings[mstemplate.alias];
+      mstemplate = ActunaMailProviderSettings[mstemplate.alias];
     }
-    log.info(`Using Mailspring Template: ${JSON.stringify(mstemplate, null, 2)}`);
+    log.info(`Using ActunaMail Template: ${JSON.stringify(mstemplate, null, 2)}`);
   } else {
     log.info(`Using Fallback Template`);
     mstemplate = {
@@ -206,7 +206,7 @@ export async function expandAccountWithCommonSettings(account: Account) {
   // on protonmail by default Folders set as container folder
   const containerFolderDefault = AccountStore.containerFolderDefaultGetter();
   if (
-    containerFolderDefault !== 'Mailspring' &&
+    containerFolderDefault !== 'ActunaMail' &&
     (populated.settings.container_folder === '' ||
       populated.settings.container_folder === undefined)
   ) {

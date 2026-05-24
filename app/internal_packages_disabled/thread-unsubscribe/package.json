@@ -6,7 +6,7 @@
   "main": "./lib/main",
   "private": true,
   "engines": {
-    "mailspring": "*"
+    "actunamail": "*"
   },
   "license": "GPL-3.0"
 }

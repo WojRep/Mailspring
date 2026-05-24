@@ -6,7 +6,7 @@ import { ParticipantsTextField } from 'actunamail-component-kit';
 
 const participant1 = new Contact({
   id: 'local-1',
-  email: 'ben@mailspring.com',
+  email: 'ben@actunamail.test',
 });
 const participant2 = new Contact({
   id: 'local-2',
@@ -15,7 +15,7 @@ const participant2 = new Contact({
 });
 const participant3 = new Contact({
   id: 'local-3',
-  email: 'evan@mailspring.com',
+  email: 'evan@actunamail.test',
   name: 'Evan Morikawa',
 });
 
@@ -130,7 +130,7 @@ xdescribe('ParticipantsTextField', function ParticipantsTextFieldSpecs() {
       });
 
       this.expectInputToYield(participant3.email, {
-        to: [participant1, participant2, new Contact({ email: 'evan@mailspring.com' })],
+        to: [participant1, participant2, new Contact({ email: 'evan@actunamail.test' })],
         cc: [],
         bcc: [],
       });
@@ -160,18 +160,18 @@ xdescribe('ParticipantsTextField', function ParticipantsTextFieldSpecs() {
         const newContact1 = new Contact({
           id: 'b1',
           name: 'Ben Imposter',
-          email: 'imposter@mailspring.com',
+          email: 'imposter@actunamail.test',
         });
         const newContact2 = new Contact({
-          name: 'Mailspring Team',
-          email: 'feedback@mailspring.com',
+          name: 'ActunaMail Team',
+          email: 'feedback@actunamail.test',
         });
 
         const inputs = [
-          'Ben Imposter <imposter@mailspring.com>, Mailspring Team <feedback@mailspring.com>',
-          '\n\nbla\nBen Imposter (imposter@mailspring.com), Mailspring Team (feedback@mailspring.com)',
-          'Hello world! I like cheese. \rBen Imposter (imposter@mailspring.com)\nMailspring Team (feedback@mailspring.com)',
-          'Ben Imposter<imposter@mailspring.com>Mailspring Team (feedback@mailspring.com)',
+          'Ben Imposter <imposter@actunamail.test>, ActunaMail Team <feedback@actunamail.test>',
+          '\n\nbla\nBen Imposter (imposter@actunamail.test), ActunaMail Team (feedback@actunamail.test)',
+          'Hello world! I like cheese. \rBen Imposter (imposter@actunamail.test)\nActunaMail Team (feedback@actunamail.test)',
+          'Ben Imposter<imposter@actunamail.test>ActunaMail Team (feedback@actunamail.test)',
         ];
 
         for (const input of inputs) {
@@ -188,19 +188,19 @@ xdescribe('ParticipantsTextField', function ParticipantsTextFieldSpecs() {
       it('should still parse out emails into Contact objects', function () {
         const newContact1 = new Contact({
           id: 'gm',
-          name: 'garbage-man@mailspring.com',
-          email: 'garbage-man@mailspring.com',
+          name: 'garbage-man@actunamail.test',
+          email: 'garbage-man@actunamail.test',
         });
         const newContact2 = new Contact({
           id: 'rm',
-          name: 'recycling-guy@mailspring.com',
-          email: 'recycling-guy@mailspring.com',
+          name: 'recycling-guy@actunamail.test',
+          email: 'recycling-guy@actunamail.test',
         });
 
         const inputs = [
-          "Hello world I real. \n asd. garbage-man@mailspring.com—he's cool Also 'recycling-guy@mailspring.com'!",
-          'garbage-man@mailspring.com1WHOA I REALLY HATE DATA,recycling-guy@mailspring.com',
-          'nils.com garbage-man@mailspring.com @mailspring.com nope@.com nope! recycling-guy@mailspring.com HOLLA AT recycling-guy@mailspring.',
+          "Hello world I real. \n asd. garbage-man@actunamail.test—he's cool Also 'recycling-guy@actunamail.test'!",
+          'garbage-man@actunamail.test1WHOA I REALLY HATE DATA,recycling-guy@actunamail.test',
+          'nils.com garbage-man@actunamail.test @actunamail.test nope@.com nope! recycling-guy@actunamail.test HOLLA AT recycling-guy@actunamail.',
         ];
 
         for (const input of inputs) {

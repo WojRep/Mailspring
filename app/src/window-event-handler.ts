@@ -372,7 +372,7 @@ export default class WindowEventHandler {
           AppEnv.showErrorDialog({
             title: localized('Failed to Open Link'),
             message: localized(
-              'Mailspring was unable to open the link in your browser.\n\n%@',
+              'ActunaMail was unable to open the link in your browser.\n\n%@',
               err.message
             ),
           });
@@ -395,7 +395,7 @@ export default class WindowEventHandler {
           "plugin, you should enable debug flags. It's slower, but " +
           'gives you better exceptions, the debug version of React, ' +
           'and more. Choose %c Developer > Run with Debug Flags %c ' +
-          'from the menu. Also, check out http://Foundry376.github.io/Mailspring/ ' +
+          'from the menu. Also, check out https://github.com/WojRep/ActunaMail ' +
           'for documentation and sample code!',
         'background-color: antiquewhite;',
         'background-color: antiquewhite; font-weight:bold;',

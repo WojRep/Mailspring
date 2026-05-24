@@ -35,7 +35,7 @@ export default class ActunaMailProtocolHandler {
     this.registerProtocol();
   }
 
-  // Creates the 'Mailspring' custom protocol handler.
+  // Creates the 'ActunaMail' custom protocol handler.
   registerProtocol() {
     const scheme = 'actunamail';
 

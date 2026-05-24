@@ -1,4 +1,4 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
 import {
   Rx,
@@ -12,7 +12,7 @@ import {
 import { ListTabular, ListDataSource } from 'actunamail-component-kit';
 import ThreadListDataSource from './thread-list-data-source';
 
-class ThreadListStore extends MailspringStore {
+class ThreadListStore extends ActunaMailStore {
   _dataSource?: ListDataSource;
   _dataSourceUnlisten: () => void;
 

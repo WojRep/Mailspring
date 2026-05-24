@@ -73,7 +73,7 @@ const RegExpUtils = {
     return new RegExp(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/i);
   },
 
-  mailspringCommandRegex() {
+  actunamailCommandRegex() {
     return new RegExp(/actunamail:\S+/i);
   },
 
@@ -212,7 +212,7 @@ const RegExpUtils = {
     return new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+?)(['"].*?>)([\s\S]*?)(<\/a>)/gim);
   },
 
-  mailspringSignatureRegex() {
+  actunamailSignatureRegex() {
     return /<signature id="([A-Za-z0-9-/\\]+)">[^]*<\/signature>/;
   },
 

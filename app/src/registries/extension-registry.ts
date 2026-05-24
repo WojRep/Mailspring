@@ -1,7 +1,7 @@
 import _ from 'underscore';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
-export class Registry extends MailspringStore {
+export class Registry extends ActunaMailStore {
   name: string;
   _registry: { name: string; extension: any; priority: number }[];
 

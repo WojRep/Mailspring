@@ -1,4 +1,4 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import * as Actions from '../actions';
 import { Task } from '../tasks/task';
 import { createLogger } from '../../logger';
@@ -13,7 +13,7 @@ interface UndoBlock {
   redo?: () => void;
 }
 
-class UndoRedoStore extends MailspringStore {
+class UndoRedoStore extends ActunaMailStore {
   _undo: UndoBlock[] = [];
   _redo: UndoBlock[] = [];
   _mostRecentBlock: UndoBlock | null = null;

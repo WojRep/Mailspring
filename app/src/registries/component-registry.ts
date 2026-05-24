@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import { SheetToolbarDeclaration } from '../flux/stores/workspace-store';
 import { createLogger } from '../logger';
 
@@ -18,12 +18,12 @@ export interface ComponentRegistryDescriptor {
 
 /**
 Public: The ComponentRegistry maintains an index of React components registered
-by Mailspring packages. Components can use {InjectedComponent} and {InjectedComponentSet}
+by ActunaMail packages. Components can use {InjectedComponent} and {InjectedComponentSet}
 to dynamically render components registered with the ComponentRegistry.
 
 Section: Stores
 */
-class ComponentRegistry extends MailspringStore {
+class ComponentRegistry extends ActunaMailStore {
   _registry: {
     [displayName: string]: {
       modes?: string[];
@@ -37,7 +37,7 @@ class ComponentRegistry extends MailspringStore {
 
   // Public: Register a new component with the Component Registry.
   // Typically, packages call this method from their main `activate` method
-  // to extend the Mailspring user interface, and call the corresponding `unregister`
+  // to extend the ActunaMail user interface, and call the corresponding `unregister`
   // method in `deactivate`.
   //
   // * `component` {Object} A React Component with a `displayName`

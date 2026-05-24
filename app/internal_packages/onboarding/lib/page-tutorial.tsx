@@ -2,7 +2,7 @@ import { localized, React } from 'actunamail-exports';
 import * as OnboardingActions from './onboarding-actions';
 
 // v0.2.d: single tutorial slide combining the privacy and EU
-// compliance message under "Privacy by default". Upstream Mailspring's
+// compliance message under "Privacy by default". Upstream ActunaMail's
 // tutorial originally had three Pro-feature slides (participant-profile,
 // activity / open-tracking / link-tracking, thread-snooze / send-later);
 // all three plugins were removed in WS1-A. The replacement copy first

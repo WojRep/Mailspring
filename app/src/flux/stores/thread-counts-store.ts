@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import DatabaseStore from './database-store';
 import { Thread } from '../models/thread';
 
@@ -9,7 +9,7 @@ interface ThreadCountRow {
   total: number;
 }
 
-class ThreadCountsStore extends MailspringStore {
+class ThreadCountsStore extends ActunaMailStore {
   _counts = {};
 
   constructor() {

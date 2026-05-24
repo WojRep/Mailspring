@@ -10,7 +10,7 @@ import {
   PropTypes,
   Utils,
   localized,
-  MailspringAPIRequest,
+  ActunaMailAPIRequest,
   SearchableComponentStore,
 } from 'actunamail-exports';
 import IFrameSearcher from '../searchable-components/iframe-searcher';
@@ -22,7 +22,7 @@ const log = createLogger('EventedIFrame');
 import path from 'path';
 import fs from 'fs';
 
-const { rootURLForServer } = MailspringAPIRequest;
+const { rootURLForServer } = ActunaMailAPIRequest;
 
 type EventedIFrameProps = {
   searchable?: boolean;
@@ -229,7 +229,7 @@ export class EventedIFrame extends React.Component<
 
       e.preventDefault();
 
-      // SSO branch to id.getmailspring.com removed in WS1-D: no Mailspring ID
+      // SSO branch to id.getmailspring.com removed in WS1-D: no ActunaMail ID
       // in Actuna Mail. Links to id.getmailspring.com (if any survive in
       // forwarded emails) are opened as ordinary external links.
 

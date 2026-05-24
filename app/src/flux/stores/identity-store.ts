@@ -1,11 +1,11 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
-// Actuna Mail does not have a Mailspring ID concept. Per
+// Actuna Mail does not have a ActunaMail ID concept. Per
 // analysis/05-remediation-plan.md and the user directive of 2026-05-09
 // ("Całkowite usunięcie"), the entire identity flow with
 // id.getmailspring.com is removed.
 //
-// Removed in this stub vs upstream Mailspring 1.21.0:
+// Removed in this stub vs upstream ActunaMail 1.21.0:
 //   - 10-minute polling of /api/me (finding #6, finding T3.A).
 //   - fetchSingleSignOnURL via /api/login-link.
 //   - fetchIdentity (with the HIGH-PII reportError on /api/me invalid
@@ -55,7 +55,7 @@ export const EMPTY_FEATURE_USAGE = {
   quota: 0,
 };
 
-class _IdentityStore extends MailspringStore {
+class _IdentityStore extends ActunaMailStore {
   constructor() {
     super();
     // No polling, no config listener, no logout listener.
@@ -84,7 +84,7 @@ class _IdentityStore extends MailspringStore {
   async fetchSingleSignOnURL(_path: string, _opts: any = {}): Promise<string> {
     return Promise.reject(
       new Error(
-        'fetchSingleSignOnURL is not available in Actuna Mail (Mailspring ID disabled).'
+        'fetchSingleSignOnURL is not available in Actuna Mail (ActunaMail ID disabled).'
       )
     );
   }

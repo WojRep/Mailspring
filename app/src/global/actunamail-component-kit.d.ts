@@ -8,7 +8,7 @@ export const DatePickerPopover: typeof import('../components/date-picker-popover
 export const Modal: typeof import('../components/modal').default;
 export const Webview: typeof import('../components/webview').default;
 // FeatureUsedUpModal, BillingModal removed in WS1-C (no Pro tier).
-// OpenIdentityPageButton removed in WS1-D (no Mailspring ID flow).
+// OpenIdentityPageButton removed in WS1-D (no ActunaMail ID flow).
 export * from '../components/flexbox';
 
 export * from '../components/retina-img';

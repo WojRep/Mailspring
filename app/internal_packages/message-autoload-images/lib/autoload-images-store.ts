@@ -1,4 +1,4 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import fs from 'fs';
 import path from 'path';
 import { Utils, MessageBodyProcessor, CategoryStore, createLogger } from 'actunamail-exports';
@@ -6,7 +6,7 @@ import * as AutoloadImagesActions from './autoload-images-actions';
 
 const log = createLogger('AutoloadImagesStore');
 
-class AutoloadImagesStore extends MailspringStore {
+class AutoloadImagesStore extends ActunaMailStore {
   _whitelistEmails = {};
   _whitelistMessageIds = {};
   _whitelistEmailsPath = path.join(AppEnv.getConfigDirPath(), 'autoload-images-whitelist.txt');

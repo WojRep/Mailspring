@@ -18,8 +18,8 @@ const SIGNATURES = {
 };
 
 const DEFAULTS = {
-  'one@mailspring.com': '1',
-  'two@mailspring.com': '2',
+  'one@actunamail.test': '1',
+  'two@actunamail.test': '2',
 };
 
 const makeComponent = (props = {}) => {

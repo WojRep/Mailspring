@@ -4,7 +4,7 @@ import * as Utils from '../flux/models/utils';
 import { RetinaImg } from './retina-img';
 
 // WS2-B: Gravatar lookup removed.
-// Upstream Mailspring 1.21.0 issued a request to
+// Upstream ActunaMail 1.21.0 issued a request to
 //   https://www.gravatar.com/avatar/<sha256(email)>?s=88&msw=88&msh=88&d=blank
 // for every contact rendered. Each request leaks the corresponding
 // contact's email (as a SHA-256 hash that is trivially looked up in

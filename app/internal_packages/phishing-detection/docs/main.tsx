@@ -3,7 +3,7 @@
 // This is a simple package to notify N1 users if an email is a potential
 // phishing scam.
 
-// You can access Mailspring dependencies by requiring 'actunamail-exports'
+// You can access ActunaMail dependencies by requiring 'actunamail-exports'
 import React from 'react';
 import {
   PropTypes,

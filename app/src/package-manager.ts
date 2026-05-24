@@ -49,7 +49,7 @@ export default class PackageManager {
 
     this.discoverPackages();
 
-    // If the user starts without a Mailspring ID and then links one, immediately turn on the
+    // If the user starts without a ActunaMail ID and then links one, immediately turn on the
     // packages that require it. (Note: When you log OUT we currently just reboot the app, so
     // this only goes one way, which is also convenient because unloading the built-in packages
     // hasn't been tested much.)
@@ -191,7 +191,7 @@ export default class PackageManager {
       cancelId: 0,
       message: localized('Only install plugins from sources you trust'),
       detail: localized(
-        'Mailspring plugins run in the application and have access to your email data. Only install plugins from developers you trust.'
+        'ActunaMail plugins run in the application and have access to your email data. Only install plugins from developers you trust.'
       ),
     });
     if (response !== 1) {
@@ -403,6 +403,6 @@ export default class PackageManager {
   }
 
   createPackageManually() {
-    shell.openExternal('https://github.com/Foundry376/Mailspring-Plugin-Starter');
+    shell.openExternal('https://github.com/Foundry376/ActunaMail-Plugin-Starter');
   }
 }

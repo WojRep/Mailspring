@@ -1,6 +1,6 @@
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
-class EmailFrameStylesStore extends MailspringStore {
+class EmailFrameStylesStore extends ActunaMailStore {
   _styles?: string;
   _mutationObserver: MutationObserver;
 

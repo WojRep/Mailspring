@@ -127,7 +127,7 @@ export default class SignaturePhotoPicker extends React.Component<
     // paths or pasted data URLs. See COMPLIANCE.md (GDPR Art. 5(1)(c)).
     AppEnv.showErrorDialog(
       localized(
-        'Uploading signature images to Mailspring servers is disabled in this build. Use a local file path or a data URL instead.'
+        'Uploading signature images to ActunaMail servers is disabled in this build. Use a local file path or a data URL instead.'
       )
     );
   };
@@ -143,8 +143,8 @@ export default class SignaturePhotoPicker extends React.Component<
 
     // we don't display the <input> for data URLs because they can be
     // long and the UI becomes slow.
-    const isMailspringURL = resolvedURL && resolvedURL.includes('getmailspring.com');
-    const isUploadEnabled = false; // WS1-D: no Mailspring ID, no signature upload host.
+    const isLegacyHostedURL = resolvedURL && resolvedURL.includes('getmailspring.com');
+    const isUploadEnabled = false; // WS1-D: no ActunaMail ID, no signature upload host.
 
     const dropNote =
       resolvedURL && resolvedURL !== ''
@@ -197,7 +197,7 @@ export default class SignaturePhotoPicker extends React.Component<
               <option value="custom">{localized('Custom Image…')}</option>
             </select>
             {source === 'custom' &&
-              (isMailspringURL ? (
+              (isLegacyHostedURL ? (
                 <a
                   className="btn"
                   onClick={() => this.props.onChange({ target: { value: '', id: 'photoURL' } })}

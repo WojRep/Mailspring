@@ -2,10 +2,10 @@ import React from 'react';
 import { PropTypes } from 'actunamail-exports';
 import * as OnboardingActions from './onboarding-actions';
 
-// WS1-E: replaces upstream Mailspring's authenticate page, which loaded
+// WS1-E: replaces upstream ActunaMail's authenticate page, which loaded
 // id.getmailspring.com/onboarding in a webview before the user clicked
 // "Skip" (per analysis/01-... finding T3.D — the leak that contradicted
-// SECURITY.md statement #3). Actuna Mail has no Mailspring ID, so this
+// SECURITY.md statement #3). Actuna Mail has no ActunaMail ID, so this
 // page is unreachable from the normal flow (OnboardingStore now sends
 // returning users to 'account-choose'). The component is retained as a
 // safety net: if any code path resurrects it, it skips through with a
@@ -28,7 +28,7 @@ export default class AuthenticatePage extends React.Component {
       <div className="page authenticate">
         <div style={{ padding: 40, textAlign: 'center' }}>
           {/* Plain text only; no webview, no remote fetch. */}
-          Skipping the legacy Mailspring ID step…
+          Skipping the legacy ActunaMail ID step…
         </div>
       </div>
     );

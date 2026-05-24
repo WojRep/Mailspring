@@ -62,7 +62,7 @@ export default {
             note:
               process.platform === 'linux'
                 ? localized(
-                    'On Linux you need to restart Mailspring for the tray icon to disappear.'
+                    'On Linux you need to restart ActunaMail for the tray icon to disappear.'
                   )
                 : undefined,
           },
@@ -91,7 +91,7 @@ export default {
             // ActunaMail v0.2: default TRUE for PL/EU baseline (ticket 09).
             // The Polish and most-of-Europe convention is 24-hour clock.
             // Existing user choices are respected — only new installs get
-            // this default. Upstream Mailspring shipped false (US 12-hour).
+            // this default. Upstream ActunaMail shipped false (US 12-hour).
             default: true,
             title: localized('Use 24-hour clock'),
           },

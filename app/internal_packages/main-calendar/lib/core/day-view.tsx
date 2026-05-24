@@ -19,7 +19,7 @@ import {
   TICKS_PER_DAY,
   tickGenerator,
 } from './week-view-helpers';
-import { MailspringCalendarViewProps } from './actunamail-calendar';
+import { ActunaMailCalendarViewProps } from './actunamail-calendar';
 import { getEventsWithDragPreview } from './calendar-drag-utils';
 
 const BUFFER_DAYS = 1; // Buffer one day on each side for smooth navigation
@@ -28,7 +28,7 @@ const MIN_INTERVAL_HEIGHT = 21;
 const DAY_PORTION_SHOWN_VERTICALLY = 11 / 24;
 
 export class DayView extends React.Component<
-  MailspringCalendarViewProps,
+  ActunaMailCalendarViewProps,
   { intervalHeight: number; events: EventOccurrence[] }
 > {
   static displayName = 'DayView';

@@ -488,11 +488,11 @@ export class TokenizingTextField<T> extends React.Component<
   };
 
   _onDrop = (event) => {
-    if (!event.dataTransfer.types.includes('mailspring-token-items')) {
+    if (!event.dataTransfer.types.includes('actunamail-token-items')) {
       return;
     }
 
-    const data = event.dataTransfer.getData('mailspring-token-items');
+    const data = event.dataTransfer.getData('actunamail-token-items');
     this._onAddItemsFromJSON(data);
   };
 
@@ -743,7 +743,7 @@ export class TokenizingTextField<T> extends React.Component<
       tokens = [token];
     }
     const json = JSON.stringify(tokens);
-    event.dataTransfer.setData('mailspring-token-items', json);
+    event.dataTransfer.setData('actunamail-token-items', json);
     event.dataTransfer.setData('text/plain', tokens.map((t) => t.toString()).join(', '));
     event.dataTransfer.dropEffect = 'move';
     event.dataTransfer.effectAllowed = 'move';
@@ -842,22 +842,22 @@ export class TokenizingTextField<T> extends React.Component<
     if (event.clipboardData) {
       const json = JSON.stringify(this._selectedTokens());
       event.clipboardData.setData('text/plain', text);
-      event.clipboardData.setData('mailspring-token-items', json);
+      event.clipboardData.setData('actunamail-token-items', json);
 
       const range = (this.refs.input as SizeToFitInput).selectionRange();
       if (range.end > 0) {
         const inputSelection = this.state.inputValue.substr(range.start, range.end - range.start);
-        event.clipboardData.setData('mailspring-token-input', inputSelection);
+        event.clipboardData.setData('actunamail-token-input', inputSelection);
       } else {
-        event.clipboardData.setData('mailspring-token-input', 'null');
+        event.clipboardData.setData('actunamail-token-input', 'null');
       }
     }
     event.preventDefault();
   };
 
   _onPaste = (event) => {
-    const json = event.clipboardData.getData('mailspring-token-items');
-    const inputValue = event.clipboardData.getData('mailspring-token-input');
+    const json = event.clipboardData.getData('actunamail-token-items');
+    const inputValue = event.clipboardData.getData('actunamail-token-input');
     if (json) {
       this._onAddItemsFromJSON(json);
       if (inputValue && inputValue !== 'null') {

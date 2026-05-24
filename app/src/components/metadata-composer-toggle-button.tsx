@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   PropTypes,
-  MailspringAPIRequest,
+  ActunaMailAPIRequest,
   APIError,
   localized,
   FeatureUsageStore,
@@ -96,7 +96,7 @@ export default class MetadataComposerToggleButton extends React.Component<
         AppEnv.reportError(error);
       } else if (error.statusCode === 400) {
         AppEnv.reportError(error);
-      } else if (MailspringAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
+      } else if (ActunaMailAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
         title = localized('Offline');
       }
 

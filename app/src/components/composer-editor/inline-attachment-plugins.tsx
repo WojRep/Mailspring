@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImageAttachmentItem } from 'actunamail-component-kit';
 import { AttachmentStore } from 'actunamail-exports';
-import { File as MailspringFile } from '../../flux/models/file';
+import { File as ActunaMailFile } from '../../flux/models/file';
 import { isQuoteNode } from './base-block-plugins';
 import { ComposerEditorPlugin } from './types';
 import { Editor, Inline, Node } from 'slate';
@@ -87,7 +87,7 @@ const rules = [
 ];
 
 export const changes = {
-  insert: (editor: Editor, file: MailspringFile) => {
+  insert: (editor: Editor, file: ActunaMailFile) => {
     const canHoldInline = (node: Node) => {
       const isVoid =
         node.object === 'inline' && schema.inlines[node.type] && schema.inlines[node.type].isVoid;

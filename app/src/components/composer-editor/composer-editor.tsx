@@ -358,7 +358,7 @@ export function handleFilePasted(event: ClipboardEvent, onFileReceived: (path: s
   if (event.clipboardData.items.length === 0) {
     return false;
   }
-  // See https://github.com/Foundry376/Mailspring/pull/2104 - if you right-click + Copy Image in Chrome,
+  // See https://github.com/Foundry376/ActunaMail/pull/2104 - if you right-click + Copy Image in Chrome,
   // the image file is item 1, not item 0. We want to prefer the files whenever one is present.
   for (const i in event.clipboardData.items) {
     const item = event.clipboardData.items[i];
@@ -376,7 +376,7 @@ export function handleFilePasted(event: ClipboardEvent, onFileReceived: (path: s
       const reader = new FileReader();
       reader.addEventListener('loadend', () => {
         const buffer = Buffer.from(new Uint8Array(reader.result as any));
-        const tmpFolder = path.join(os.tmpdir(), `-mailspring-attachment-${crypto.randomUUID()}`);
+        const tmpFolder = path.join(os.tmpdir(), `-actunamail-attachment-${crypto.randomUUID()}`);
         const tmpPath = path.join(tmpFolder, `Pasted File${ext}`);
         fs.mkdir(tmpFolder, () => {
           fs.writeFile(tmpPath, buffer, () => {

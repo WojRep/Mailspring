@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Modal } from 'actunamail-component-kit';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
 import * as Actions from '../actions';
 
-const CONTAINER_ID = 'mailspring-modal-container';
+const CONTAINER_ID = 'actunamail-modal-container';
 
 function createContainer(id) {
   const element = document.createElement(id);
@@ -13,7 +13,7 @@ function createContainer(id) {
   return element;
 }
 
-class ModalStore extends MailspringStore {
+class ModalStore extends ActunaMailStore {
   isOpen = false;
   container: HTMLElement;
 

@@ -13,7 +13,7 @@ import { RetinaImg, KeyCommandsRegion, BindGlobalCommands } from 'actunamail-com
 import { EventOccurrence, occurrencesForEvents } from './calendar-data-source';
 import { Disposable } from 'rx-core';
 
-const DISABLED_CALENDARS = 'mailspring.disabledCalendars';
+const DISABLED_CALENDARS = 'actunamail.disabledCalendars';
 
 const log = createLogger('EventSearchBar');
 

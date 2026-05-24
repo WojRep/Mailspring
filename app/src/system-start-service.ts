@@ -51,7 +51,7 @@ class SystemStartServiceDarwin extends SystemStartServiceBase {
       process.env.HOME,
       'Library',
       'LaunchAgents',
-      'com.mailspring.plist'
+      'com.actuna.actunamail.plist'
     );
     fs.unlink(plistPath, () => {});
   }
@@ -143,12 +143,12 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
   }
 
   _launcherPath() {
-    return path.join('/', 'usr', 'share', 'applications', 'Mailspring.desktop');
+    return path.join('/', 'usr', 'share', 'applications', 'ActunaMail.desktop');
   }
 
   _shortcutPath() {
     const configDir = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
-    return path.join(configDir, 'autostart', 'Mailspring.desktop');
+    return path.join(configDir, 'autostart', 'ActunaMail.desktop');
   }
 }
 

@@ -1,5 +1,5 @@
 import _str from 'underscore.string';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import * as Actions from '../actions';
 import { Message } from '../models/message';
 import { SendDraftTask } from '../tasks/send-draft-task';
@@ -36,7 +36,7 @@ function verifySendAction(sendAction: ISendAction, extension: { name?: string } 
   return true;
 }
 
-class _SendActionsStore extends MailspringStore {
+class _SendActionsStore extends ActunaMailStore {
   _sendActions: ISendAction[] = [];
   _unsubscribers = [];
 

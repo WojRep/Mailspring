@@ -113,7 +113,7 @@ export const ResolveSignatureData = (data) => {
     }
   }
 
-  // WS2-B: signature 'gravatar' option removed. Upstream Mailspring
+  // WS2-B: signature 'gravatar' option removed. Upstream ActunaMail
   // emitted a Gravatar URL for every signature with photoURL='gravatar';
   // every recipient who renders the signature triggers a Gravatar lookup,
   // leaking the sender's email hash to Automattic. See finding #4.
@@ -121,7 +121,7 @@ export const ResolveSignatureData = (data) => {
     data.photoURL = '';
   }
 
-  // WS2-B: signature 'company' option removed. Upstream Mailspring
+  // WS2-B: signature 'company' option removed. Upstream ActunaMail
   // resolved a logo via logo.getmailspring.com/company-logo/<domain>,
   // which leaked the sender's email domain to Foundry on every signature
   // render. See README.md and COMPLIANCE.md.

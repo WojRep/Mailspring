@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { localized, PropTypes, Actions, WorkspaceStore, DOMUtils } from 'actunamail-exports';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import { Disposable } from 'event-kit';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
@@ -13,7 +13,7 @@ const TipsContainerEl = document.createElement('div');
 TipsContainerEl.classList.add('tooltips-container');
 document.body.insertBefore(TipsContainerEl, document.body.children[0]);
 
-class TipsStoreCls extends MailspringStore {
+class TipsStoreCls extends ActunaMailStore {
   _tipKeys = [];
 
   isTipVisible(key) {

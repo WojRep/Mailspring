@@ -1,60 +1,60 @@
 Windows Registry Editor Version 5.00
 
-[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto]
-"FriendlyTypeName"="Mailspring Url"
+[{{HKEY_ROOT}}\SOFTWARE\Classes\ActunaMail.Url.mailto]
+"FriendlyTypeName"="ActunaMail Url"
 
-[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto\shell]
+[{{HKEY_ROOT}}\SOFTWARE\Classes\ActunaMail.Url.mailto\shell]
 
-[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto\shell\open]
+[{{HKEY_ROOT}}\SOFTWARE\Classes\ActunaMail.Url.mailto\shell\open]
 
-[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto\shell\open\command]
-@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart mailspring.exe --process-start-args %1"
+[{{HKEY_ROOT}}\SOFTWARE\Classes\ActunaMail.Url.mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart actunamail.exe --process-start-args %1"
 
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring]
-@="Mailspring"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail]
+@="ActunaMail"
 "LocalizedString"="@{{PATH_TO_ROOT_FOLDER}}\\Update.exe,-123"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\DefaultIcon]
-@="{{PATH_TO_APP_FOLDER}}\\mailspring.exe,1"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\actunamail.exe,1"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Capabilities]
-"ApplicationName"="Mailspring"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Capabilities]
+"ApplicationName"="ActunaMail"
 "ApplicationDescription"="A fast, modern mail client designed to help you boost your productivity."
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Capabilities\StartMenu]
-"Mail"="Mailspring"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Capabilities\StartMenu]
+"Mail"="ActunaMail"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Capabilities\URLAssociations]
-"mailto"="Mailspring.Url.mailto"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Capabilities\URLAssociations]
+"mailto"="ActunaMail.Url.mailto"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols]
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Protocols]
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto]
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Protocols\mailto]
 @="URL:MailTo Protocol"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\DefaultIcon]
-@="{{PATH_TO_APP_FOLDER}}\\mailspring.exe,1"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Protocols\mailto\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\actunamail.exe,1"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\shell]
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Protocols\mailto\shell]
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\shell\open]
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Protocols\mailto\shell\open]
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\shell\open\command]
-@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart mailspring.exe --process-start-args %1"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\Protocols\mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart actunamail.exe --process-start-args %1"
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\shell]
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\shell]
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\shell\open]
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\shell\open]
 
-[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\shell\open\command]
-@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart mailspring.exe"
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\ActunaMail\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart actunamail.exe"
 
 [{{HKEY_ROOT}}\SOFTWARE\RegisteredApplications]
-"Mailspring"="Software\\Clients\\Mail\\Mailspring\\Capabilities"
+"ActunaMail"="Software\\Clients\\Mail\\ActunaMail\\Capabilities"
 
 
 [HKEY_CURRENT_USER\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache]
-"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="Mailspring"
-"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="Mailspring"
-"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.ApplicationCompany"="Mailspring"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="ActunaMail"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="ActunaMail"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.ApplicationCompany"="ActunaMail"

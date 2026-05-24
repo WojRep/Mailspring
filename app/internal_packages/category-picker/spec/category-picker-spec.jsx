@@ -15,7 +15,7 @@ import {
   SyncbackCategoryTask,
   FocusedPerspectiveStore,
   MailboxPerspective,
-  MailspringTestUtils,
+  ActunaMailTestUtils,
   TaskQueue,
 } from 'actunamail-exports';
 
@@ -48,7 +48,7 @@ describe('MovePickerPopover', function() {
       accountId: TEST_ACCOUNT_ID,
     });
 
-    const observable = MailspringTestUtils.mockObservable([
+    const observable = ActunaMailTestUtils.mockObservable([
       this.inboxCategory,
       this.archiveCategory,
       this.userCategory,

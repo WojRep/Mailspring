@@ -1,12 +1,12 @@
 import { isWaylandSession } from './is-wayland';
-import MailspringWindow from './actunamail-window';
-import { MailspringWindowSettings } from './actunamail-window';
+import ActunaMailWindow from './actunamail-window';
+import { ActunaMailWindowSettings } from './actunamail-window';
 
 const DEBUG_SHOW_HOT_WINDOW = process.env.SHOW_HOT_WINDOW === 'true';
 let winNum = 0;
 
 /**
- * It takes a full second or more to bootup a Mailspring window. Most of this
+ * It takes a full second or more to bootup a ActunaMail window. Most of this
  * is due to sheer amount of time it takes to parse all of the javascript
  * and follow the require tree.
  *
@@ -18,11 +18,11 @@ let winNum = 0;
 export default class WindowLauncher {
   static EMPTY_WINDOW = 'emptyWindow';
 
-  public hotWindow?: MailspringWindow;
+  public hotWindow?: ActunaMailWindow;
 
-  private _defaultWindowOpts: MailspringWindowSettings;
+  private _defaultWindowOpts: ActunaMailWindowSettings;
   private config: import('../config').default;
-  private onCreatedHotWindow: (win: MailspringWindow) => void;
+  private onCreatedHotWindow: (win: ActunaMailWindow) => void;
 
   constructor({
     devMode,
@@ -38,7 +38,7 @@ export default class WindowLauncher {
     specMode: boolean;
     resourcePath: string;
     configDirPath: string;
-    onCreatedHotWindow: (win: MailspringWindow) => void;
+    onCreatedHotWindow: (win: ActunaMailWindow) => void;
     config: import('../config').default;
   }) {
     this._defaultWindowOpts = {
@@ -83,7 +83,7 @@ export default class WindowLauncher {
 
     // On Wayland, always use cold windows - see createHotWindow comment above
     if (this._mustUseColdWindow(opts) || isWaylandSession()) {
-      win = new MailspringWindow(opts);
+      win = new ActunaMailWindow(opts);
     } else {
       // Check if the hot window has been deleted. This may happen when we are
       // relaunching the app
@@ -149,7 +149,7 @@ export default class WindowLauncher {
     // windows instead and show them immediately when loaded.
     if (isWaylandSession()) return;
 
-    this.hotWindow = new MailspringWindow(this._hotWindowOpts());
+    this.hotWindow = new ActunaMailWindow(this._hotWindowOpts());
     this.onCreatedHotWindow(this.hotWindow);
     if (DEBUG_SHOW_HOT_WINDOW) {
       this.hotWindow.showWhenLoaded();
@@ -169,7 +169,7 @@ export default class WindowLauncher {
 
   // Some properties, like the `frame` or `toolbar` can't be updated once
   // a window has been setup. If we detect this case we have to bootup a
-  // plain MailspringWindow instead of using a hot window.
+  // plain ActunaMailWindow instead of using a hot window.
   _mustUseColdWindow(opts) {
     const { bootstrapScript, frame } = this.createDefaultWindowOpts();
 

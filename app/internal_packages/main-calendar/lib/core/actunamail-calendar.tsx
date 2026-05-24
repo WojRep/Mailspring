@@ -55,9 +55,9 @@ import { modifyEventWithRecurringSupport, EventTimeChangeOptions } from './recur
 
 const log = createLogger('ActunamailCalendar');
 
-const DISABLED_CALENDARS = 'mailspring.disabledCalendars';
-const CALENDAR_VIEW = 'mailspring.calendarView';
-const CALENDAR_LIST_VISIBLE = 'mailspring.calendarListVisible';
+const DISABLED_CALENDARS = 'actunamail.disabledCalendars';
+const CALENDAR_VIEW = 'actunamail.calendarView';
+const CALENDAR_LIST_VISIBLE = 'actunamail.calendarListVisible';
 
 const VIEWS = {
   [CalendarView.DAY]: DayView,
@@ -74,7 +74,7 @@ export interface EventRendererProps {
   onEventFocused: (event: EventOccurrence) => void;
 }
 
-export interface MailspringCalendarViewProps extends EventRendererProps {
+export interface ActunaMailCalendarViewProps extends EventRendererProps {
   dataSource: CalendarDataSource;
   disabledCalendars: string[];
   focusedMoment: Moment;
@@ -100,11 +100,11 @@ export interface MailspringCalendarViewProps extends EventRendererProps {
 }
 
 /*
- * Mailspring Calendar
+ * ActunaMail Calendar
  */
-interface MailspringCalendarProps {}
+interface ActunaMailCalendarProps {}
 
-interface MailspringCalendarState {
+interface ActunaMailCalendarState {
   view: CalendarView;
   selectedEvents: EventOccurrence[];
   focusedEvent: FocusedEventInfo | null;
@@ -118,11 +118,11 @@ interface MailspringCalendarState {
   readOnlyCalendarIds: Set<string>;
 }
 
-export class MailspringCalendar extends React.Component<
-  MailspringCalendarProps,
-  MailspringCalendarState
+export class ActunaMailCalendar extends React.Component<
+  ActunaMailCalendarProps,
+  ActunaMailCalendarState
 > {
-  static displayName = 'MailspringCalendar';
+  static displayName = 'ActunaMailCalendar';
 
   static DayView = DayView;
   static WeekView = WeekView;
@@ -135,7 +135,7 @@ export class MailspringCalendar extends React.Component<
   _unlisten?: () => void;
   _dataSource = new CalendarDataSource();
 
-  constructor(props: MailspringCalendarProps) {
+  constructor(props: ActunaMailCalendarProps) {
     super(props);
     this.state = {
       calendars: [],

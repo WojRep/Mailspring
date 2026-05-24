@@ -9,7 +9,7 @@ import {
   createLogger,
 } from 'actunamail-exports';
 
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 import path from 'path';
 import fs from 'fs';
 
@@ -25,7 +25,7 @@ interface TemplateItem {
   path: string;
 }
 
-class TemplateStore extends MailspringStore {
+class TemplateStore extends ActunaMailStore {
   private _items = [];
   private _templatesDir = path.join(AppEnv.getConfigDirPath(), 'templates');
   private _watcher = null;
@@ -91,7 +91,7 @@ class TemplateStore extends MailspringStore {
         AppEnv.showErrorDialog({
           title: localized('Cannot scan templates directory'),
           message: localized(
-            'Mailspring was unable to read the contents of your templates directory (%@). You may want to delete this folder or ensure filesystem permissions are set correctly.',
+            'ActunaMail was unable to read the contents of your templates directory (%@). You may want to delete this folder or ensure filesystem permissions are set correctly.',
             this._templatesDir
           ),
         });
@@ -138,7 +138,7 @@ class TemplateStore extends MailspringStore {
     const draftName = draft.subject.replace(INVALID_TEMPLATE_NAME_REGEX, '');
 
     let draftContents = QuotedHTMLTransformer.removeQuotedHTML(draft.body);
-    const sigIndex = draftContents.search(RegExpUtils.mailspringSignatureRegex());
+    const sigIndex = draftContents.search(RegExpUtils.actunamailSignatureRegex());
     draftContents = sigIndex > -1 ? draftContents.substr(0, sigIndex) : draftContents;
 
     if (!draftName || draftName.length === 0) {

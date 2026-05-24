@@ -6,11 +6,11 @@ import {
   IdentityAuthResponse,
 } from 'actunamail-exports';
 import { ipcRenderer } from 'electron';
-import MailspringStore from 'actunamail-store';
+import ActunaMailStore from 'actunamail-store';
 
 import * as OnboardingActions from './onboarding-actions';
 
-class OnboardingStore extends MailspringStore {
+class OnboardingStore extends ActunaMailStore {
   _account: Account;
   _pageStack: string[];
 
@@ -55,11 +55,11 @@ class OnboardingStore extends MailspringStore {
       this._pageStack = ['account-choose'];
     } else if (identity) {
       // Should only happen if config was edited to remove all accounts,
-      // but don't want to re-login to Mailspring account. Very useful when
+      // but don't want to re-login to ActunaMail account. Very useful when
       // switching environments.
       this._pageStack = ['account-choose'];
     } else if (hasAccounts) {
-      // WS1-E: Mailspring ID concept removed; previously this branch went to
+      // WS1-E: ActunaMail ID concept removed; previously this branch went to
       // 'authenticate' which loaded id.getmailspring.com/onboarding in a
       // webview. We now jump straight to add-another-account.
       this._pageStack = ['account-choose'];
@@ -161,7 +161,7 @@ class OnboardingStore extends MailspringStore {
       AppEnv.showErrorDialog({
         title: localized('Unable to Add Account'),
         message: localized(
-          'Sorry, something went wrong when this account was added to Mailspring. If you do not see the account, try linking it again. %@',
+          'Sorry, something went wrong when this account was added to ActunaMail. If you do not see the account, try linking it again. %@',
           e.toString()
         ),
       });

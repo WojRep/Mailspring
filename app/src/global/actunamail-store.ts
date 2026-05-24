@@ -1,18 +1,18 @@
 import { EventEmitter } from 'events';
 import { createLogger } from '../logger';
 
-const log = createLogger('MailspringStore');
+const log = createLogger('ActunaMailStore');
 
 // A very, very simple Flux implementation
 
 export type ListenableCallback = (...args: any[]) => void;
 
 export interface Listenable {
-  listen: (callback: ListenableCallback, thisArg: MailspringStore) => () => void;
+  listen: (callback: ListenableCallback, thisArg: ActunaMailStore) => () => void;
   hasListener?: (a: any) => boolean;
 }
 
-export default class MailspringStore implements Listenable {
+export default class ActunaMailStore implements Listenable {
   _emitter: EventEmitter;
   subscriptions: Array<{ stop: () => void; listenable: Listenable }>;
 

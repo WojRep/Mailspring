@@ -114,7 +114,7 @@ function detectFolderSeparator(accountId: string): string {
   // Check category paths for known prefixes — most reliable signal
   for (const cat of CategoryStore.categories(accountId)) {
     const catPath = cat.path;
-    for (const prefix of ['INBOX', '[Gmail]', '[Mailspring]', 'Mailspring']) {
+    for (const prefix of ['INBOX', '[Gmail]', '[ActunaMail]', 'ActunaMail']) {
       if (catPath.startsWith(prefix) && catPath.length > prefix.length) {
         const ch = catPath[prefix.length];
         if (ch === '.' || ch === '/' || ch === '\\') return ch;
@@ -224,7 +224,7 @@ export default class SidebarItem {
         onCollapseToggled: toggleItemCollapsed,
 
         onDrop(item, event) {
-          const jsonString = event.dataTransfer.getData('mailspring-threads-data');
+          const jsonString = event.dataTransfer.getData('actunamail-threads-data');
           let jsonData = null;
           try {
             jsonData = JSON.parse(jsonString);
@@ -240,7 +240,7 @@ export default class SidebarItem {
         shouldAcceptDrop(item, event) {
           const target = item.perspective;
           const current = FocusedPerspectiveStore.current();
-          if (!event.dataTransfer.types.includes('mailspring-threads-data')) {
+          if (!event.dataTransfer.types.includes('actunamail-threads-data')) {
             return false;
           }
           if (target.isEqual(current)) {
@@ -250,9 +250,9 @@ export default class SidebarItem {
           // We can't inspect the drag payload until drop, so we use a dataTransfer
           // type to encode the account IDs of threads currently being dragged.
           const accountsType = event.dataTransfer.types.find((t) =>
-            t.startsWith('mailspring-accounts=')
+            t.startsWith('actunamail-accounts=')
           );
-          const accountIds = (accountsType || '').replace('mailspring-accounts=', '').split(',');
+          const accountIds = (accountsType || '').replace('actunamail-accounts=', '').split(',');
           return target.canReceiveThreadsFromAccountIds(accountIds);
         },
 

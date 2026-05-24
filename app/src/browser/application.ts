@@ -214,7 +214,7 @@ export default class Application extends EventEmitter {
       const helper = new DefaultClientHelper();
       helper.registerForURLScheme('actunamail');
     } else {
-      app.setAsDefaultProtocolClient('mailspring');
+      app.setAsDefaultProtocolClient('actunamail');
     }
   }
 
@@ -555,7 +555,7 @@ export default class Application extends EventEmitter {
     if (!addedToDock && appPath.includes('/Applications/') && appPath.includes('.app/')) {
       const appBundlePath = appPath.split('.app/')[0];
       proc.exec(
-        `defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-type</key><string>file-tile</string><key>tile-data</key><dict><key>file-type</key><integer>41</integer><key>file-label</key><string>ActunaMail</string><key>bundle-identifier</key><string>com.mailspring.mailspring</string><key>file-data</key><dict><key>_CFURLString</key><string>file://${appBundlePath}.app/</string><key>_CFURLStringType</key><integer>15</integer></dict></dict></dict>" && pkill "Dock"`
+        `defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-type</key><string>file-tile</string><key>tile-data</key><dict><key>file-type</key><integer>41</integer><key>file-label</key><string>ActunaMail</string><key>bundle-identifier</key><string>com.actuna.actunamail</string><key>file-data</key><dict><key>_CFURLString</key><string>file://${appBundlePath}.app/</string><key>_CFURLStringType</key><integer>15</integer></dict></dict></dict>" && pkill "Dock"`
       );
       this.config.set('addedToDock', true);
     }
@@ -674,8 +674,8 @@ export default class Application extends EventEmitter {
       app.quit();
     });
 
-    this.on('application:inspect', ({ x, y, MailspringWindow }) => {
-      const win = MailspringWindow || this.windowManager.focusedWindow();
+    this.on('application:inspect', ({ x, y, ActunaMailWindow }) => {
+      const win = ActunaMailWindow || this.windowManager.focusedWindow();
       if (!win) {
         return;
       }
@@ -1198,15 +1198,15 @@ export default class Application extends EventEmitter {
   // Public: Executes the given command on the given window.
   //
   // command - The string representing the command.
-  // MailspringWindow - The {MailspringWindow} to send the command to.
+  // ActunaMailWindow - The {ActunaMailWindow} to send the command to.
   // args - The optional arguments to pass along.
-  sendCommandToWindow = (command, MailspringWindow, ...args) => {
+  sendCommandToWindow = (command, ActunaMailWindow, ...args) => {
     log.info({ command }, 'sendCommandToWindow');
     if (this.emit(command, ...args)) {
       return;
     }
-    if (MailspringWindow) {
-      MailspringWindow.sendCommand(command, ...args);
+    if (ActunaMailWindow) {
+      ActunaMailWindow.sendCommand(command, ...args);
     } else {
       this.sendCommandToFirstResponder(command);
     }
@@ -1283,7 +1283,7 @@ export default class Application extends EventEmitter {
     }
   }
 
-  // Opens up a new {MailspringWindow} to run specs within.
+  // Opens up a new {ActunaMailWindow} to run specs within.
   //
   // options -
   //   :exitWhenDone - A Boolean that, if true, will close the window upon
@@ -1314,9 +1314,9 @@ export default class Application extends EventEmitter {
       );
     }
 
-    // Important: Use .mailspring-spec instead of .mailspring-mail to avoid overwriting the
-    // user's real email config!
-    const configDirPath = path.join(app.getPath('home'), '.mailspring-spec');
+    // Important: Use .actunamail-spec instead of the production config dir to avoid
+    // overwriting the user's real email config!
+    const configDirPath = path.join(app.getPath('home'), '.actunamail-spec');
 
     specWindowOptions.resourcePath = resourcePath;
     specWindowOptions.configDirPath = configDirPath;
