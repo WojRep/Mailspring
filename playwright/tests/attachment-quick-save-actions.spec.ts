@@ -1,20 +1,16 @@
 import { test, expect, ElectronApplication, Page } from '@playwright/test';
-import { launchApp, closeApp } from '../helpers';
+import { launchApp, closeApp, openPreferences, switchPreferencesTab, closePreferences } from '../helpers';
 
 /**
- * Ticket #88 — Quick-save dropdown w widoku załącznika.
+ * Ticket #88 — Quick-save dropdown w widoku załącznika + Preferences
+ * FavoriteFoldersSection.
  *
- * E2E weryfikuje że attachment item w wiadomości pokazuje context-menu
- * z opcją "Save to…" submenu gdy są resolvable quick-save targets
- * (Downloads / Documents / favorites).
- *
- * Uwaga: e2e dla Preferences > FavoriteFoldersSection (folder picker +
- * add/remove) wymaga otwarcia Preferences sheet w renderer'ze, co w
- * obecnym Playwright launch nie działa deterministycznie (IPC
- * open-preferences nie skutkuje sheet pushSheet w tym fresh-launch
- * state — wymaga oddzielnego debugowania infra). Kontrakt UI sekcji
- * pokryty unit testami: schema + komponent renderuje empty hint przy
- * pustej tablicy, "Add folder…" + "Remove" przyciski.
+ * Test pokrywa:
+ *   1. Runtime presence of Actions/Store handlers (smoke).
+ *   2. Preferences > General > FavoriteFoldersSection renders (re-enabled
+ *      po dodaniu openPreferences helper — wcześniej deferred bo
+ *      menu click + IPC open-preferences były flaky w fresh-launch.
+ *      Teraz pushSheet bezpośrednio przez window.$m.Actions w renderer).
  */
 
 let electronApp: ElectronApplication;
@@ -82,5 +78,23 @@ test('Actions.fetchAndSaveFileTo + fetchAndSaveAllFilesTo są exportowane', asyn
   expect(result).not.toBeNull();
   expect(result.hasFetchAndSaveFileTo).toBe(true);
   expect(result.hasFetchAndSaveAllFilesTo).toBe(true);
+});
+
+test('Preferences > General > FavoriteFoldersSection renderuje się', async () => {
+  await openPreferences(electronApp, mainWindow);
+  await switchPreferencesTab(electronApp, mainWindow, 'General');
+
+  const section = mainWindow.locator('.favorite-folders-section').first();
+  await expect(section).toBeAttached({ timeout: 10000 });
+
+  // Przycisk "Add folder…" (entry point)
+  const addBtn = section.locator('.favorite-folders-add').first();
+  await expect(addBtn).toBeAttached();
+
+  // Empty state przy default config (favoriteFolders: [])
+  const emptyHint = section.locator('.favorite-folders-empty').first();
+  await expect(emptyHint).toBeAttached();
+
+  await closePreferences(electronApp);
 });
 

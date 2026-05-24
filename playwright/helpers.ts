@@ -264,6 +264,84 @@ export async function executeInRenderer(electronApp: ElectronApplication, code: 
   }, code);
 }
 
+// ─── Preferences Helpers ──────────────────────────────────────────────
+//
+// ActunaMail blocks window.eval() for security (`app/static/index.js:1`),
+// so `mainWindow.evaluate(() => ...)` throws. Instead we drive
+// preferences via `window.$m` (the global actunamail-exports facade,
+// `app/src/global/actunamail-exports.js:7`) executed through
+// `webContents.executeJavaScript`, which bypasses the eval guard.
+//
+// Tests previously tried main-process menu clicks (pref?.click()) or
+// raw IPC (webContents.send('open-preferences')); both were flaky in
+// fresh-launch state — Preferences sheet sometimes did not push. The
+// renderer-side $m.Actions.openPreferences() call is deterministic
+// because it directly mutates the WorkspaceStore sheet stack.
+
+/**
+ * Open the Preferences sheet in the main window and wait for the
+ * Preferences root container to render. Deterministic — does not rely
+ * on native menu clicks.
+ */
+export async function openPreferences(
+  electronApp: ElectronApplication,
+  mainWindow: Page
+): Promise<void> {
+  await executeInRenderer(
+    electronApp,
+    `(function(){
+       var $m = window.$m;
+       if (!$m || !$m.Actions || !$m.WorkspaceStore) {
+         throw new Error('actunamail-exports ($m) not ready');
+       }
+       if ($m.WorkspaceStore.topSheet() !== $m.WorkspaceStore.Sheet.Preferences) {
+         $m.Actions.pushSheet($m.WorkspaceStore.Sheet.Preferences);
+       }
+       return true;
+     })();`
+  );
+  // Wait for the preferences root in DOM. The "key-commands-region
+  // focused preferences-wrap" wrapper mounts when Sheet.Preferences
+  // becomes top sheet and the registered PreferencesRoot component
+  // renders (see internal_packages/preferences/lib/main.tsx).
+  await mainWindow.locator('.preferences-wrap, .container-preference-tabs')
+    .first()
+    .waitFor({ state: 'attached', timeout: 10000 });
+}
+
+/**
+ * Switch the active Preferences tab (General / Plugins / Accounts /
+ * Storage / Security / etc.) and wait briefly for the tab content to
+ * remount. Caller must have already openPreferences()'d.
+ */
+export async function switchPreferencesTab(
+  electronApp: ElectronApplication,
+  mainWindow: Page,
+  tabId: string
+): Promise<void> {
+  await executeInRenderer(
+    electronApp,
+    `window.$m.Actions.switchPreferencesTab(${JSON.stringify(tabId)});`
+  );
+  await mainWindow.waitForTimeout(150); // allow remount + paint
+}
+
+/** Close the Preferences sheet (pop back to root). */
+export async function closePreferences(electronApp: ElectronApplication): Promise<void> {
+  await executeInRenderer(
+    electronApp,
+    `(function(){
+       var $m = window.$m;
+       if ($m && $m.Actions && $m.WorkspaceStore) {
+         if ($m.WorkspaceStore.topSheet() === $m.WorkspaceStore.Sheet.Preferences) {
+           $m.Actions.popSheet();
+         }
+       }
+       return true;
+     })();`
+  );
+}
+
 /**
  * Install a listener on Actions.queueTask in the renderer to capture
  * tasks as they are created. Uses webContents.executeJavaScript() from
