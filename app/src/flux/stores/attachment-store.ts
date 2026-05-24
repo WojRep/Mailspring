@@ -239,9 +239,49 @@ class AttachmentStore extends ActunaMailStore {
     await fs.writeFileAsync(savePath, decrypt(stored));
   };
 
+  // Ticket #47 Tier A — when the user picked a concrete save target in
+  // Preferences (Downloads / Documents / lastUsed), skip the modal and
+  // write directly. 'askEveryTime' keeps the original showSaveDialog
+  // flow. Collision handling uses _incrementPathToAvoidCollision (same
+  // logic as the multi-file save path).
+  _completeSaveToPath = (file: File, savePath: string) => {
+    const newDownloadDirectory = path.dirname(savePath);
+    return this._prepareAndResolveFilePath(file)
+      .then((filePath) => this._writeToExternalPath(filePath, savePath))
+      .then(() => {
+        if (AppEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
+          AppEnv.savedState.lastDownloadDirectory = newDownloadDirectory;
+
+          if (
+            this._lastDownloadDirectory !== newDownloadDirectory &&
+            AppEnv.config.get('core.attachments.openFolderAfterDownload')
+          ) {
+            this._lastDownloadDirectory = newDownloadDirectory;
+            require('@electron/remote').shell.showItemInFolder(savePath);
+          }
+        }
+      })
+      .catch(this._catchFSErrors)
+      .catch((error) => {
+        this._presentError({ file, error });
+      });
+  };
+
   _fetchAndSave = (file) => {
     const defaultPath = this._defaultSavePath(file);
     const defaultExtension = path.extname(defaultPath);
+
+    // Ticket #47 Tier A — direct save without modal when defaultSaveTarget
+    // resolves to a concrete folder.
+    const targetDir = this._resolvedTargetSaveDir();
+    if (targetDir) {
+      let externalPath = path.join(targetDir, file.safeDisplayName());
+      while (fs.existsSync(externalPath)) {
+        externalPath = this._incrementPathToAvoidCollision(externalPath);
+      }
+      this._completeSaveToPath(file, externalPath);
+      return;
+    }
 
     AppEnv.showSaveDialog({ defaultPath }, (savePath) => {
       if (!savePath) {
@@ -249,37 +289,60 @@ class AttachmentStore extends ActunaMailStore {
       }
 
       const saveExtension = path.extname(savePath);
-      const newDownloadDirectory = path.dirname(savePath);
       const didLoseExtension = defaultExtension !== '' && saveExtension === '';
       let actualSavePath = savePath;
       if (didLoseExtension) {
         actualSavePath += defaultExtension;
       }
 
-      this._prepareAndResolveFilePath(file)
-        .then((filePath) => this._writeToExternalPath(filePath, actualSavePath))
-        .then(() => {
-          if (AppEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
-            AppEnv.savedState.lastDownloadDirectory = newDownloadDirectory;
-
-            if (
-              this._lastDownloadDirectory !== newDownloadDirectory &&
-              AppEnv.config.get('core.attachments.openFolderAfterDownload')
-            ) {
-              this._lastDownloadDirectory = newDownloadDirectory;
-              require('@electron/remote').shell.showItemInFolder(actualSavePath);
-            }
-          }
-        })
-        .catch(this._catchFSErrors)
-        .catch((error) => {
-          this._presentError({ file, error });
-        });
+      this._completeSaveToPath(file, actualSavePath);
     });
+  };
+
+  _saveAllToDir = (files: File[], dirPath: string) => {
+    this._lastDownloadDirectory = dirPath;
+    AppEnv.savedState.lastDownloadDirectory = dirPath;
+
+    const seenPaths = new Set();
+    const lastSavePaths: string[] = [];
+    const savePromises = files.map((file) => {
+      let externalPath = path.join(dirPath, file.safeDisplayName());
+      while (seenPaths.has(externalPath) || fs.existsSync(externalPath)) {
+        externalPath = this._incrementPathToAvoidCollision(externalPath);
+      }
+      seenPaths.add(externalPath);
+
+      return this._prepareAndResolveFilePath(file)
+        .then((filePath) => this._writeToExternalPath(filePath, externalPath))
+        .then(() => lastSavePaths.push(externalPath));
+    });
+
+    return Promise.all(savePromises)
+      .then(() => {
+        if (
+          lastSavePaths.length > 0 &&
+          AppEnv.config.get('core.attachments.openFolderAfterDownload')
+        ) {
+          require('@electron/remote').shell.showItemInFolder(lastSavePaths[0]);
+        }
+        return lastSavePaths;
+      })
+      .catch(this._catchFSErrors)
+      .catch((error) => {
+        this._presentError({ error });
+        return [];
+      });
   };
 
   _fetchAndSaveAll = (files: File[]) => {
     const defaultPath = this._defaultSaveDir();
+
+    // Ticket #47 Tier A — direct save without modal when defaultSaveTarget
+    // resolves to a concrete folder.
+    const targetDir = this._resolvedTargetSaveDir();
+    if (targetDir) {
+      return this._saveAllToDir(files, targetDir);
+    }
 
     return new Promise((resolve) => {
       AppEnv.showOpenDialog(
@@ -297,37 +360,7 @@ class AttachmentStore extends ActunaMailStore {
           if (!dirPath) {
             return;
           }
-          this._lastDownloadDirectory = dirPath;
-          AppEnv.savedState.lastDownloadDirectory = dirPath;
-
-          const seenPaths = new Set();
-          const lastSavePaths = [];
-          const savePromises = files.map((file) => {
-            let externalPath = path.join(dirPath, file.safeDisplayName());
-            while (seenPaths.has(externalPath) || fs.existsSync(externalPath)) {
-              externalPath = this._incrementPathToAvoidCollision(externalPath);
-            }
-            seenPaths.add(externalPath);
-
-            return this._prepareAndResolveFilePath(file)
-              .then((filePath) => this._writeToExternalPath(filePath, externalPath))
-              .then(() => lastSavePaths.push(externalPath));
-          });
-
-          Promise.all(savePromises)
-            .then(() => {
-              if (
-                lastSavePaths.length > 0 &&
-                AppEnv.config.get('core.attachments.openFolderAfterDownload')
-              ) {
-                require('@electron/remote').shell.showItemInFolder(lastSavePaths[0]);
-              }
-              return resolve(lastSavePaths);
-            })
-            .catch(this._catchFSErrors)
-            .catch((error) => {
-              this._presentError({ error });
-            });
+          this._saveAllToDir(files, dirPath).then(resolve);
         }
       );
     });
@@ -346,6 +379,41 @@ class AttachmentStore extends ActunaMailStore {
       name = name.substr(0, match.index);
     }
     return path.join(dir, `${name} (${counter + 1})${ext}`);
+  }
+
+  // Ticket #47 Tier A — resolve a concrete save directory based on the
+  // user's `core.attachments.defaultSaveTarget` setting. Returns null
+  // when the user explicitly wants the picker dialog ('askEveryTime'),
+  // or when the resolved path does not exist on disk (fall back to the
+  // existing _defaultSaveDir behaviour and let the modal handle it).
+  _resolvedTargetSaveDir(): string | null {
+    const target = AppEnv.config.get('core.attachments.defaultSaveTarget');
+    if (!target || target === 'askEveryTime') return null;
+
+    const home = process.platform === 'win32' ? process.env.USERPROFILE : process.env.HOME;
+
+    let dir: string | null = null;
+    if (target === 'downloads') {
+      dir = path.join(home || '', 'Downloads');
+    } else if (target === 'documents') {
+      try {
+        // Electron's app.getPath('documents') is cross-platform-aware
+        // (Win: My Documents, macOS: ~/Documents, Linux: $XDG_DOCUMENTS_DIR
+        // or ~/Documents). Available via @electron/remote.
+        const remote = require('@electron/remote');
+        dir = remote.app.getPath('documents');
+      } catch (err) {
+        dir = home ? path.join(home, 'Documents') : null;
+      }
+    } else if (target === 'lastUsed') {
+      const last = AppEnv.savedState.lastDownloadDirectory;
+      if (last && fs.existsSync(last)) return last;
+      // No last-used yet → fall back to ask
+      return null;
+    }
+
+    if (dir && fs.existsSync(dir)) return dir;
+    return null;
   }
 
   _defaultSaveDir() {

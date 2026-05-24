@@ -129,6 +129,22 @@ export default {
       attachments: {
         type: 'object',
         properties: {
+          // Ticket #47 — Tier A. Domyślny cel zapisu załączników. Gdy
+          // ustawione na konkretny folder, attachment-store pomija
+          // showSaveDialog / showOpenDialog i zapisuje od razu.
+          // 'askEveryTime' = poprzednie zachowanie (modal).
+          defaultSaveTarget: {
+            type: 'string',
+            default: 'askEveryTime',
+            enum: ['downloads', 'documents', 'lastUsed', 'askEveryTime'],
+            enumLabels: [
+              localized('Downloads folder'),
+              localized('Documents folder'),
+              localized('Last used folder'),
+              localized('Ask every time'),
+            ],
+            title: localized('Default save location for attachments'),
+          },
           openFolderAfterDownload: {
             type: 'boolean',
             default: false,
