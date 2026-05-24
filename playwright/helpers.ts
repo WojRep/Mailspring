@@ -156,9 +156,19 @@ export async function launchApp(): Promise<{
   configDir: string;
 }> {
   const configDir = prepareTestConfigDir();
+  // ELECTRON_RUN_AS_NODE=1 (set by some automation shells, e.g. Claude Code)
+  // forces electron to start as plain Node, which then rejects Playwright's
+  // injected `--remote-debugging-port=0` / `--inspect=0` flags. Strip it
+  // before spawning so the test always launches the full Electron runtime.
+  const cleanEnv = { ...process.env };
+  delete cleanEnv.ELECTRON_RUN_AS_NODE;
   const electronApp = await electron.launch({
-    args: [APP_ROOT, '--enable-logging', '--dev', '--config-dir-path', configDir],
-    env: { ...process.env, PLAYWRIGHT: '1' },
+    // --lang=en pins the renderer locale to English so assertions on
+    // user-facing strings ("Compose new message", "Sync now", …) are
+    // deterministic regardless of the host system locale (matches the
+    // jasmine `npm test` script setup).
+    args: [APP_ROOT, '--enable-logging', '--dev', '--lang=en', '--config-dir-path', configDir],
+    env: { ...cleanEnv, PLAYWRIGHT: '1' },
     timeout: 30_000,
   });
 
@@ -243,7 +253,7 @@ export async function clickSidebarFolder(page: Page, name: string) {
  * webContents.executeJavaScript(), bypassing ActunaMail's
  * window.eval() security restriction.
  */
-async function executeInRenderer(electronApp: ElectronApplication, code: string): Promise<any> {
+export async function executeInRenderer(electronApp: ElectronApplication, code: string): Promise<any> {
   return electronApp.evaluate(async ({ BrowserWindow }, js) => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (win.webContents.getURL().includes('windowType%22%3A%22default')) {
