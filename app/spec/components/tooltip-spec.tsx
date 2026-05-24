@@ -29,21 +29,41 @@ describe('Tooltip', function tooltipSpec() {
     });
   });
 
-  // INFRASTRUCTURE DEBT (xdescribe): @floating-ui/react useHover captures
-  // window.setTimeout reference at module load time, BEFORE jasmine's
-  // setTimeout override is installed. jasmine.clock().tick() ticks the
-  // FakeTimer but @floating-ui's captured real setTimeout never fires
-  // during the test — so the tooltip never appears in the DOM and every
-  // assertion on tooltip presence fails.
+  // INFRASTRUCTURE DEBT (xdescribe). Origin: @floating-ui/react useHover
+  // captures window.setTimeout reference at module load, before jasmine's
+  // setTimeout override is installed. But the issue is deeper than just
+  // useHover — the full stack is:
   //
-  // Two paths to re-enable:
-  //   (1) Refactor Tooltip to not use floating-ui useHover (own hover state
-  //       + plain useEffect setTimeout, which jasmine can intercept).
-  //   (2) Migrate this suite to Playwright (test:e2e) where real timing
-  //       drives the floating-ui state machine.
+  //   React 16.9 + @testing-library/react 12.1.5 + @floating-ui/react 0.20
+  //   + jasmine 1.x runner (with custom FakeTimer in spec-runner/jasmine.js)
   //
-  // Until then the suites below are pending. The component itself works
-  // at runtime — only this test infrastructure is the blocker.
+  // Ścieżka (1) — local setTimeout refactor — was attempted on 2026-05-24
+  // (see git history for tooltip.tsx). The refactor replaced useHover with
+  // local onPointerEnter/onPointerLeave handlers calling setTimeout
+  // directly. jasmine.clock().tick() then DOES execute the callback (the
+  // setState fires), but the tooltip still never enters the DOM during
+  // the test. Suspected cause: useFloating's internal useEffect chain
+  // schedules positioning work via microtasks/rAF that jasmine 1.x does
+  // not orchestrate; combined with React 16's synchronous re-render
+  // semantics within fireEvent, the floating element render is skipped
+  // for the first measurement pass. act() wrapping around tick() did not
+  // help. The refactor was reverted to avoid carrying production-code
+  // changes with no test benefit.
+  //
+  // Remaining paths to re-enable:
+  //   (A) Migrate this suite to Playwright (test:e2e). Real timer, real
+  //       browser, real rAF — known to work with @floating-ui out of box.
+  //   (B) Wait for the React 18 + testing-library 14 + Slate/Lexical
+  //       migration (deferred in Sprint 4 docs) and re-attempt with the
+  //       newer act() semantics + concurrent renderer.
+  //   (C) Rewrite spec to use controlled `defaultOpen` prop, skipping the
+  //       hover→delay path entirely and asserting only ARIA/render shape
+  //       when isOpen is true. Loses hover-timing coverage but gains the
+  //       a11y assertions which are the higher-value half of this suite.
+  //
+  // The Tooltip component itself works at runtime — manual verification
+  // in the running app confirms hover→show→escape behaviour. Only the
+  // jasmine spec scaffolding cannot drive it.
   xdescribe('hover behaviour', () => {
     beforeEach(() => {
       jasmine.clock().install();
