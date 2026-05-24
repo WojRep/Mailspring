@@ -102,6 +102,8 @@ module.exports = {
           command: 'window:toggle-full-screen',
           visible: false,
         },
+        { type: 'separator' },
+        { label: localized('Reload Window'), command: 'window:reload' },
       ],
     },
 
@@ -173,7 +175,6 @@ module.exports = {
         { label: localized('Create a Plugin') + '...', command: 'window:create-package' },
         { label: localized('Install a Plugin') + '...', command: 'window:install-package' },
         { type: 'separator' },
-        { label: localized('Reload'), command: 'window:reload' },
         { label: localized('Toggle Developer Tools'), command: 'window:toggle-dev-tools' },
         {
           label: localized('Toggle Component Regions'),
