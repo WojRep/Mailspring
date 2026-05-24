@@ -41,9 +41,14 @@ class FavoriteFoldersSection extends React.Component<
   }
 
   componentDidMount() {
-    this._disposable = this.props.config.onDidChange('core.attachments.favoriteFolders', () => {
-      this.setState({ folders: this._read() });
-    });
+    // ConfigLike is a narrow interface (get/set/toggle only). Subscribe
+    // via the full AppEnv.config which exposes onDidChange.
+    this._disposable = (AppEnv as any).config.onDidChange(
+      'core.attachments.favoriteFolders',
+      () => {
+        this.setState({ folders: this._read() });
+      }
+    );
   }
 
   componentWillUnmount() {
