@@ -61,9 +61,7 @@ class DefaultMailClientItem extends React.Component<
               if (process.platform === 'win32') {
                 helper.registerForURLScheme('mailto');
               } else {
-                shell.openExternal(
-                  'https://github.com/WojRep/ActunaMail/discussions'
-                );
+                shell.openExternal('https://github.com/WojRep/ActunaMail/discussions');
               }
             }}
           >

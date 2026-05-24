@@ -256,12 +256,10 @@ const CreatePageForForm = (FormComponent) => {
       let articleURL;
       if (account.emailAddress.includes('@yahoo.com')) {
         message = localized('Have you enabled access through Yahoo?');
-        articleURL =
-          'https://github.com/WojRep/ActunaMail/discussions';
+        articleURL = 'https://github.com/WojRep/ActunaMail/discussions';
       } else {
         message = localized('Some providers require an app password.');
-        articleURL =
-          'https://github.com/WojRep/ActunaMail/discussions';
+        articleURL = 'https://github.com/WojRep/ActunaMail/discussions';
       }
       // We don't use a FormErrorMessage component because the content
       // we need to display has HTML.

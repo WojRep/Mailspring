@@ -27,10 +27,7 @@ interface State {
   needsRestart: boolean;
 }
 
-export default class PreferencesPlugins extends React.Component<
-  Record<string, unknown>,
-  State
-> {
+export default class PreferencesPlugins extends React.Component<Record<string, unknown>, State> {
   static displayName = 'PreferencesPlugins';
 
   constructor(props: Record<string, unknown>) {
@@ -51,8 +48,7 @@ export default class PreferencesPlugins extends React.Component<
         (p) =>
           p &&
           typeof p.directory === 'string' &&
-          (p.directory === userPackagesDir ||
-            p.directory.startsWith(userPackagesDir + path.sep)),
+          (p.directory === userPackagesDir || p.directory.startsWith(userPackagesDir + path.sep))
       )
       .map((p) => ({
         name: p.name,
@@ -73,9 +69,7 @@ export default class PreferencesPlugins extends React.Component<
 
   _toggleEnabled = (name: string) => {
     const cur = (AppEnv.config.get('core.disabledPackages') as string[]) || [];
-    const next = cur.includes(name)
-      ? cur.filter((n) => n !== name)
-      : [...cur, name];
+    const next = cur.includes(name) ? cur.filter((n) => n !== name) : [...cur, name];
     AppEnv.config.set('core.disabledPackages', next);
     this.setState({ disabled: next, needsRestart: true });
     // Best-effort hot-enable; hot-disable is not implemented, restart needed.
@@ -113,7 +107,7 @@ export default class PreferencesPlugins extends React.Component<
       cancelId: 0,
       message: localized('Remove plugin %@?', row.displayName),
       detail: localized(
-        'This deletes the plugin files from your packages folder. The app should be restarted for the change to take full effect.',
+        'This deletes the plugin files from your packages folder. The app should be restarted for the change to take full effect.'
       ),
     });
     if (choice !== 1) return;
@@ -138,7 +132,7 @@ export default class PreferencesPlugins extends React.Component<
           <h2>{localized('Plugins')}</h2>
           <p className="platform-note">
             {localized(
-              'Installed plugins are extensions of ActunaMail. Built-in features of the app are not listed here.',
+              'Installed plugins are extensions of ActunaMail. Built-in features of the app are not listed here.'
             )}
           </p>
 
@@ -148,15 +142,13 @@ export default class PreferencesPlugins extends React.Component<
             </button>
             <span className="plugin-install-hint">
               {localized(
-                'Pick a plugin file (.actunamail-plugin or .zip) — ActunaMail installs it for you.',
+                'Pick a plugin file (.actunamail-plugin or .zip) — ActunaMail installs it for you.'
               )}
             </span>
           </div>
 
           {plugins.length === 0 ? (
-            <p className="platform-note">
-              {localized('No plugins installed yet.')}
-            </p>
+            <p className="platform-note">{localized('No plugins installed yet.')}</p>
           ) : (
             <ul className="plugin-list">
               {plugins.map((p) => (
@@ -164,13 +156,9 @@ export default class PreferencesPlugins extends React.Component<
                   <div className="plugin-info">
                     <div className="plugin-name">
                       <strong>{p.displayName}</strong>
-                      {p.version ? (
-                        <span className="plugin-version"> {p.version}</span>
-                      ) : null}
+                      {p.version ? <span className="plugin-version"> {p.version}</span> : null}
                     </div>
-                    {p.description ? (
-                      <div className="plugin-desc">{p.description}</div>
-                    ) : null}
+                    {p.description ? <div className="plugin-desc">{p.description}</div> : null}
                   </div>
                   <div className="plugin-actions">
                     <label className="plugin-toggle">
@@ -179,8 +167,7 @@ export default class PreferencesPlugins extends React.Component<
                         disabled={!p.isOptional}
                         checked={this._isEnabled(p.name)}
                         onChange={() => this._toggleEnabled(p.name)}
-                      />
-                      {' '}
+                      />{' '}
                       {localized('Enabled')}
                     </label>
                     <button className="btn" onClick={() => this._remove(p)}>
@@ -194,9 +181,7 @@ export default class PreferencesPlugins extends React.Component<
 
           {needsRestart && (
             <p className="platform-note">
-              {localized(
-                'Restart ActunaMail for plugin changes to take full effect.',
-              )}
+              {localized('Restart ActunaMail for plugin changes to take full effect.')}
             </p>
           )}
         </section>

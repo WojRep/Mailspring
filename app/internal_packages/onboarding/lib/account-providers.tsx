@@ -16,10 +16,7 @@ const AccountProviders = [
         <strong>{localized('Note')}:</strong>{' '}
         {localizedReactFragment(
           "Office 365 accounts require IMAP and Authenticated SMTP to be enabled. Your organization's admin may need to enable these in the Microsoft 365 Admin Center. %@",
-          <a
-            style={{ fontWeight: 600 }}
-            href="https://github.com/WojRep/ActunaMail/discussions"
-          >
+          <a style={{ fontWeight: 600 }} href="https://github.com/WojRep/ActunaMail/discussions">
             {localized('Learn more')}
           </a>
         )}
@@ -59,10 +56,7 @@ const AccountProviders = [
         <strong>{localized('Note')}:</strong>{' '}
         {localizedReactFragment(
           'If you have trouble connecting, you may need to enable IMAP and SMTP access in your Microsoft account settings. %@',
-          <a
-            style={{ fontWeight: 600 }}
-            href="https://github.com/WojRep/ActunaMail/discussions"
-          >
+          <a style={{ fontWeight: 600 }} href="https://github.com/WojRep/ActunaMail/discussions">
             {localized('Learn more')}
           </a>
         )}
