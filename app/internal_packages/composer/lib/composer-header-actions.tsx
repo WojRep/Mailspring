@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { localized, Actions } from 'actunamail-exports';
-import { RetinaImg, RovingTabIndexToolbar } from 'actunamail-component-kit';
+import { RetinaImg, RovingTabIndexToolbar, Tooltip } from 'actunamail-component-kit';
 import Fields from './fields';
 
 interface ComposerHeaderActionsProps {
@@ -94,23 +94,23 @@ export default class ComposerHeaderActions extends React.Component<ComposerHeade
 
     if (!AppEnv.isComposerWindow()) {
       items.push(
-        <span
-          className="action show-popout"
-          key="popout"
-          role="button"
-          tabIndex={-1}
-          title={localized('Popout composer…')}
-          aria-label={localized('Popout composer…')}
-          onClick={this._onPopoutComposer}
-          onKeyDown={this._onKeyDown(this._onPopoutComposer)}
-        >
-          <RetinaImg
-            name="composer-popout.png"
-            mode={RetinaImg.Mode.ContentIsMask}
-            style={{ position: 'relative', top: '-2px' }}
-            aria-hidden="true"
-          />
-        </span>
+        <Tooltip key="popout" content={localized('Popout composer…')}>
+          <span
+            className="action show-popout"
+            role="button"
+            tabIndex={-1}
+            aria-label={localized('Popout composer…')}
+            onClick={this._onPopoutComposer}
+            onKeyDown={this._onKeyDown(this._onPopoutComposer)}
+          >
+            <RetinaImg
+              name="composer-popout.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              style={{ position: 'relative', top: '-2px' }}
+              aria-hidden="true"
+            />
+          </span>
+        </Tooltip>
       );
     }
 

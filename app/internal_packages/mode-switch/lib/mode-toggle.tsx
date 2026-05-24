@@ -1,5 +1,5 @@
 import { localized, WorkspaceStore, Actions } from 'actunamail-exports';
-import { RetinaImg } from 'actunamail-component-kit';
+import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 import React from 'react';
 
 export default class ModeToggle extends React.Component<
@@ -58,20 +58,26 @@ export default class ModeToggle extends React.Component<
     // MIT licensed (https://github.com/phosphor-icons/core). Puzzle
     // metaphor reflects the right column as a generic plugin slot
     // (post-#13/#14) rather than the contact panel.
+    //
+    // Ticket #43c — tooltip wrapper for hover discoverability (was
+    // native HTML title attribute, replaced by floating-ui-backed
+    // facade with 300 ms delay + WCAG 1.4.13 compliance).
+    const label = this.state.hidden ? localized('Show Sidebar') : localized('Hide Sidebar');
     return (
-      <button
-        className={`btn btn-toolbar mode-toggle mode-${this.state.hidden}`}
-        style={{ order: 500 }}
-        title={this.state.hidden ? localized('Show Sidebar') : localized('Hide Sidebar')}
-        aria-label={this.state.hidden ? localized('Show Sidebar') : localized('Hide Sidebar')}
-        onClick={this._onToggleMode}
-      >
-        <RetinaImg
-          name="toolbar-sidebar-plugin.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-          aria-hidden="true"
-        />
-      </button>
+      <Tooltip content={label}>
+        <button
+          className={`btn btn-toolbar mode-toggle mode-${this.state.hidden}`}
+          style={{ order: 500 }}
+          aria-label={label}
+          onClick={this._onToggleMode}
+        >
+          <RetinaImg
+            name="toolbar-sidebar-plugin.png"
+            mode={RetinaImg.Mode.ContentIsMask}
+            aria-hidden="true"
+          />
+        </button>
+      </Tooltip>
     );
   }
 }

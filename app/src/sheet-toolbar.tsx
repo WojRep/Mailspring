@@ -9,6 +9,7 @@ import { SheetDeclaration } from './flux/stores/workspace-store';
 import { Flexbox } from './components/flexbox';
 import { RetinaImg } from './components/retina-img';
 import { RovingTabIndexToolbar } from './components/roving-tab-index-toolbar';
+import { Tooltip } from './components/tooltip';
 import * as Utils from './flux/models/utils';
 import { Disposable } from 'rx-core';
 import { isWaylandSession } from './browser/is-wayland';
@@ -96,14 +97,22 @@ class ToolbarBack extends React.Component<Record<string, unknown>, { categoryNam
       title = this.state.categoryName;
     }
     return (
-      <div className="item-back" onClick={this._onClick} title={localized(`Return to %@`, title)}>
-        <RetinaImg
-          name="sheet-back.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-          style={isRTL ? { transform: `scaleX(-1)` } : {}}
-        />
-        <div className="item-back-title">{title}</div>
-      </div>
+      <Tooltip content={localized(`Return to %@`, title)}>
+        <div
+          className="item-back"
+          role="button"
+          aria-label={localized(`Return to %@`, title)}
+          onClick={this._onClick}
+        >
+          <RetinaImg
+            name="sheet-back.png"
+            mode={RetinaImg.Mode.ContentIsMask}
+            style={isRTL ? { transform: `scaleX(-1)` } : {}}
+            aria-hidden="true"
+          />
+          <div className="item-back-title">{title}</div>
+        </div>
+      </Tooltip>
     );
   }
 }

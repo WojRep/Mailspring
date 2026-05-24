@@ -9,7 +9,7 @@ import {
   Message,
   DraftEditingSession,
 } from 'actunamail-exports';
-import { RetinaImg } from 'actunamail-component-kit';
+import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 
 import SendLaterPopover from './send-later-popover';
 import { PLUGIN_ID } from './send-later-constants';
@@ -136,18 +136,21 @@ class SendLaterButton extends Component<SendLaterButtonProps, SendLaterButtonSta
 
     if (this.state.saving) {
       return (
-        <button
-          className={className}
-          title={localized('Saving send date...')}
-          tabIndex={-1}
-          style={{ order: -99 }}
-        >
-          <RetinaImg
-            name="inline-loading-spinner.gif"
-            mode={RetinaImg.Mode.ContentDark}
-            style={{ width: 14, height: 14 }}
-          />
-        </button>
+        <Tooltip content={localized('Saving send date...')}>
+          <button
+            className={className}
+            aria-label={localized('Saving send date...')}
+            tabIndex={-1}
+            style={{ order: -99 }}
+          >
+            <RetinaImg
+              name="inline-loading-spinner.gif"
+              mode={RetinaImg.Mode.ContentDark}
+              style={{ width: 14, height: 14 }}
+              aria-hidden="true"
+            />
+          </button>
+        </Tooltip>
       );
     }
 
@@ -167,18 +170,20 @@ class SendLaterButton extends Component<SendLaterButtonProps, SendLaterButtonSta
       }
     }
     return (
-      <button
-        className={className}
-        title={localized('Send Later') + '…'}
-        onClick={this.onClick}
-        tabIndex={-1}
-        style={{ order: -99 }}
-      >
-        <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
-        {sendLaterLabel}
-        <span>&nbsp;</span>
-        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
-      </button>
+      <Tooltip content={localized('Send Later') + '…'}>
+        <button
+          className={className}
+          aria-label={localized('Send Later') + '…'}
+          onClick={this.onClick}
+          tabIndex={-1}
+          style={{ order: -99 }}
+        >
+          <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
+          {sendLaterLabel}
+          <span>&nbsp;</span>
+          <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
+        </button>
+      </Tooltip>
     );
   }
 }

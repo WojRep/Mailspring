@@ -1,6 +1,6 @@
 import React from 'react';
 import { localized } from 'actunamail-exports';
-import { RetinaImg } from 'actunamail-component-kit';
+import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 
 export const QuotedTextControl: React.FunctionComponent<{
   quotedTextPresent: boolean;
@@ -22,20 +22,24 @@ export const QuotedTextControl: React.FunctionComponent<{
       }}
     >
       <span className="dots">&bull;&bull;&bull;</span>
-      <span
-        className="remove-quoted-text"
-        onMouseUp={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          props.onRemove();
-        }}
-      >
-        <RetinaImg
-          title={localized('Remove quoted text')}
-          name="image-cancel-button.png"
-          mode={RetinaImg.Mode.ContentPreserve}
-        />
-      </span>
+      <Tooltip content={localized('Remove quoted text')}>
+        <span
+          className="remove-quoted-text"
+          role="button"
+          aria-label={localized('Remove quoted text')}
+          onMouseUp={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            props.onRemove();
+          }}
+        >
+          <RetinaImg
+            name="image-cancel-button.png"
+            mode={RetinaImg.Mode.ContentPreserve}
+            aria-hidden="true"
+          />
+        </span>
+      </Tooltip>
     </a>
   );
 };

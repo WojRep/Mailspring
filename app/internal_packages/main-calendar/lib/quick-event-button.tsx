@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Actions, localized } from 'actunamail-exports';
-import { RetinaImg, BindGlobalCommands } from 'actunamail-component-kit';
+import { RetinaImg, BindGlobalCommands, Tooltip } from 'actunamail-component-kit';
 import { QuickEventPopover } from './quick-event-popover';
 
 export class QuickEventButton extends React.Component<Record<string, unknown>> {
@@ -22,20 +22,21 @@ export class QuickEventButton extends React.Component<Record<string, unknown>> {
   render() {
     return (
       <BindGlobalCommands commands={{ 'core:add-item': this._openPopover }}>
-        <button
-          style={{ order: -50 }}
-          tabIndex={-1}
-          className="btn btn-toolbar item-compose"
-          title={localized('Create new event')}
-          aria-label={localized('Create new event')}
-          onClick={this.onClick}
-        >
-          <RetinaImg
-            name="toolbar-compose.png"
-            mode={RetinaImg.Mode.ContentIsMask}
-            aria-hidden="true"
-          />
-        </button>
+        <Tooltip content={localized('Create new event')}>
+          <button
+            style={{ order: -50 }}
+            tabIndex={-1}
+            className="btn btn-toolbar item-compose"
+            aria-label={localized('Create new event')}
+            onClick={this.onClick}
+          >
+            <RetinaImg
+              name="toolbar-compose.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </button>
+        </Tooltip>
       </BindGlobalCommands>
     );
   }

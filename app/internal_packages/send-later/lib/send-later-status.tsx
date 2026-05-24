@@ -10,7 +10,7 @@ import {
   TaskQueue,
   SendDraftTask,
 } from 'actunamail-exports';
-import { RetinaImg } from 'actunamail-component-kit';
+import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 import { PLUGIN_ID } from './send-later-constants';
 
 const { DATE_FORMAT_SHORT } = DateUtils;
@@ -98,12 +98,20 @@ export default class SendLaterStatus extends Component<SendLaterStatusProps, Sen
     return (
       <div className="send-later-status">
         <span className="time">{label}</span>
-        <RetinaImg
-          name="image-cancel-button.png"
-          title={localized('Cancel Send Later')}
-          onClick={this.onCancelSendLater}
-          mode={RetinaImg.Mode.ContentPreserve}
-        />
+        <Tooltip content={localized('Cancel Send Later')}>
+          <span
+            role="button"
+            aria-label={localized('Cancel Send Later')}
+            onClick={this.onCancelSendLater}
+            style={{ display: 'inline-flex', cursor: 'pointer' }}
+          >
+            <RetinaImg
+              name="image-cancel-button.png"
+              mode={RetinaImg.Mode.ContentPreserve}
+              aria-hidden="true"
+            />
+          </span>
+        </Tooltip>
       </div>
     );
   }

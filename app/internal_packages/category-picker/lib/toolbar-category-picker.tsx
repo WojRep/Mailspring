@@ -8,7 +8,12 @@ import {
   WorkspaceStore,
   Thread,
 } from 'actunamail-exports';
-import { RetinaImg, KeyCommandsRegion, RovingTabIndexToolbar } from 'actunamail-component-kit';
+import {
+  RetinaImg,
+  KeyCommandsRegion,
+  RovingTabIndexToolbar,
+  Tooltip,
+} from 'actunamail-component-kit';
 
 import MovePickerPopover from './move-picker-popover';
 import LabelPickerPopover from './label-picker-popover';
@@ -87,35 +92,37 @@ class MovePicker extends React.Component<{ items: Thread[] }> {
         style={{ order: -103 }}
       >
         <KeyCommandsRegion globalHandlers={handlers}>
-          <button
-            tabIndex={-1}
-            ref={(el) => (this._moveEl = el)}
-            title={localized('Move to Folder')}
-            aria-label={localized('Move to Folder')}
-            onClick={this._onOpenMovePopover}
-            className={'btn btn-toolbar btn-category-picker'}
-          >
-            <RetinaImg
-              name={'toolbar-movetofolder.png'}
-              mode={RetinaImg.Mode.ContentIsMask}
-              aria-hidden="true"
-            />
-          </button>
-          {this._account.usesLabels() && (
+          <Tooltip content={localized('Move to Folder')}>
             <button
               tabIndex={-1}
-              ref={(el) => (this._labelEl = el)}
-              title={localized('Apply Label')}
-              aria-label={localized('Apply Label')}
-              onClick={this._onOpenLabelsPopover}
+              ref={(el) => (this._moveEl = el)}
+              aria-label={localized('Move to Folder')}
+              onClick={this._onOpenMovePopover}
               className={'btn btn-toolbar btn-category-picker'}
             >
               <RetinaImg
-                name={'toolbar-tag.png'}
+                name={'toolbar-movetofolder.png'}
                 mode={RetinaImg.Mode.ContentIsMask}
                 aria-hidden="true"
               />
             </button>
+          </Tooltip>
+          {this._account.usesLabels() && (
+            <Tooltip content={localized('Apply Label')}>
+              <button
+                tabIndex={-1}
+                ref={(el) => (this._labelEl = el)}
+                aria-label={localized('Apply Label')}
+                onClick={this._onOpenLabelsPopover}
+                className={'btn btn-toolbar btn-category-picker'}
+              >
+                <RetinaImg
+                  name={'toolbar-tag.png'}
+                  mode={RetinaImg.Mode.ContentIsMask}
+                  aria-hidden="true"
+                />
+              </button>
+            </Tooltip>
           )}
         </KeyCommandsRegion>
       </RovingTabIndexToolbar>

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { localized, PropTypes, Actions, Message } from 'actunamail-exports';
-import { Menu, RetinaImg } from 'actunamail-component-kit';
+import { Menu, RetinaImg, Tooltip } from 'actunamail-component-kit';
 import TemplateStore from './template-store';
 
 class TemplatePopover extends React.Component<{ headerMessageId: string }> {
@@ -123,25 +123,26 @@ class TemplatePicker extends React.Component<{
       return <span />;
     }
     return (
-      <button
-        tabIndex={-1}
-        className="btn btn-toolbar btn-templates narrow pull-right"
-        onClick={this._onClickButton}
-        title={localized('Quick Reply')}
-        aria-label={localized('Quick Reply')}
-      >
-        <RetinaImg
-          url="actunamail://composer-templates/assets/icon-composer-templates@2x.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-          aria-hidden="true"
-        />
-        &nbsp;
-        <RetinaImg
-          name="icon-composer-dropdown.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-          aria-hidden="true"
-        />
-      </button>
+      <Tooltip content={localized('Quick Reply')}>
+        <button
+          tabIndex={-1}
+          className="btn btn-toolbar btn-templates narrow pull-right"
+          onClick={this._onClickButton}
+          aria-label={localized('Quick Reply')}
+        >
+          <RetinaImg
+            url="actunamail://composer-templates/assets/icon-composer-templates@2x.png"
+            mode={RetinaImg.Mode.ContentIsMask}
+            aria-hidden="true"
+          />
+          &nbsp;
+          <RetinaImg
+            name="icon-composer-dropdown.png"
+            mode={RetinaImg.Mode.ContentIsMask}
+            aria-hidden="true"
+          />
+        </button>
+      </Tooltip>
     );
   }
 }

@@ -323,15 +323,16 @@ export class ToggleStarredButton extends React.Component<{ items: Thread[] }> {
 
     return (
       <BindGlobalCommands commands={{ 'core:star-item': () => this._onStar() }}>
-        <button
-          tabIndex={-1}
-          className="btn btn-toolbar"
-          title={title}
-          aria-label={title}
-          onClick={this._onStar}
-        >
-          <RetinaImg name={imageName} mode={RetinaImg.Mode.ContentIsMask} aria-hidden="true" />
-        </button>
+        <Tooltip content={title}>
+          <button
+            tabIndex={-1}
+            className="btn btn-toolbar"
+            aria-label={title}
+            onClick={this._onStar}
+          >
+            <RetinaImg name={imageName} mode={RetinaImg.Mode.ContentIsMask} aria-hidden="true" />
+          </button>
+        </Tooltip>
       </BindGlobalCommands>
     );
   }
@@ -378,19 +379,20 @@ export class ToggleUnreadButton extends React.Component<{ items: Thread[] }> {
             : { 'core:mark-as-read': () => this._onChangeUnread(false) }
         }
       >
-        <button
-          tabIndex={-1}
-          className="btn btn-toolbar"
-          title={label}
-          aria-label={label}
-          onClick={this._onClick}
-        >
-          <RetinaImg
-            name={`toolbar-markas${key}.png`}
-            mode={RetinaImg.Mode.ContentIsMask}
-            aria-hidden="true"
-          />
-        </button>
+        <Tooltip content={label}>
+          <button
+            tabIndex={-1}
+            className="btn btn-toolbar"
+            aria-label={label}
+            onClick={this._onClick}
+          >
+            <RetinaImg
+              name={`toolbar-markas${key}.png`}
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </button>
+        </Tooltip>
       </BindGlobalCommands>
     );
   }
@@ -462,22 +464,23 @@ class ThreadArrowButton extends React.Component<
     });
 
     return (
-      <div
-        className={`${classes} ${direction}`}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-label={title}
-        aria-disabled={disabled}
-        onClick={this._onClick}
-        onKeyDown={this._onKeyDown}
-        title={title}
-      >
-        <RetinaImg
-          name={`toolbar-${direction}-arrow.png`}
-          mode={RetinaImg.Mode.ContentIsMask}
-          aria-hidden="true"
-        />
-      </div>
+      <Tooltip content={title}>
+        <div
+          className={`${classes} ${direction}`}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          aria-label={title}
+          aria-disabled={disabled}
+          onClick={this._onClick}
+          onKeyDown={this._onKeyDown}
+        >
+          <RetinaImg
+            name={`toolbar-${direction}-arrow.png`}
+            mode={RetinaImg.Mode.ContentIsMask}
+            aria-hidden="true"
+          />
+        </div>
+      </Tooltip>
     );
   }
 }
