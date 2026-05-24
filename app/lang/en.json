@@ -1140,5 +1140,9 @@
   "Unlocking…": "Unlocking…",
   "Use master password": "Use master password",
   "Use recovery code": "Use recovery code",
-  "Wrong password.": "Wrong password."
+  "Wrong password.": "Wrong password.",
+  "Favorite folders": "Favorite folders",
+  "No favorite folders yet.": "No favorite folders yet.",
+  "Save to…": "Save to…",
+  "Choose folder…": "Choose folder…"
 }

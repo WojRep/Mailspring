@@ -29,6 +29,8 @@ const propTypes = {
   onOpenAttachment: PropTypes.func,
   onRemoveAttachment: PropTypes.func,
   onSaveAttachment: PropTypes.func,
+  // Ticket #88 — quick-save dropdown callback.
+  onSaveAttachmentTo: PropTypes.func,
 };
 
 const defaultProps = {
@@ -37,11 +39,47 @@ const defaultProps = {
 
 const SPACE = ' ';
 
+// Ticket #88 — Quick-save targets resolver. Reads favoriteFolders from
+// config + Downloads + Documents and returns submenu items. Empty list
+// when nothing resolvable → fall back to the regular "Save Into..." entry
+// (single onSaveAttachment).
+function resolveQuickSaveTargets(): Array<{ label: string; dirPath: string }> {
+  const targets: Array<{ label: string; dirPath: string }> = [];
+  const home = process.platform === 'win32' ? process.env.USERPROFILE : process.env.HOME;
+
+  const downloadsPath = home ? path.join(home, 'Downloads') : null;
+  if (downloadsPath && fs.existsSync(downloadsPath)) {
+    targets.push({ label: localized('Downloads folder'), dirPath: downloadsPath });
+  }
+
+  let documentsPath: string | null = null;
+  try {
+    documentsPath = require('@electron/remote').app.getPath('documents');
+  } catch (err) {
+    documentsPath = home ? path.join(home, 'Documents') : null;
+  }
+  if (documentsPath && fs.existsSync(documentsPath)) {
+    targets.push({ label: localized('Documents folder'), dirPath: documentsPath });
+  }
+
+  const favs = AppEnv.config.get('core.attachments.favoriteFolders') as string[] | undefined;
+  if (Array.isArray(favs)) {
+    for (const fav of favs) {
+      if (typeof fav === 'string' && fav.length > 0 && fs.existsSync(fav)) {
+        targets.push({ label: path.basename(fav) || fav, dirPath: fav });
+      }
+    }
+  }
+
+  return targets;
+}
+
 function buildContextMenu(fns: {
   onOpenAttachment?: () => void;
   onPreviewAttachment?: () => void;
   onRemoveAttachment?: () => void;
   onSaveAttachment?: () => void;
+  onSaveAttachmentTo?: (dirPath: string) => void;
 }) {
   const template: Electron.MenuItemConstructorOptions[] = [];
   if (fns.onOpenAttachment) {
@@ -62,12 +100,34 @@ function buildContextMenu(fns: {
       label: localized('Preview'),
     });
   }
-  if (fns.onSaveAttachment) {
+
+  // Ticket #88 — gdy mamy onSaveAttachmentTo + przynajmniej jeden
+  // resolvable target, pokazuj "Save to" submenu z quick-pick. Inaczej
+  // fallback do pojedynczego "Save Into..." (showSaveDialog).
+  const quickTargets = fns.onSaveAttachmentTo ? resolveQuickSaveTargets() : [];
+  if (fns.onSaveAttachmentTo && quickTargets.length > 0) {
+    const submenu: Electron.MenuItemConstructorOptions[] = quickTargets.map((t) => ({
+      label: t.label,
+      click: () => fns.onSaveAttachmentTo(t.dirPath),
+    }));
+    if (fns.onSaveAttachment) {
+      submenu.push({ type: 'separator' });
+      submenu.push({
+        click: () => fns.onSaveAttachment(),
+        label: localized('Choose folder…'),
+      });
+    }
+    template.push({
+      label: localized('Save to…'),
+      submenu,
+    });
+  } else if (fns.onSaveAttachment) {
     template.push({
       click: () => fns.onSaveAttachment(),
       label: localized('Save Into...'),
     });
   }
+
   require('@electron/remote').Menu.buildFromTemplate(template).popup({});
 }
 
@@ -156,6 +216,7 @@ interface AttachmentItemProps {
   filePreviewPath?: string;
   onOpenAttachment?: () => void;
   onSaveAttachment?: () => void;
+  onSaveAttachmentTo?: (dirPath: string) => void;
   onRemoveAttachment: () => void;
 }
 
@@ -256,6 +317,7 @@ export class AttachmentItem extends Component<AttachmentItemProps> {
             onPreviewAttachment: this._onClickQuicklookIcon,
             onOpenAttachment,
             onSaveAttachment,
+            onSaveAttachmentTo: this.props.onSaveAttachmentTo,
           })
         }
         {...pickHTMLProps(extraProps)}
@@ -407,7 +469,13 @@ export class ImageAttachmentItem extends Component<ImageAttachmentItemProps> {
           <div
             className="file-preview"
             onDoubleClick={onOpenAttachment}
-            onContextMenu={() => buildContextMenu({ onOpenAttachment, onSaveAttachment })}
+            onContextMenu={() =>
+              buildContextMenu({
+                onOpenAttachment,
+                onSaveAttachment,
+                onSaveAttachmentTo: this.props.onSaveAttachmentTo,
+              })
+            }
           >
             <div className="file-name-container">
               <div className="file-name" title={displayName}>

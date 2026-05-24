@@ -477,7 +477,12 @@ export const removeAttachment = create('removeAttachment', ActionScopeWindow);
 export const fetchBodies = create('fetchBodies', ActionScopeMainWindow);
 export const fetchAndOpenFile = create('fetchAndOpenFile', ActionScopeWindow);
 export const fetchAndSaveFile = create('fetchAndSaveFile', ActionScopeWindow);
+// Ticket #88 — bypass save dialog, write directly to a specific folder.
+// Used by quick-save dropdown (favorites / Downloads / Documents) and
+// covers AttachmentItem context-menu submenu actions.
+export const fetchAndSaveFileTo = create('fetchAndSaveFileTo', ActionScopeWindow);
 export const fetchAndSaveAllFiles = create('fetchAndSaveAllFiles', ActionScopeWindow);
+export const fetchAndSaveAllFilesTo = create('fetchAndSaveAllFilesTo', ActionScopeWindow);
 export const fetchFile = create('fetchFile', ActionScopeWindow);
 export const quickPreviewFile = create('quickPreviewFile', ActionScopeWindow);
 

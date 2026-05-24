@@ -7,6 +7,7 @@ import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';
 import LanguageSection from './language-section';
+import FavoriteFoldersSection from './favorite-folders-section';
 import { ConfigLike, ConfigSchemaLike } from '../types';
 
 const log = createLogger('PreferencesGeneral');
@@ -118,6 +119,9 @@ class PreferencesGeneral extends React.Component<{
               keyPath="core.attachments"
               config={this.props.config}
             />
+            {/* Ticket #88 — favoriteFolders custom UI (array of paths).
+                Renders below ConfigSchemaItem within the Attachments column. */}
+            <FavoriteFoldersSection config={this.props.config} />
           </div>
         </div>
 

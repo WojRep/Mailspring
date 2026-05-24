@@ -48,7 +48,10 @@ class AttachmentStore extends ActunaMailStore {
     this.listenTo(Actions.fetchFile, this._fetch);
     this.listenTo(Actions.fetchAndOpenFile, this._fetchAndOpen);
     this.listenTo(Actions.fetchAndSaveFile, this._fetchAndSave);
+    // Ticket #88 — bypass-modal save actions (quick-save dropdown).
+    this.listenTo(Actions.fetchAndSaveFileTo, this._fetchAndSaveFileTo);
     this.listenTo(Actions.fetchAndSaveAllFiles, this._fetchAndSaveAll);
+    this.listenTo(Actions.fetchAndSaveAllFilesTo, this._fetchAndSaveAllFilesTo);
     this.listenTo(Actions.quickPreviewFile, this._quickPreviewFile);
 
     // sending
@@ -332,6 +335,24 @@ class AttachmentStore extends ActunaMailStore {
         this._presentError({ error });
         return [];
       });
+  };
+
+  // Ticket #88 — bypass-modal single-file save to a specific directory.
+  // Triggered by quick-save dropdown (favorites / Downloads / Documents).
+  // Reuses _completeSaveToPath for the actual write + showItemInFolder.
+  _fetchAndSaveFileTo = (file: File, dirPath: string) => {
+    if (!dirPath) return;
+    let externalPath = path.join(dirPath, file.safeDisplayName());
+    while (fs.existsSync(externalPath)) {
+      externalPath = this._incrementPathToAvoidCollision(externalPath);
+    }
+    this._completeSaveToPath(file, externalPath);
+  };
+
+  // Ticket #88 — bypass-modal multi-file save to a specific directory.
+  _fetchAndSaveAllFilesTo = (files: File[], dirPath: string) => {
+    if (!dirPath || !files || files.length === 0) return Promise.resolve([]);
+    return this._saveAllToDir(files, dirPath);
   };
 
   _fetchAndSaveAll = (files: File[]) => {

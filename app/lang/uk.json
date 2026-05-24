@@ -1034,5 +1034,9 @@
   "Unlocking…": "Unlocking…",
   "Use master password": "Use master password",
   "Use recovery code": "Use recovery code",
-  "Wrong password.": "Wrong password."
+  "Wrong password.": "Wrong password.",
+  "Favorite folders": "Улюблені теки",
+  "No favorite folders yet.": "Ще немає улюблених тек.",
+  "Save to…": "Зберегти в…",
+  "Choose folder…": "Виберіть теку…"
 }

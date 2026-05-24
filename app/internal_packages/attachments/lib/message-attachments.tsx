@@ -55,6 +55,7 @@ class MessageAttachments extends Component<MessageAttachmentsProps> {
         filePreviewPath={filePreviewPath}
         onOpenAttachment={() => Actions.fetchAndOpenFile(file)}
         onSaveAttachment={() => Actions.fetchAndSaveFile(file)}
+        onSaveAttachmentTo={(dirPath: string) => Actions.fetchAndSaveFileTo(file, dirPath)}
         onRemoveAttachment={
           canRemoveAttachments
             ? () => Actions.removeAttachment({ headerMessageId: this.props.headerMessageId, file })

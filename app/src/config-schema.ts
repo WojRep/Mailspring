@@ -145,6 +145,16 @@ export default {
             ],
             title: localized('Default save location for attachments'),
           },
+          // Ticket #88 — Tier B. Lista folderów ulubionych dla quick-save
+          // dropdown w kontekst-menu załącznika. Zarządzana przez custom
+          // komponent w Preferences > General > Attachments (folder picker
+          // + add/remove). Domyślnie pusta — wtedy quick-save pokazuje
+          // tylko Downloads i Documents.
+          favoriteFolders: {
+            type: 'array',
+            default: [],
+            items: { type: 'string' },
+          },
           openFolderAfterDownload: {
             type: 'boolean',
             default: false,

@@ -1033,5 +1033,9 @@
   "Unlocking…": "Unlocking…",
   "Use master password": "Use master password",
   "Use recovery code": "Use recovery code",
-  "Wrong password.": "Wrong password."
+  "Wrong password.": "Wrong password.",
+  "Favorite folders": "Carpetas favoritas",
+  "No favorite folders yet.": "Aún no hay carpetas favoritas.",
+  "Save to…": "Guardar en…",
+  "Choose folder…": "Elegir carpeta…"
 }
