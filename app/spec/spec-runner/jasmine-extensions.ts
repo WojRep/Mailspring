@@ -2,7 +2,7 @@
 import _ from 'underscore';
 import moment from 'moment-timezone';
 // On import this will extend the `moment` object
-import 'moment-round';
+import '../../src/utils/moment-round';
 
 import TestConstants from './test-constants';
 

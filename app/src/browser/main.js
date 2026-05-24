@@ -469,7 +469,7 @@ const start = () => {
         responseHeaders: {
           ...details.responseHeaders,
           'Content-Security-Policy': [
-            "default-src * mailspring:; script-src 'self' 'unsafe-inline' chrome-extension://react-developer-tools; style-src * 'unsafe-inline' mailspring:; img-src * data: mailspring: file: actuna-attachment:; object-src none; media-src mailspring:; manifest-src none;",
+            "default-src * actunamail:; script-src 'self' 'unsafe-inline' chrome-extension://react-developer-tools; style-src * 'unsafe-inline' actunamail:; img-src * data: actunamail: file: actuna-attachment:; object-src none; media-src actunamail:; manifest-src none;",
           ],
         },
       });
