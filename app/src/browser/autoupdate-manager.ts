@@ -37,21 +37,21 @@ export default class AutoUpdateManager extends EventEmitter {
     this.feedURL = ''; // WS2-E: no feed URL.
 
     // WS2-E: auto-update channel disabled.
-    // Upstream ActunaMail polled updates.getmailspring.com on startup
+    // Upstream Mailspring polled updates.getmailspring.com on startup
     // and every 30 minutes thereafter, leaking app version, platform,
     // arch, and the user's identity.id (or 'anonymous'). The state of
     // the auto-update channel is set to UnsupportedState so the menu
     // entry shows "Updater unsupported" instead of pretending to check.
-    // Actuna Mail's own update channel ships in v0.3 (per
-    // README.md "Status" section). Until then updates are manual.
+    // ActunaMail's own update channel may ship later; until then updates
+    // are manual.
     this.state = UnsupportedState;
   }
 
   // WS2-E: updateFeedURL stubbed.
-  // Upstream ActunaMail constructed a feed URL at
-  //   https://updates.actuna.email/check/<platform>/<arch>/<version>/<identity.id>/<channel>
+  // Upstream Mailspring constructed a feed URL at
+  //   https://updates.getmailspring.com/check/<platform>/<arch>/<version>/<identity.id>/<channel>
   // which leaked app + identity metadata to Foundry on every check.
-  // Actuna Mail keeps the method on the class for API compatibility but
+  // ActunaMail keeps the method on the class for API compatibility but
   // assigns an empty feedURL so no upstream request can be issued.
   updateFeedURL = () => {
     this.feedURL = '';
