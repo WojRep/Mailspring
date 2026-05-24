@@ -54,6 +54,10 @@ export default class ModeToggle extends React.Component<
   };
 
   render() {
+    // Ticket #15 — icon source: Phosphor Icons "Puzzle Piece" (regular),
+    // MIT licensed (https://github.com/phosphor-icons/core). Puzzle
+    // metaphor reflects the right column as a generic plugin slot
+    // (post-#13/#14) rather than the contact panel.
     return (
       <button
         className={`btn btn-toolbar mode-toggle mode-${this.state.hidden}`}
@@ -63,7 +67,7 @@ export default class ModeToggle extends React.Component<
         onClick={this._onToggleMode}
       >
         <RetinaImg
-          name="toolbar-person-sidebar.png"
+          name="toolbar-sidebar-plugin.png"
           mode={RetinaImg.Mode.ContentIsMask}
           aria-hidden="true"
         />

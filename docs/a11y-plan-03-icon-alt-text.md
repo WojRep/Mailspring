@@ -294,7 +294,7 @@ Fixing `button-dropdown.tsx` benefits all consumers at once.
 | `toolbar-category-picker.tsx` | Label picker | `toolbar-tag.png` | `localized('Apply Label')` |
 | `ContactDetailToolbar.tsx` | Delete | `toolbar-trash.png` | `localized('Delete')` |
 | `ContactDetailToolbar.tsx` | Export vCard | `toolbar-export-contact.png` | `localized('Export vCard')` |
-| `mode-toggle.tsx` | Sidebar toggle | `toolbar-person-sidebar.png` | dynamic Show/Hide |
+| `mode-toggle.tsx` | Sidebar toggle | `toolbar-sidebar-plugin.png` | dynamic Show/Hide |
 | `header-controls.tsx` | Previous | calendar arrow | `localized('Previous')` |
 | `header-controls.tsx` | Next | calendar arrow | `localized('Next')` |
 | `quick-event-button.tsx` | New event | `toolbar-compose.png` | `localized('Create new event')` |
