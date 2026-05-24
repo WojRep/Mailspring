@@ -1671,6 +1671,18 @@ jasmine.FakeTimer.prototype.scheduleFunction = function(timeoutKey, funcToCall, 
 /**
  * @namespace
  */
+// Jasmine 2+ API shim — modern specs call `jasmine.clock()` (lowercase, function)
+// instead of the v1 `jasmine.Clock` namespace object. Both APIs target the same
+// FakeTimer instance below.
+jasmine.clock = function () {
+  return {
+    install: function () { jasmine.Clock.installMock(); },
+    uninstall: function () { jasmine.Clock.uninstallMock(); },
+    tick: function (ms) { jasmine.Clock.tick(ms); },
+    mockDate: function () { /* not supported in v1 timer; no-op for compatibility */ },
+  };
+};
+
 jasmine.Clock = {
   defaultFakeTimer: new jasmine.FakeTimer(),
 

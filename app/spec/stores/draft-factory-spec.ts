@@ -786,7 +786,7 @@ describe('DraftFactory', function draftFactory() {
           to: [new Contact({ name: 'bengotow@gmail.com', email: 'bengotow@gmail.com' })],
         }),
         new Message({
-          to: [new Contact({ name: 'mg@actunamail.test', email: 'mg@actunamail.test' })],
+          to: [new Contact({ name: 'mg@example.com', email: 'mg@example.com' })],
         }),
         new Message({ subject: '%1z2a' }),
         new Message({ subject: 'Rz2a' }),

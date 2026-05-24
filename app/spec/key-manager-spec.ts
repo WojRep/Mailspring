@@ -41,7 +41,7 @@ describe('KeyManager.getDBKey (ticket 45a — SQLCipher Tier A)', function keyMa
       expect(Buffer.isBuffer(key)).toBe(true);
       expect(key.length).toBe(32);
       expect(writeSpy).toHaveBeenCalled();
-      const [writtenPath, writtenVal] = writeSpy.calls.mostRecent().args;
+      const [writtenPath, writtenVal] = writeSpy.mostRecentCall.args;
       expect(String(writtenPath)).toMatch(/db-key\.enc$/);
       expect(Buffer.isBuffer(writtenVal)).toBe(true);
     });
@@ -67,7 +67,9 @@ describe('KeyManager.getDBKey (ticket 45a — SQLCipher Tier A)', function keyMa
     it('decrypts via safeStorage.decryptString and reuses', () => {
       const fixedKey = Buffer.alloc(32, 0x42);
       const blob = Buffer.from(`enc:${fixedKey.toString('hex')}`, 'utf-8');
-      spyOn(fs, 'existsSync').andReturn(true);
+      // Only db-key.enc exists; the Tier B blob does NOT, so the manager
+      // stays in Tier A and getDBKey() does not throw DBKeyLockedError.
+      spyOn(fs, 'existsSync').andCallFake((p: string) => /db-key\.enc$/.test(String(p)));
       spyOn(fs, 'readFileSync').andReturn(blob);
       const writeSpy = spyOn(fs, 'writeFileSync');
       const key = (KeyManager as any).getDBKey();
@@ -87,7 +89,7 @@ describe('KeyManager.getDBKey (ticket 45a — SQLCipher Tier A)', function keyMa
       const k2 = (KeyManager as any).getDBKey();
       expect(k1.equals(k2)).toBe(true);
       // encryptString called only on the first call, not the second.
-      expect((remoteSafeStorage().encryptString as any).calls.count()).toBe(1);
+      expect((remoteSafeStorage().encryptString as any).callCount).toBe(1);
     });
   });
 
@@ -104,14 +106,15 @@ describe('KeyManager.getDBKey (ticket 45a — SQLCipher Tier A)', function keyMa
     it('forces reload from disk on next getDBKey call', () => {
       const fixedKey = Buffer.alloc(32, 0x55);
       const blob = Buffer.from(`enc:${fixedKey.toString('hex')}`, 'utf-8');
-      spyOn(fs, 'existsSync').andReturn(true);
+      // db-key.enc only; Tier B blob absent — Tier A flow.
+      spyOn(fs, 'existsSync').andCallFake((p: string) => /db-key\.enc$/.test(String(p)));
       const readSpy = spyOn(fs, 'readFileSync').andReturn(blob) as any;
       spyOn(fs, 'writeFileSync');
       (KeyManager as any).getDBKey();
-      const firstCount = readSpy.calls.count();
+      const firstCount = readSpy.callCount;
       (KeyManager as any).wipeDBKey();
       (KeyManager as any).getDBKey();
-      expect(readSpy.calls.count()).toBeGreaterThan(firstCount);
+      expect(readSpy.callCount).toBeGreaterThan(firstCount);
     });
   });
 

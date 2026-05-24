@@ -218,7 +218,7 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
     this.setState({ isDropping });
 
     const { item } = this.props;
-    if (isDropping === true && item.children.length > 0 && item.collapsed) {
+    if (isDropping === true && (item.children?.length ?? 0) > 0 && item.collapsed) {
       this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
     } else if (isDropping === false && this._expandTimeout) {
       clearTimeout(this._expandTimeout);
@@ -453,7 +453,7 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
   }
 
   _renderChildren(item: IOutlineViewItem = this.props.item) {
-    const showRegularChildren = item.children.length > 0 && !item.collapsed;
+    const showRegularChildren = (item.children?.length ?? 0) > 0 && !item.collapsed;
     const showCreateChildInput = this.state.creatingChild;
 
     if (showRegularChildren || showCreateChildInput) {
@@ -473,7 +473,7 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
 
   render() {
     const item = this.props.item;
-    const hasChildren = item.children.length > 0;
+    const hasChildren = (item.children?.length ?? 0) > 0;
     const showAsExpanded = this.state.creatingChild;
     const containerClasses = classnames({
       'item-container': true,

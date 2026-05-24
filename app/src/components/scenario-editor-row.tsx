@@ -152,7 +152,7 @@ export default class ScenarioEditorRow extends React.Component<ScenarioEditorRow
   }
 
   _renderComparator(template: Template) {
-    const options = Object.keys(template.comparators).map((key) => (
+    const options = Object.keys(template.comparators ?? {}).map((key) => (
       <option key={key} value={key}>
         {template.comparators[key].name}
       </option>

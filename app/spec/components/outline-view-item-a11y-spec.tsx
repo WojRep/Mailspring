@@ -100,7 +100,7 @@ describe('OutlineViewItem a11y (ticket 44a)', function outlineViewItemA11ySpec()
       // _runCallback (e.g. preventDefault not called), spy would not fire.
       fireEvent.keyDown(el, { key: 'Enter' });
       fireEvent.keyDown(el, { key: ' ' });
-      expect(onSelect.calls.count()).toBe(2);
+      expect(onSelect.callCount).toBe(2);
     });
   });
 });

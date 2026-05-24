@@ -19,7 +19,7 @@ const Tests = [
         {
           templateKey: 'from',
           comparatorKey: 'contains',
-          value: '@actunamail.test',
+          value: '@actunatest.com',
         },
         {
           templateKey: 'from',
@@ -36,8 +36,8 @@ const Tests = [
       accountId: 'b5djvgcuhj6i3x8nm53d0vnjm',
     },
     good: [
-      new Message({ from: [new Contact({ email: 'ben@actunamail.test' })] }),
-      new Message({ from: [new Contact({ email: 'ben@actunamail.test.jp' })] }),
+      new Message({ from: [new Contact({ email: 'ben@actunatest.com' })] }),
+      new Message({ from: [new Contact({ email: 'ben@actunatest.com.jp' })] }),
       new Message({ from: [new Contact({ email: 'oldschool@nilas.com' })] }),
     ],
     bad: [
@@ -72,13 +72,13 @@ const Tests = [
       accountId: 'b5djvgcuhj6i3x8nm53d0vnjm',
     },
     good: [
-      new Message({ cc: [new Contact({ email: 'ben@actunamail.test' })], subject: '[TEST] ABCD' }),
-      new Message({ cc: [new Contact({ email: 'ben@actunamail.test' })], subject: '[test] ABCD' }),
-      new Message({ cc: [new Contact({ email: 'ben@actunamail.test' })], subject: 'Whatever' }),
+      new Message({ cc: [new Contact({ email: 'ben@actunatest.com' })], subject: '[TEST] ABCD' }),
+      new Message({ cc: [new Contact({ email: 'ben@actunatest.com' })], subject: '[test] ABCD' }),
+      new Message({ cc: [new Contact({ email: 'ben@actunatest.com' })], subject: 'Whatever' }),
       new Message({ cc: [new Contact({ email: 'a@test.com' })], subject: 'Whatever' }),
       new Message({ cc: [new Contact({ email: 'a@hasacom.com' })], subject: '[test] Whatever' }),
       new Message({
-        cc: [new Contact({ email: 'a@hasacom.org' }), new Contact({ email: 'b@actunamail.test' })],
+        cc: [new Contact({ email: 'a@hasacom.org' }), new Contact({ email: 'b@actunatest.com' })],
         subject: 'Whatever',
       }),
     ],
@@ -104,7 +104,7 @@ const Tests = [
         {
           templateKey: 'anyRecipient',
           comparatorKey: 'equals',
-          value: 'files@actunamail.test',
+          value: 'files@actunatest.com',
         },
       ],
       conditionMode: 'any',
@@ -119,29 +119,29 @@ const Tests = [
     good: [
       new Message({
         files: [new File({ filename: 'bengotow.pdf' })],
-        to: [new Contact({ email: 'ben@actunamail.test' })],
+        to: [new Contact({ email: 'ben@actunatest.com' })],
       }),
-      new Message({ to: [new Contact({ email: 'files@actunamail.test' })] }),
+      new Message({ to: [new Contact({ email: 'files@actunatest.com' })] }),
       new Message({
-        to: [new Contact({ email: 'ben@actunamail.test' })],
+        to: [new Contact({ email: 'ben@actunatest.com' })],
         cc: [
           new Contact({ email: 'ben@test.com' }),
-          new Contact({ email: 'files@actunamail.test' }),
+          new Contact({ email: 'files@actunatest.com' }),
         ],
       }),
     ],
     bad: [
-      new Message({ to: [new Contact({ email: 'ben@actunamail.test' })] }),
+      new Message({ to: [new Contact({ email: 'ben@actunatest.com' })] }),
       new Message({
         files: [new File({ filename: 'bengotow.pdfz' })],
-        to: [new Contact({ email: 'ben@actunamail.test' })],
+        to: [new Contact({ email: 'ben@actunatest.com' })],
       }),
       new Message({
         files: [new File({ filename: 'bengotowpdf' })],
-        to: [new Contact({ email: 'ben@actunamail.test' })],
+        to: [new Contact({ email: 'ben@actunatest.com' })],
       }),
-      new Message({ to: [new Contact({ email: 'afiles@actunamail.test' })] }),
-      new Message({ to: [new Contact({ email: 'files@actunamail.testa' })] }),
+      new Message({ to: [new Contact({ email: 'afiles@actunatest.com' })] }),
+      new Message({ to: [new Contact({ email: 'files@actunatest.coma' })] }),
     ],
   },
 ];

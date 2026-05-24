@@ -104,9 +104,15 @@ describe('check-i18n-parity', function parityScriptSpec() {
   });
 
   describe('rule 2 — Fork-only keys must propagate to DE/ES/UK', () => {
+    // "Fork-only" w terminologii parity script = klucz obecny w pl.json ale
+    // NIEobecny w en.json. Fixture musi zostawić ActunaSpecific poza en.json,
+    // żeby rule 2 się włączyła. (Wcześniejsze fixtures miały ActunaSpecific
+    // też w en — wtedy rule 1 ↔ PL/EN parity by była OK i fork-only set pusty,
+    // więc rule 2 nigdy nie była egzekwowana; test był skonstruowany ze
+    // złym założeniem.)
     it('fails when fork-only PL key is missing in DE', () => {
       const dir = makeFixture({
-        en: { Hello: 'Hello', ActunaSpecific: 'Specific' },
+        en: { Hello: 'Hello' },
         pl: { Hello: 'Cześć', ActunaSpecific: 'Specyficzne dla Actuny' },
         de: { Hello: 'Hallo' }, // missing ActunaSpecific
         es: { Hello: 'Hola', ActunaSpecific: 'Específico' },
@@ -120,7 +126,7 @@ describe('check-i18n-parity', function parityScriptSpec() {
 
     it('reports missing keys in all 3 optional languages independently', () => {
       const dir = makeFixture({
-        en: { Hello: 'Hello', ActunaSpecific: 'Specific' },
+        en: { Hello: 'Hello' },
         pl: { Hello: 'Cześć', ActunaSpecific: 'Specyficzne' },
         de: { Hello: 'Hallo' }, // missing
         es: { Hello: 'Hola' }, // missing
