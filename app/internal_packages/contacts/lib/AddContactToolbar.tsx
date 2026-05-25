@@ -2,7 +2,7 @@ import React from 'react';
 import { Store, ContactsPerspective } from './Store';
 import { localized, Actions, AccountStore } from 'actunamail-exports';
 import * as Icons from './SVGIcons';
-import { ListensToFluxStore, BindGlobalCommands } from 'actunamail-component-kit';
+import { ListensToFluxStore, BindGlobalCommands, Tooltip } from 'actunamail-component-kit';
 import { showGPeopleReadonlyNotice } from './GoogleSupport';
 
 interface AddContactToolbarProps {
@@ -41,18 +41,26 @@ class AddContactToolbarWithData extends React.Component<AddContactToolbarProps> 
           key={`${enabled}`}
           commands={enabled ? { 'core:add-item': this.onAdd } : {}}
         >
-          <button
-            disabled={!enabled}
-            className={`btn btn-toolbar btn-new-contact ${!enabled && 'btn-disabled'}`}
-            title={
+          <Tooltip
+            content={
               acct
                 ? localized('New contact in %@', acct.label)
                 : localized('Select an account to add a contact.')
             }
-            onClick={enabled ? this.onAdd : undefined}
           >
-            <Icons.NewPerson />
-          </button>
+            <button
+              disabled={!enabled}
+              className={`btn btn-toolbar btn-new-contact ${!enabled && 'btn-disabled'}`}
+              aria-label={
+                acct
+                  ? localized('New contact in %@', acct.label)
+                  : localized('Select an account to add a contact.')
+              }
+              onClick={enabled ? this.onAdd : undefined}
+            >
+              <Icons.NewPerson />
+            </button>
+          </Tooltip>
         </BindGlobalCommands>
       </div>
     );

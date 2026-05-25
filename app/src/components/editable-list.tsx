@@ -6,6 +6,7 @@ import { Utils, localized } from 'actunamail-exports';
 import { ScrollRegion } from './scroll-region';
 import { KeyCommandsRegion } from './key-commands-region';
 import { RetinaImg } from './retina-img';
+import { Tooltip } from './tooltip';
 
 /**
  * If provided, this function will be called when the add button is clicked,
@@ -425,13 +426,21 @@ class EditableList extends Component<EditableListProps, EditableListState> {
         onDoubleClick={(e) => onEdit(e, item, idx)}
       >
         {itemContent}
-        <RetinaImg
-          className="edit-icon"
-          name="edit-icon.png"
-          title={localized('Edit Item')}
-          mode={RetinaImg.Mode.ContentIsMask}
-          onClick={(e) => onEdit(e, item, idx)}
-        />
+        <Tooltip content={localized('Edit Item')}>
+          <span
+            role="button"
+            aria-label={localized('Edit Item')}
+            onClick={(e) => onEdit(e, item, idx)}
+            style={{ display: 'inline-flex' }}
+          >
+            <RetinaImg
+              className="edit-icon"
+              name="edit-icon.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </span>
+        </Tooltip>
       </div>
     );
   };

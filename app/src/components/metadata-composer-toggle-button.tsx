@@ -8,7 +8,7 @@ import {
   Message,
   DraftEditingSession,
 } from 'actunamail-exports';
-import { RetinaImg } from 'actunamail-component-kit';
+import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 import classnames from 'classnames';
 import _ from 'underscore';
 
@@ -155,25 +155,27 @@ export default class MetadataComposerToggleButton extends React.Component<
       attrs.name = this.props.iconName;
     }
 
+    const tooltipLabel = `${enabled ? localized('Disable') : localized('Enable')} ${this.props.pluginName}`;
     return (
-      <button
-        className={className}
-        onClick={this._onClick}
-        title={`${enabled ? localized('Disable') : localized('Enable')} ${this.props.pluginName}`}
-        aria-label={`${enabled ? localized('Disable') : localized('Enable')} ${this.props.pluginName}`}
-        tabIndex={-1}
-      >
-        {this.state.onByDefaultButUsedUp ? (
-          <div style={{ position: 'absolute', zIndex: 2, transform: 'translate(14px, -4px)' }}>
-            <RetinaImg
-              name="tiny-warning-sign.png"
-              mode={RetinaImg.Mode.ContentPreserve}
-              aria-hidden="true"
-            />
-          </div>
-        ) : null}
-        <RetinaImg {...attrs} mode={RetinaImg.Mode.ContentIsMask} aria-hidden="true" />
-      </button>
+      <Tooltip content={tooltipLabel}>
+        <button
+          className={className}
+          onClick={this._onClick}
+          aria-label={tooltipLabel}
+          tabIndex={-1}
+        >
+          {this.state.onByDefaultButUsedUp ? (
+            <div style={{ position: 'absolute', zIndex: 2, transform: 'translate(14px, -4px)' }}>
+              <RetinaImg
+                name="tiny-warning-sign.png"
+                mode={RetinaImg.Mode.ContentPreserve}
+                aria-hidden="true"
+              />
+            </div>
+          ) : null}
+          <RetinaImg {...attrs} mode={RetinaImg.Mode.ContentIsMask} aria-hidden="true" />
+        </button>
+      </Tooltip>
     );
   }
 }

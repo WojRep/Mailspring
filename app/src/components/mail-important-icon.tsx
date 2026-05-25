@@ -14,6 +14,7 @@ import {
   Label,
 } from 'actunamail-exports';
 import { Disposable } from 'rx-core';
+import { Tooltip } from './tooltip';
 
 const ShowImportantKey = 'core.workspace.showImportant';
 
@@ -122,7 +123,16 @@ class MailImportantIcon extends React.Component<MailImportantIconProps, MailImpo
       title = localized('Mark as Important');
     }
 
-    return <div className={classes} title={title} onClick={this._onToggleImportant} />;
+    return (
+      <Tooltip content={title}>
+        <div
+          className={classes}
+          role="button"
+          aria-label={title}
+          onClick={this._onToggleImportant}
+        />
+      </Tooltip>
+    );
   }
 
   _onToggleImportant = (event: React.MouseEvent) => {

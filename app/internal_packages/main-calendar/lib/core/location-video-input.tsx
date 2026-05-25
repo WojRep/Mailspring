@@ -1,5 +1,5 @@
 import React from 'react';
-import { RetinaImg } from 'actunamail-component-kit';
+import { RetinaImg, Tooltip } from 'actunamail-component-kit';
 import { localized } from 'actunamail-exports';
 
 interface LocationVideoInputProps {
@@ -34,13 +34,20 @@ export const LocationVideoInput: React.FC<LocationVideoInputProps> = ({
         onChange={(e) => onChange(e.target.value)}
       />
       {showVideoButton && (
-        <div
-          className="video-toggle"
-          onClick={handleVideoClick}
-          title={localized('Add Video Call')}
-        >
-          <RetinaImg name="ic-eventcard-videocall.png" mode={RetinaImg.Mode.ContentIsMask} />
-        </div>
+        <Tooltip content={localized('Add Video Call')}>
+          <div
+            className="video-toggle"
+            role="button"
+            aria-label={localized('Add Video Call')}
+            onClick={handleVideoClick}
+          >
+            <RetinaImg
+              name="ic-eventcard-videocall.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+              aria-hidden="true"
+            />
+          </div>
+        </Tooltip>
       )}
     </div>
   );

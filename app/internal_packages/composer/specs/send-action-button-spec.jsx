@@ -56,7 +56,9 @@ describe('SendActionButton', function describeBlock() {
     const container = renderButton(this.draft);
     expect(container.querySelector('.button-dropdown') !== null).toBe(true);
     expect(container.querySelectorAll('button').length).toBe(0);
-    expect(container.querySelector('.primary-item').getAttribute('title')).toBe('Send');
+    // Ticket #43d — title attribute moved from .primary-item to Tooltip
+    // wrapper; aria-label preserves the accessible name for screen readers.
+    expect(container.querySelector('.primary-item').getAttribute('aria-label')).toBe('Send');
   });
 
   it('has the correct primary item', () => {
@@ -66,7 +68,8 @@ describe('SendActionButton', function describeBlock() {
       GoodSendAction,
     ]);
     const container = renderButton(this.draft);
-    expect(container.querySelector('.primary-item').getAttribute('title')).toBe('Second Send Action');
+    // Ticket #43d — see note above.
+    expect(container.querySelector('.primary-item').getAttribute('aria-label')).toBe('Second Send Action');
   });
 
   it("still renders with a null iconUrl and doesn't show the image", () => {

@@ -1,6 +1,7 @@
 import React, { CSSProperties } from 'react';
 import ReactDOM from 'react-dom';
 import { RetinaImg } from './retina-img';
+import { Tooltip } from './tooltip';
 import { PropTypes, localized } from 'actunamail-exports';
 import classnames from 'classnames';
 
@@ -61,22 +62,40 @@ export class ButtonDropdown extends React.Component<ButtonDropdownProps, ButtonD
           className={`${classes} ${this.props.className || ''}`}
           style={this.props.style}
         >
-          <div
-            role="button"
-            tabIndex={0}
-            className="primary-item"
-            title={this.props.primaryTitle || ''}
-            aria-label={this.props.primaryTitle}
-            onClick={this.props.primaryClick}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.props.primaryClick();
-              }
-            }}
-          >
-            {this.props.primaryItem}
-          </div>
+          {this.props.primaryTitle ? (
+            <Tooltip content={this.props.primaryTitle}>
+              <div
+                role="button"
+                tabIndex={0}
+                className="primary-item"
+                aria-label={this.props.primaryTitle}
+                onClick={this.props.primaryClick}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.props.primaryClick();
+                  }
+                }}
+              >
+                {this.props.primaryItem}
+              </div>
+            </Tooltip>
+          ) : (
+            <div
+              role="button"
+              tabIndex={0}
+              className="primary-item"
+              onClick={this.props.primaryClick}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  this.props.primaryClick();
+                }
+              }}
+            >
+              {this.props.primaryItem}
+            </div>
+          )}
           <div
             role="button"
             tabIndex={0}
@@ -108,18 +127,32 @@ export class ButtonDropdown extends React.Component<ButtonDropdownProps, ButtonD
           className={`${classes} ${this.props.className || ''}`}
           style={this.props.style}
         >
-          <div
-            className="only-item"
-            title={this.props.primaryTitle || ''}
-            onClick={this.toggleDropdown}
-          >
-            {this.props.primaryItem}
-            <RetinaImg
-              name={'icon-thread-disclosure.png'}
-              style={{ marginLeft: 12 }}
-              mode={RetinaImg.Mode.ContentIsMask}
-            />
-          </div>
+          {this.props.primaryTitle ? (
+            <Tooltip content={this.props.primaryTitle}>
+              <div
+                className="only-item"
+                role="button"
+                aria-label={this.props.primaryTitle}
+                onClick={this.toggleDropdown}
+              >
+                {this.props.primaryItem}
+                <RetinaImg
+                  name={'icon-thread-disclosure.png'}
+                  style={{ marginLeft: 12 }}
+                  mode={RetinaImg.Mode.ContentIsMask}
+                />
+              </div>
+            </Tooltip>
+          ) : (
+            <div className="only-item" onClick={this.toggleDropdown}>
+              {this.props.primaryItem}
+              <RetinaImg
+                name={'icon-thread-disclosure.png'}
+                style={{ marginLeft: 12 }}
+                mode={RetinaImg.Mode.ContentIsMask}
+              />
+            </div>
+          )}
           <div
             className={`secondary-items ${this.props.attachment}`}
             onMouseDown={this._onMenuClick}
