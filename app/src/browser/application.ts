@@ -440,14 +440,70 @@ export default class Application extends EventEmitter {
         return { ok: false, error: this._tierBUnlockError(err) };
       }
     });
-    ipcMain.handle('tier-b-unlock', (_e, password) => {
+    ipcMain.handle('tier-b-unlock', (_e, password, options) => {
       try {
         KeyManager.unlockTierB(password);
         mgr.unlock();
+        // Ticket #41 — opt-in cache: gdy user zaznaczył "Remember password"
+        // przy unlock i Touch ID feature jest enabled w settings.
+        if (
+          options &&
+          options.cacheForBiometric &&
+          this.config &&
+          this.config.get('core.security.useTouchID')
+        ) {
+          try {
+            KeyManager.cacheTierBPasswordForBiometric(password);
+          } catch (cacheErr) {
+            // Cache failure nie blokuje unlocka — log only.
+          }
+        }
         this._publishTierBKey();
         return { ok: true };
       } catch (err) {
         return { ok: false, error: this._tierBUnlockError(err) };
+      }
+    });
+    // Ticket #41 — Touch ID unlock: prompt biometric auth, then unlock
+    // Tier B z cached master password. Wymaga że user kiedyś
+    // odblokował z `cacheForBiometric: true`.
+    ipcMain.handle('tier-b-unlock-touch-id', async (_e, reason) => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { canUseTouchID, promptTouchID } = require('../touch-id-helper');
+        if (!canUseTouchID()) {
+          return { ok: false, error: 'Touch ID is not available on this system.' };
+        }
+        if (!KeyManager.hasTierBBiometricCache()) {
+          return {
+            ok: false,
+            error: 'No cached password. Unlock once with "Remember password" first.',
+          };
+        }
+        await promptTouchID(reason || 'unlock ActunaMail');
+        const ok = KeyManager.unlockTierBWithCachedPassword();
+        if (!ok) {
+          return { ok: false, error: 'Biometric cache not found.' };
+        }
+        mgr.unlock();
+        this._publishTierBKey();
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: (err && err.message) || 'Touch ID unlock failed.' };
+      }
+    });
+    ipcMain.handle('tier-b-biometric-status', () => ({
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      available: require('../touch-id-helper').canUseTouchID(),
+      cached: KeyManager.hasTierBBiometricCache(),
+      enabled: !!(this.config && this.config.get('core.security.useTouchID')),
+    }));
+    ipcMain.handle('tier-b-forget-biometric', () => {
+      try {
+        KeyManager.clearTierBBiometricCache();
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: (err && err.message) || 'Forget Touch ID failed.' };
       }
     });
     ipcMain.handle('tier-b-unlock-recovery', (_e, code) => {

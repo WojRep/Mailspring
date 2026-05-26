@@ -32,6 +32,10 @@ const DB_KEY_FILENAME = 'db-key.enc';
 // an unlock window.
 const DB_KEY_TIERB_FILENAME = 'db-key.tierb.enc';
 const DB_KEY_RECOVERY_FILENAME = 'db-key.recovery.enc';
+// Ticket #41 — cached master password dla Touch ID unlock. Plik
+// safeStorage-encrypted (macOS Keychain ACL); user musi opt-in przez
+// Preferences > Security > Use Touch ID + "Remember password".
+const TIERB_BIOMETRIC_CACHE_FILENAME = 'db-key.tierb.touchid-cache.enc';
 
 /**
  * Thrown by `getDBKey()` when Tier B is enabled but the database is
@@ -304,6 +308,65 @@ class KeyManager {
   }
 
   /**
+   * Ticket #41 — cache the master password under safeStorage so a
+   * subsequent Touch ID prompt can unlock without re-typing. Stored
+   * encrypted (macOS Keychain ACL); only callable from the main process
+   * (safeStorage availability matches the regular tier-b path).
+   *
+   * The cache is *opt-in* — controlled by `core.security.useTouchID`
+   * + an explicit "Remember password" toggle in the lock overlay.
+   * Cache is invalidated on `disableTierB` / `changeTierBPassword`.
+   */
+  cacheTierBPasswordForBiometric(password: string): void {
+    if (!password) return;
+    const ss = getSafeStorage();
+    if (!ss.isEncryptionAvailable()) {
+      throw new Error('safeStorage is not available — cannot cache password.');
+    }
+    const blob = ss.encryptString(password);
+    const cachePath = path.join(getConfigDirPath(), TIERB_BIOMETRIC_CACHE_FILENAME);
+    atomicWrite(cachePath, blob);
+    auditLog('tier-b-biometric-cache-stored', {});
+  }
+
+  /**
+   * Ticket #41 — read cached master password (if any) and unlock Tier B
+   * with it. Returns true on success, false when no cache exists. Throws
+   * WrongSecretError if the cache is stale (e.g. password was rotated
+   * without invalidating the cache). Caller (IPC handler) is expected to
+   * gate this behind a successful Touch ID prompt.
+   */
+  unlockTierBWithCachedPassword(): boolean {
+    const cachePath = path.join(getConfigDirPath(), TIERB_BIOMETRIC_CACHE_FILENAME);
+    if (!fs.existsSync(cachePath)) return false;
+    const ss = getSafeStorage();
+    if (!ss.isEncryptionAvailable()) return false;
+    const password = ss.decryptString(fs.readFileSync(cachePath));
+    this.unlockTierB(password);
+    auditLog('tier-b-biometric-unlocked', {});
+    return true;
+  }
+
+  /**
+   * Ticket #41 — invalidate the cached master password. Called by
+   * `disableTierB`, `changeTierBPassword`, and explicit "Forget Touch ID"
+   * action from Preferences > Security.
+   */
+  clearTierBBiometricCache(): void {
+    const cachePath = path.join(getConfigDirPath(), TIERB_BIOMETRIC_CACHE_FILENAME);
+    if (fs.existsSync(cachePath)) {
+      fs.unlinkSync(cachePath);
+      auditLog('tier-b-biometric-cache-cleared', {});
+    }
+  }
+
+  /** Returns true when a biometric cache is present on disk. */
+  hasTierBBiometricCache(): boolean {
+    const cachePath = path.join(getConfigDirPath(), TIERB_BIOMETRIC_CACHE_FILENAME);
+    return fs.existsSync(cachePath);
+  }
+
+  /**
    * Unlock with the recovery code (forgot-password path). Same outcome
    * as `unlockTierB` — DBKey lands in the RAM cache.
    */
@@ -336,6 +399,12 @@ class KeyManager {
     const dbKey = this._unwrapWithAudit(fs.readFileSync(blobPath), oldPassword, 'change-password'); // verifies oldPassword
     atomicWrite(blobPath, wrapDBKey(dbKey, newPassword));
     this._dbKeyCache = dbKey;
+    // Ticket #41 — stale cache after password rotation. Best-effort.
+    try {
+      this.clearTierBBiometricCache();
+    } catch (err) {
+      // Cache invalidation must not fail the change-password operation.
+    }
     log.info('Tier B master password changed.');
     auditLog('tier-b-password-changed', {});
   }
@@ -393,6 +462,12 @@ class KeyManager {
       fs.unlinkSync(recoveryPath);
     }
     this._dbKeyCache = dbKey;
+    // Ticket #41 — Tier B off means biometric cache must be erased.
+    try {
+      this.clearTierBBiometricCache();
+    } catch (err) {
+      // Best-effort.
+    }
     log.info('Tier B disabled — reverted to Tier A safeStorage key.');
     auditLog('tier-b-disabled', {});
   }

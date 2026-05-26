@@ -6,6 +6,8 @@
 	<string>AtomApplication</string>
 	<key>NSFocusStatusUsageDescription</key>
 	<string>ActunaMail checks Focus mode status to silence new mail notifications when Do Not Disturb is enabled.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>ActunaMail uses Touch ID or Face ID to unlock your encrypted mailbox without re-typing your master password.</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

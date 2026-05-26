@@ -416,6 +416,24 @@ export default {
           },
         },
       },
+      // Ticket #41 — Touch ID / biometric unlock dla SQLCipher Tier B.
+      // Dodatkowe pola `tierB` (idleMs / lockOnSuspend / lockOnScreenLock)
+      // są zapisywane dynamicznie przez `application.ts:395` i nie
+      // wymagają tu deklaracji (legacy upstream behavior).
+      security: {
+        type: 'object',
+        properties: {
+          useTouchID: {
+            type: 'boolean',
+            default: false,
+            title: localized('Use Touch ID to unlock encrypted database (macOS only)'),
+            note: localized(
+              'Requires Touch ID hardware and a Tier B master password set up. Cached password is encrypted at rest via macOS Keychain.'
+            ),
+            platforms: ['darwin'],
+          },
+        },
+      },
     },
   },
 };

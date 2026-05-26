@@ -10,6 +10,10 @@ interface LockOverlayState {
   recoveryMode: boolean;
   error: string | null;
   busy: boolean;
+  rememberPassword: boolean;
+  // Ticket #41 — biometric availability snapshot (3-state: still loading,
+  // available, unavailable). Polled on lock to keep UI deterministic.
+  biometric: { available: boolean; cached: boolean; enabled: boolean } | null;
 }
 
 /**
@@ -30,6 +34,8 @@ export default class LockOverlay extends React.Component<{}, LockOverlayState> {
     recoveryMode: false,
     error: null,
     busy: false,
+    rememberPassword: false,
+    biometric: null,
   };
 
   componentDidMount() {
@@ -52,19 +58,63 @@ export default class LockOverlay extends React.Component<{}, LockOverlayState> {
   _onLockStateChanged = (_evt: any, payload: any) => {
     if (payload && payload.state === 'LOCKED') {
       this.setState({ locked: true, secret: '', error: null, busy: false });
+      this._refreshBiometricStatus();
     } else if (payload && payload.state === 'UNLOCKED') {
       this.setState({ locked: false, secret: '', error: null, busy: false });
     }
   };
 
+  /**
+   * Ticket #41 — fetch current biometric availability (canPromptTouchID +
+   * cache present + user opt-in) so the overlay can show the "Use Touch ID"
+   * shortcut. Best-effort: null state hides the button silently.
+   */
+  _refreshBiometricStatus = () => {
+    ipcRenderer
+      .invoke('tier-b-biometric-status')
+      .then((status: any) => {
+        if (status && typeof status === 'object') {
+          this.setState({ biometric: status });
+        }
+      })
+      .catch(() => {
+        this.setState({ biometric: { available: false, cached: false, enabled: false } });
+      });
+  };
+
+  _onTouchIDClick = async () => {
+    if (this.state.busy) return;
+    this.setState({ busy: true, error: null });
+    try {
+      const res = await ipcRenderer.invoke(
+        'tier-b-unlock-touch-id',
+        localized('unlock ActunaMail')
+      );
+      if (res && res.ok) {
+        this.setState({ locked: false, busy: false });
+      } else {
+        this.setState({
+          busy: false,
+          error: (res && res.error) || localized('Touch ID unlock failed.'),
+        });
+      }
+    } catch (err) {
+      this.setState({ busy: false, error: localized('Touch ID unlock failed.') });
+    }
+  };
+
   _onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { secret, recoveryMode } = this.state;
+    const { secret, recoveryMode, rememberPassword, biometric } = this.state;
     if (!secret) return;
     this.setState({ busy: true, error: null });
     const channel = recoveryMode ? 'tier-b-unlock-recovery' : 'tier-b-unlock';
+    const options =
+      !recoveryMode && rememberPassword && biometric && biometric.enabled && biometric.available
+        ? { cacheForBiometric: true }
+        : undefined;
     try {
-      const res = await ipcRenderer.invoke(channel, secret);
+      const res = await ipcRenderer.invoke(channel, secret, options);
       if (res && res.ok) {
         // The main process broadcasts UNLOCKED; _onLockStateChanged
         // clears the overlay. Clear the secret immediately regardless.
@@ -82,8 +132,16 @@ export default class LockOverlay extends React.Component<{}, LockOverlayState> {
   };
 
   render() {
-    const { locked, secret, recoveryMode, error, busy } = this.state;
+    const { locked, secret, recoveryMode, error, busy, rememberPassword, biometric } = this.state;
     if (!locked) return null;
+    // Ticket #41 — pokazuj Touch ID przycisk tylko gdy: enabled w
+    // Preferences, hardware dostępne, cache obecny w configDir.
+    const showTouchID =
+      biometric && biometric.enabled && biometric.available && biometric.cached && !recoveryMode;
+    // Pokazuj "Remember password" tylko gdy enabled + dostępny, ale jeszcze
+    // brak cache (po pierwszym opt-in unlock).
+    const showRememberOption =
+      biometric && biometric.enabled && biometric.available && !biometric.cached && !recoveryMode;
 
     return (
       <div
@@ -141,6 +199,26 @@ export default class LockOverlay extends React.Component<{}, LockOverlayState> {
             <div style={{ color: '#ff7a7a', fontSize: 12, minHeight: 16, marginTop: 8 }}>
               {error || ''}
             </div>
+            {showRememberOption && (
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: 12,
+                  marginTop: 4,
+                  cursor: 'pointer',
+                  opacity: 0.85,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={rememberPassword}
+                  onChange={(e) => this.setState({ rememberPassword: e.target.checked })}
+                  style={{ marginRight: 6 }}
+                />
+                {localized('Remember password (Touch ID)')}
+              </label>
+            )}
             <button
               type="submit"
               disabled={busy || !secret}
@@ -160,6 +238,29 @@ export default class LockOverlay extends React.Component<{}, LockOverlayState> {
               {busy ? localized('Unlocking…') : localized('Unlock')}
             </button>
           </form>
+          {showTouchID && (
+            <button
+              type="button"
+              className="touch-id-unlock-button"
+              onClick={this._onTouchIDClick}
+              disabled={busy}
+              style={{
+                marginTop: 10,
+                width: '100%',
+                padding: '8px 0',
+                fontSize: 13,
+                borderRadius: 4,
+                border: '1px solid #4087f2',
+                background: 'transparent',
+                color: '#7fa8f0',
+                cursor: busy ? 'default' : 'pointer',
+                opacity: busy ? 0.5 : 1,
+              }}
+              aria-label={localized('Unlock with Touch ID')}
+            >
+              {localized('Unlock with Touch ID')}
+            </button>
+          )}
           <a
             role="button"
             tabIndex={0}
