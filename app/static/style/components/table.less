@@ -1,8 +1,14 @@
 @import 'ui-variables';
 
-@row-highlight-color: #e3effc;
-@row-highlight-text-color: #3a6fa7;
-@row-highlight-border-color: #c9dcf0;
+// Faza E luka #2 — pilot refactor table.less (2026-05-27)
+//
+// Przed:
+//   @row-highlight-color: #e3effc;        // hardcoded jasno-niebieski
+//   @row-highlight-text-color: #3a6fa7;   // hardcoded ciemno-niebieski
+//   @row-highlight-border-color: #c9dcf0; // hardcoded średnio-niebieski
+//
+// Po: używamy CSS custom properties z tokens.less (accent-50/accent-700/accent-100)
+// — automatycznie zgodne z dark theme + reduced contrast media queries.
 
 .nylas-table {
   height: 100%;
@@ -17,8 +23,8 @@
 
   .table-row {
     .table-cell {
-      border: 1px solid lighten(@border-color-secondary, 5%);
-      color: @text-color-very-subtle;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
 
       & > div {
         min-height: 20px;
@@ -47,13 +53,13 @@
     }
 
     &.selected {
-      background: @row-highlight-color;
+      background: var(--accent-50);
 
       .table-cell {
-        color: @row-highlight-text-color;
-        border: 1px double @row-highlight-border-color;
+        color: var(--accent-700);
+        border: 1px double var(--accent-100);
         input {
-          color: @row-highlight-text-color;
+          color: var(--accent-700);
         }
       }
     }
