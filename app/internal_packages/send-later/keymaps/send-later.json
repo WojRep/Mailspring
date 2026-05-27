@@ -1,0 +1,6 @@
+{
+  "body": {
+    "mod-alt-enter": "send-later:open-picker",
+    "mod-alt-z": "send-later:undo-send"
+  }
+}

@@ -13,6 +13,7 @@ import { HasTutorialTip } from 'actunamail-component-kit';
 import SendLaterButton from './send-later-button';
 import SendLaterStatus from './send-later-status';
 import { PLUGIN_ID } from './send-later-constants';
+import { activateExtras, deactivateExtras } from './send-later-extras';
 
 let unlisten = null;
 
@@ -69,6 +70,9 @@ export function activate() {
   if (AppEnv.isMainWindow()) {
     unlisten = DatabaseStore.listen(handleMetadataExpiration);
   }
+
+  // Bilet MVP #105 — Cmd+K + keymapy + Undo Send store + Scheduled queue.
+  activateExtras();
 }
 
 export function deactivate() {
@@ -77,6 +81,7 @@ export function deactivate() {
   if (unlisten) {
     unlisten();
   }
+  deactivateExtras();
 }
 
 export function serialize() {}
