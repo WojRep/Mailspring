@@ -1,0 +1,14 @@
+{
+  "name": "audit-log",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Audit log infrastructure cross-cutting + retention + Preferences UI — bilet MVP #114",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true
+  }
+}
