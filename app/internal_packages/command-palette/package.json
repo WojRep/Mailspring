@@ -1,0 +1,15 @@
+{
+  "name": "command-palette",
+  "version": "0.1.0",
+  "description": "Cmd+K Command Palette — fuzzy search po wszystkich akcjach aplikacji + extensible plugin API. Bilet MVP #89 (Faza E, plan_to_version_1.0).",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true,
+  "windowTypes": {
+    "default": true,
+    "composer": false
+  }
+}

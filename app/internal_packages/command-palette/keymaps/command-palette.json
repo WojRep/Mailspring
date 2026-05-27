@@ -1,0 +1,13 @@
+{
+  "body": {
+    "mod-k": "command-palette:toggle",
+    "mod-shift-p": "command-palette:toggle"
+  },
+  ".command-palette": {
+    "escape": "command-palette:close",
+    "up": "command-palette:select-previous",
+    "down": "command-palette:select-next",
+    "enter": "command-palette:execute-selected",
+    "tab": "command-palette:autocomplete"
+  }
+}

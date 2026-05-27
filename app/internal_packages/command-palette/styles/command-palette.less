@@ -1,0 +1,232 @@
+// Cmd+K Command Palette styles — bilet MVP #89
+// Używa design tokens z app/static/style/base/tokens.less (Faza E luka #2).
+
+.command-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  background: rgba(0, 0, 0, 0.18);
+  animation: command-palette-fade-in var(--motion-medium) var(--ease-emphasis);
+}
+
+.command-palette {
+  width: 640px;
+  max-width: 90vw;
+  max-height: 600px;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-glass);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  font-family: var(--font-sans);
+  animation: command-palette-slide-in var(--motion-medium) var(--ease-emphasis);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .command-palette {
+    background: var(--surface-elevated-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@keyframes command-palette-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes command-palette-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// === Search input ===
+
+.command-palette-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-elevated-1);
+}
+
+.command-palette-icon {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+}
+
+.command-palette-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  color: var(--text-primary);
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+}
+
+.command-palette-hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+// === Results ===
+
+.command-palette-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+  max-height: 440px;
+}
+
+.command-palette-empty {
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.command-palette-section-group {
+  margin-bottom: var(--space-2);
+}
+
+.command-palette-section {
+  padding: var(--space-2) var(--space-5) var(--space-1);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: var(--weight-medium);
+}
+
+.command-palette-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  cursor: pointer;
+  min-height: 36px;
+  transition: background var(--motion-fast) var(--ease-standard);
+
+  &:hover,
+  &.focused {
+    background: var(--accent-50);
+  }
+}
+
+.command-palette-item-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+}
+
+.command-palette-item.focused .command-palette-item-icon {
+  color: var(--accent-700);
+}
+
+.command-palette-item-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.command-palette-item-main {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.command-palette-item-meta {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.command-palette-item-keys {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.command-palette-item-keys kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 20px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background: var(--surface-elevated-2);
+  border: 1px solid var(--border-default);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+// === Footer ===
+
+.command-palette-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-elevated-1);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.command-palette-footer-keys {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.command-palette-footer-keys kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 4px;
+  background: var(--surface-elevated-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  height: auto;
+}
+
+.command-palette-footer-status {
+  margin-left: auto;
+}
+
+// === Focus indicator (WCAG SC 2.4.13) ===
+
+.command-palette-input:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.command-palette-item:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: -2px;
+}
