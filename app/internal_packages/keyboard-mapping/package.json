@@ -1,0 +1,14 @@
+{
+  "name": "keyboard-mapping",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Keyboard mapping switcher (Default/Apple Mail/Gmail/Outlook) + ? cheat sheet — bilet MVP #109",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true
+  }
+}
