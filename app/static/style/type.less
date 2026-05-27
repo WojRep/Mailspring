@@ -108,7 +108,7 @@ small,
 
 mark,
 .mark {
-  background-color: #fcf8e3;
+  background-color: var(--warning-50);
   padding: 0.2em;
 }
 
@@ -141,45 +141,43 @@ mark,
 }
 
 // Contextual colors
+// Faza E luka #2 Sprint 1 — refactor 2026-05-27
+// Wszystkie .text-* i .bg-* używają semantic tokens z tokens.less.
 .text-muted {
-  color: @text-color-subtle;
+  color: var(--text-muted);
 }
 .text-primary {
-  .text-emphasis-variant(@accent-primary);
+  color: var(--text-link);
 }
 .text-success {
-  .text-emphasis-variant(#3c763d);
+  color: var(--success-500);
 }
 .text-info {
-  .text-emphasis-variant(#31708f);
+  color: var(--info-500);
 }
 .text-warning {
-  .text-emphasis-variant(#8a6d3b);
+  color: var(--warning-500);
 }
 .text-danger {
-  .text-emphasis-variant(#a94442);
+  color: var(--danger-500);
 }
 
 // Contextual backgrounds
-// For now we'll leave these alongside the text classes until v4 when we can
-// safely shift things around (per SemVer rules).
 .bg-primary {
-  // Given the contrast here, this is the only class to have its color inverted
-  // automatically.
-  color: #fff;
-  .bg-variant(@accent-primary);
+  color: var(--text-inverse);
+  background-color: var(--interactive-idle);
 }
 .bg-success {
-  .bg-variant(#dff0d8);
+  background-color: var(--success-50);
 }
 .bg-info {
-  .bg-variant(#d9edf7);
+  background-color: var(--info-50);
 }
 .bg-warning {
-  .bg-variant(#fcf8e3);
+  background-color: var(--warning-50);
 }
 .bg-danger {
-  .bg-variant(#f2dede);
+  background-color: var(--danger-50);
 }
 
 // Lists

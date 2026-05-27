@@ -1,7 +1,8 @@
 @import 'ui-variables';
 @import 'ui-mixins';
-@file-icon-color: #c7c7c7;
-@attachment-border-color: rgba(0, 0, 0, 0.09);
+
+// Faza E luka #2 Sprint 1 — refactor 2026-05-27
+// Hardcoded values zastąpione design tokens (z app/static/style/base/tokens.less).
 
 .nylas-attachment-item {
   cursor: default;
@@ -19,7 +20,7 @@
       border-color: color-mix(in srgb, @component-active-color, white 10%);
     }
     .file-action-icon {
-      border-left-color: @attachment-border-color;
+      border-left-color: var(--border-subtle);
     }
   }
 
@@ -28,7 +29,7 @@
     height: 94px;
     text-align: left;
     overflow: hidden;
-    border: solid 1px @attachment-border-color;
+    border: solid 1px var(--border-subtle);
     border-bottom: none;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -38,7 +39,7 @@
     &:focus {
       .file-info-wrap,
       .file-action-icon {
-        border-top-color: @attachment-border-color;
+        border-top-color: var(--border-subtle);
       }
     }
     .file-info-wrap {
@@ -63,7 +64,7 @@
     min-width: 65%;
     padding: 10px;
     height: 105%;
-    border: solid 1px @attachment-border-color;
+    border: solid 1px var(--border-subtle);
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
     border-right: none;
@@ -81,11 +82,9 @@
       max-width: 235px;
     }
     .file-size {
-      @file-size-color: #b8b8b8;
-
       margin-left: auto;
       margin-right: @spacing-three-quarters;
-      color: @file-size-color;
+      color: var(--text-muted);
     }
   }
 
@@ -100,13 +99,13 @@
     padding: 10px;
     height: 105%;
     width: 38px;
-    border: solid 1px @attachment-border-color;
+    border: solid 1px var(--border-subtle);
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
-    // box-shadow: inset 0 0 0 1px @attachment-border-color;
+    // box-shadow: inset 0 0 0 1px var(--border-subtle);
 
     img {
-      background-color: @file-icon-color;
+      background-color: var(--neutral-40);
     }
 
     &.quicklook {
@@ -114,7 +113,7 @@
       border-right: none;
     }
     &:hover img {
-      background-color: darken(@file-icon-color, 20%);
+      background-color: var(--neutral-60);
     }
     &:active {
       background-color: darken(@btn-default-bg-color, 5%);
@@ -256,7 +255,7 @@ body.platform-win32 {
       pointer-events: none;
 
       .file-name {
-        color: @white;
+        color: var(--text-inverse);
         padding: 5px 10px;
         z-index: 3;
         white-space: nowrap;
@@ -278,8 +277,8 @@ body.platform-win32 {
   .resizer {
     align-items: center;
     bottom: 0;
-    background: #000;
-    color: #fff;
+    background: var(--surface-inverse);
+    color: var(--text-inverse);
     cursor: nwse-resize;
     display: flex;
     height: 20px;

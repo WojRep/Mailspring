@@ -20,12 +20,12 @@ body.platform-win32 {
       padding: 0 5px;
       .windows-btn-bg;
       &:hover {
-        background: #e5e5e5;
+        background: var(--surface-elevated-2);
       }
       &.btn-icon:hover {
         color: @text-color;
         img.content-mask {
-          background: rgba(35, 31, 32, 0.8);
+          background: var(--text-secondary);
         }
       }
     }
@@ -36,7 +36,7 @@ body.platform-win32 {
       &.btn-icon:hover {
         color: @text-color;
         img.content-mask {
-          background: rgba(35, 31, 32, 0.8);
+          background: var(--text-secondary);
         }
       }
     }
@@ -164,7 +164,7 @@ body.platform-win32 {
   .search-match {
     background: @text-color-search-match;
     border-radius: @border-radius-base;
-    box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--elevation-1);
     &.current-match {
       background: @text-color-search-current-match;
     }
@@ -282,7 +282,7 @@ body.platform-win32 {
     .message-item-white-wrap {
       background: @background-primary;
       border: 0;
-      box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--elevation-2);
       border-radius: 4px;
     }
 

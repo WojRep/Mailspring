@@ -14,14 +14,14 @@
   .time-options {
     max-height: 158px;
     overflow: auto;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-default);
     position: absolute;
     width: 100%;
     text-align: center;
-    background: @background-primary;
+    background: var(--surface-base);
     border-top: 0;
     border-radius: 0 0 @border-radius-base @border-radius-base;
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--elevation-2);
 
     &.relative-to {
       width: 120px;
@@ -42,7 +42,7 @@
       }
       &.focused,
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--surface-elevated-1);
       }
       .rel-text {
         font-size: 0.8em;

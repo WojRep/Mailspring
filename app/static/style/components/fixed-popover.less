@@ -1,5 +1,7 @@
 @import 'ui-variables';
-@header-color: #afafaf;
+
+// Faza E luka #2 Sprint 2 — refactor 2026-05-27
+@header-color: var(--text-muted);
 
 // TODO
 // Most of these styles are duplicated from the original popover.less
@@ -21,8 +23,7 @@
     color: @text-color;
     background-color: @background-secondary;
     border-radius: @border-radius-base;
-    box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15),
-      0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--elevation-3);
   }
 
   .fixed-popover-pointer,

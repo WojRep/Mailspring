@@ -45,7 +45,7 @@
 }
 
 .RichEditor-root blockquote {
-  border-left: 2px solid #eee;
+  border-left: 2px solid var(--border-default);
   color: mix(@text-color, purple, 50%);
   margin: 0;
   padding: 0 0 0 10px;
@@ -265,9 +265,9 @@ body.platform-win32 {
     bottom: 0;
     left: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--surface-glass);
     border-radius: @border-radius-base;
-    border: 4px dashed lighten(@gray, 30%);
+    border: 4px dashed var(--border-strong);
     text-align: center;
     line-height: 2.3em;
     pointer-events: none;
@@ -808,7 +808,7 @@ body.platform-win32 {
     &.emoji-option,
     &:hover {
       background-color: @btn-emphasis-bg-color;
-      color: #ffffff;
+      color: var(--text-inverse);
       border-radius: 5px;
     }
   }

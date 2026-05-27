@@ -66,7 +66,7 @@
           height: 9px;
           width: 9px;
           vertical-align: baseline;
-          background-color: #00dd00;
+          background-color: var(--success-500);
           content: '';
           display: inline-block;
           border-radius: 5px;
@@ -76,7 +76,7 @@
 
         .folder-progress.busy::before {
           background-color: transparent;
-          border: solid 2px #00dd00;
+          border: solid 2px var(--success-500);
           animation: border-pulse 3s infinite;
         }
 
@@ -125,10 +125,10 @@
     background-color: @background-color-info;
   }
   .notification-developer {
-    background-color: #615396;
+    background-color: var(--intent-decision);
   }
   .notification-upgrade {
-    background-image: linear-gradient(to top, #429e91, #40b1ac);
+    background-image: linear-gradient(to top, var(--intent-invoice), var(--intent-meeting));
     img {
       background-color: @text-color-inverse;
     }
@@ -143,8 +143,8 @@
     color: @color-error;
   }
   .notification-offline {
-    background: linear-gradient(to top, darken(#cc9900, 4%) 0%, #cc9900 100%);
-    border-color: darken(#cc9900, 5%);
+    background: linear-gradient(to top, var(--warning-500) 0%, var(--warning-500) 100%);
+    border-color: var(--warning-500);
   }
 
   .notifications-sticky-item {
@@ -217,7 +217,7 @@
 @keyframes border-pulse {
   0%,
   100% {
-    border-color: #00dd00;
+    border-color: var(--success-500);
   }
   50% {
     border-color: transparent;

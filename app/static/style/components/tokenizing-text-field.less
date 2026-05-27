@@ -1,5 +1,9 @@
 @import 'ui-variables';
 
+// Faza E luka #2 Sprint 1 — refactor 2026-05-27
+// LESS variables derived (token-top/bottom etc.) zachowane — używają parent vars.
+// Hardcoded rgba() zastąpione --elevation tokens.
+
 @token-top: lighten(@background-secondary, 0.6%);
 @token-bottom: darken(@background-secondary, 2.5%);
 
@@ -12,8 +16,8 @@
 @token-invalid-selected-top: mix(@token-top, red, 60%);
 @token-invalid-selected-bottom: mix(@token-bottom, red, 55%);
 
-@base-box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.17), 0 -0.5px 0 rgba(0, 0, 0, 0.17),
-  0.5px 0 0 rgba(0, 0, 0, 0.17), -0.5px 0 0 rgba(0, 0, 0, 0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
+// Base box shadow — używa elevation-1 z tokens.less (light/dark adaptive)
+@base-box-shadow: var(--elevation-1);
 
 .tokenizing-field {
   display: block;
@@ -22,7 +26,7 @@
   position: relative;
 
   &.disabled {
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--surface-elevated-1);
     opacity: 0.7;
     .token {
       background: @token-top;
@@ -44,10 +48,10 @@
   }
 
   .content-container {
-    border: 1px solid @border-color-secondary;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--elevation-3);
     border-radius: @border-radius-small;
-    background-color: @background-primary;
+    background-color: var(--surface-base);
     position: absolute;
     z-index: 3;
   }

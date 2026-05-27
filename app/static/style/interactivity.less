@@ -88,12 +88,12 @@ a.btn[href]:active {
   max-width: 280px;
   padding: 6px 10px;
   border-radius: 4px;
-  background: rgba(40, 40, 40, 0.95);
-  color: #fff;
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
   font-size: 12px;
   line-height: 1.4;
   pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--elevation-2);
   // Subtle fade-in on appearance (floating-ui mounts/unmounts the node,
   // so we don't need explicit enter/exit transitions for delay correctness).
   animation: actuna-tooltip-fade 0.15s ease-out;

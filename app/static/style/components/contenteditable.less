@@ -35,8 +35,8 @@
     z-index: 10;
     position: absolute;
 
-    background: #fff;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), inset 0 0 1px rgba(0, 0, 0, 0.5);
+    background: var(--surface-base);
+    box-shadow: var(--elevation-4);
     border-radius: @border-radius-large;
     color: @text-color;
 
@@ -57,7 +57,7 @@
 
       div {
         -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer@2x.png');
-        background-color: #fff;
+        background-color: var(--surface-base);
         position: absolute;
         zoom: 0.5;
         width: 45px;

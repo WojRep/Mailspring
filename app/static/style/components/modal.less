@@ -9,7 +9,8 @@
   width: 100%;
   z-index: 1000;
   position: absolute;
-  background-color: rgba(255, 255, 255, 0);
+  // Backdrop — gdy modal nie aktywny, transparentny. Po .animate → semi-opaque surface
+  background-color: transparent;
   transition: background-color 100ms ease-out;
 
   .modal {
@@ -26,7 +27,7 @@
   }
 
   &.animate {
-    background-color: rgba(255, 255, 255, 0.58);
+    background-color: var(--surface-glass);
     .modal {
       opacity: 1;
       transform: translateY(0) rotateX(0);

@@ -108,7 +108,7 @@
   }
 
   blockquote {
-    border-left: 2px solid #eee;
+    border-left: 2px solid var(--border-default);
     margin: 0;
     padding: 0 0 0 10px;
     -webkit-margin-after: initial !important;
@@ -160,14 +160,14 @@
   .search-match {
     background: @text-color-search-match;
     border-radius: @border-radius-base;
-    box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--elevation-1);
     &.current-match {
       background: @text-color-search-current-match;
     }
   }
 
   .inline-download-prompt {
-    border: solid 1px rgba(0, 0, 0, 0.09);
+    border: solid 1px var(--border-subtle);
     border-radius: 2px;
     color: @text-color;
     background: @background-off-primary;
@@ -182,6 +182,6 @@
   .inline-download-prompt:hover {
     cursor: pointer;
     color: @text-color;
-    border: solid 1px rgba(0, 0, 0, 0.16);
+    border: solid 1px var(--border-default);
   }
 }

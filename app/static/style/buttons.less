@@ -76,8 +76,7 @@ body.platform-win32 {
   // Use 4 box shadows to create a 0.5px hairline around the button, and another
   // for the actual shadow. Pending https://code.google.com/p/chromium/issues/detail?id=236371
   // Yes, 1px border looks really bad on retina.
-  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15),
-    0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--elevation-1);
 
   height: 1.9em;
   line-height: 1.9em;
@@ -136,7 +135,7 @@ body.platform-win32 {
       background-color: @btn-emphasis-text-color;
     }
 
-    background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+    background: linear-gradient(to bottom, var(--accent-300) 0%, var(--accent-700) 100%);
     box-shadow: none;
     border: 1px solid darken(@btn-emphasis-bg-color, 7%);
 
@@ -153,7 +152,7 @@ body.platform-win32 {
       left: -1px;
       position: absolute;
       z-index: -1;
-      background: linear-gradient(to bottom, #4ca2f9 0%, #015cff 100%);
+      background: linear-gradient(to bottom, var(--accent-500) 0%, var(--accent-900) 100%);
     }
     &:active {
       background: -webkit-gradient(
