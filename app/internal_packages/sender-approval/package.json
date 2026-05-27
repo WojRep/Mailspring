@@ -1,0 +1,11 @@
+{
+  "name": "sender-approval",
+  "version": "0.1.0",
+  "description": "Sender Approval — PRE-inbox filter dla nieznanych nadawców (kwarantanna). Killer privacy feature dla PL-MŚP/KNF. Bilet MVP #94.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}
