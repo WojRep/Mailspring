@@ -1,0 +1,9 @@
+{
+  "body": {
+    "mod-l": "tag-system:open-picker"
+  },
+  ".tag-picker": {
+    "escape": "tag-system:close-picker",
+    "enter": "tag-system:apply-selected"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "tag-system",
+  "version": "0.1.0",
+  "description": "Tag system Cmd+L picker + Tag Manager + IMAP X-Keywords sync. Bilet MVP #98.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}
