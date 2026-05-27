@@ -1,0 +1,14 @@
+{
+  "name": "bulk-unsubscribe",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Bulk Unsubscribe (List-Unsubscribe headers + bulk select) — bilet MVP #115",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true
+  }
+}
