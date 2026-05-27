@@ -1,0 +1,15 @@
+{
+  "name": "markdown-composer",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Markdown w composer + slash commands — bilet MVP #107",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}

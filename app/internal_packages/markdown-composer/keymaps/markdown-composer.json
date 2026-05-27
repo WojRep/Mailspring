@@ -1,0 +1,5 @@
+{
+  "body": {
+    "mod-shift-m": "markdown-composer:toggle-preview"
+  }
+}
