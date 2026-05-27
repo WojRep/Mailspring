@@ -1,0 +1,11 @@
+{
+  "name": "time-control-picker",
+  "version": "0.1.0",
+  "description": "Shared time-control picker — DRY component dla Snooze (#104), Send Later (#105), Follow-up (#106), scheduled rules (#100). Natural language parser PL+EN. Bilet MVP #90.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}
