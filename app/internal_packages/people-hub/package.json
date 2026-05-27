@@ -1,0 +1,15 @@
+{
+  "name": "people-hub",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "People hub + Composer autocomplete refactor + vCard/CardDAV sync — bilet MVP #103",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}
