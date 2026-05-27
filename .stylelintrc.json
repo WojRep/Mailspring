@@ -1,0 +1,70 @@
+{
+  "extends": [
+    "stylelint-config-recommended"
+  ],
+  "customSyntax": "postcss-less",
+  "rules": {
+    "color-no-invalid-hex": true,
+    "color-no-hex": [
+      true,
+      {
+        "message": "ActunaMail design system: nie używaj hardcoded #hex w komponentach. Użyj var(--token-name) z tokens.less. Zob. analysis/28-component-kit-audit.md."
+      }
+    ],
+    "function-disallowed-list": [
+      ["rgb", "rgba"],
+      {
+        "message": "ActunaMail design system: nie używaj rgb()/rgba() w komponentach. Użyj var(--surface-glass), var(--elevation-N), lub semantic tokens. Zob. analysis/28-component-kit-audit.md."
+      }
+    ],
+    "block-no-empty": null,
+    "no-descending-specificity": null,
+    "selector-pseudo-element-no-unknown": [
+      true,
+      {
+        "ignorePseudoElements": ["v-deep", "deep"]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "app/static/style/base/tokens.less",
+        "app/static/style/base/ui-variables.less"
+      ],
+      "rules": {
+        "color-no-hex": null,
+        "function-disallowed-list": null
+      }
+    },
+    {
+      "files": [
+        "app/internal_packages/ui-dark/**/*.less",
+        "app/internal_packages/ui-darkside/**/*.less",
+        "app/internal_packages/ui-less-is-more/**/*.less",
+        "app/internal_packages/ui-taiga/**/*.less",
+        "app/internal_packages/ui-ubuntu/**/*.less",
+        "app/static/style/normalize.less",
+        "app/static/style/jasmine.less",
+        "app/internal_packages/onboarding/styles/onboarding*.less"
+      ],
+      "rules": {
+        "color-no-hex": null,
+        "function-disallowed-list": null
+      }
+    },
+    {
+      "files": [
+        "app/static/style/components/tutorial-overlay.less",
+        "app/static/style/components/contact-profile-photo.less",
+        "app/static/style/components/switch.less",
+        "app/static/style/components/tokenizing-text-field.less",
+        "app/internal_packages/thread-list/styles/thread-list.less"
+      ],
+      "rules": {
+        "comment": "Pliki z intentional micro-shadows / brand colors (np. gold star). Akceptowane po refactor.",
+        "function-disallowed-list": null
+      }
+    }
+  ]
+}
