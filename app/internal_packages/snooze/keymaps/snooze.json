@@ -1,0 +1,6 @@
+{
+  "body": {
+    "mod-shift-h": "snooze:open-picker",
+    "mod-shift-u": "snooze:unsnooze-now"
+  }
+}
