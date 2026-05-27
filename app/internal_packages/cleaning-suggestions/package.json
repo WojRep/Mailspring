@@ -1,0 +1,14 @@
+{
+  "name": "cleaning-suggestions",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Cleaning Suggestions proaktywne + Read Later digest — bilet MVP #116",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true
+  }
+}
