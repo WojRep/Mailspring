@@ -1,0 +1,11 @@
+{
+  "name": "smart-folder",
+  "version": "0.1.0",
+  "description": "Smart Folder wizard — rules-based filter editor + JSON export/import + search 'tag:' prefix. Bilet MVP #99.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}

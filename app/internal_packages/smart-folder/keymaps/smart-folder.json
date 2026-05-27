@@ -1,0 +1,9 @@
+{
+  "body": {
+    "mod-shift-n": "smart-folder:open-wizard"
+  },
+  ".smart-folder-wizard": {
+    "escape": "smart-folder:close-wizard",
+    "mod-s": "smart-folder:save"
+  }
+}
