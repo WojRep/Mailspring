@@ -1,0 +1,11 @@
+{
+  "name": "actuna-glass",
+  "version": "0.1.0",
+  "description": "actuna-glass translucent surface system — CSS utility + React hook useGlassMaterial + feature flag core.appearance.translucentSurfaces. Bilet MVP #92.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}

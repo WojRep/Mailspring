@@ -1,0 +1,80 @@
+// actuna-glass styles — bilet MVP #92.
+//
+// Extends .actuna-glass base klasy (już w app/static/style/base/tokens.less
+// — pilot foundation). Tutaj dodajemy intensity variants + fallback class.
+//
+// Mockup: design/mockups/11-actuna-glass-demo.html.
+
+// === Base classes (już w tokens.less, tu re-asserted dla isolated import) ===
+
+.actuna-glass {
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--elevation-glass);
+
+  // Intensity variants
+  &--subtle {
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    backdrop-filter: blur(8px) saturate(120%);
+    background: var(--surface-glass);
+    border-color: rgba(221, 224, 229, 0.3);
+    box-shadow: var(--elevation-1);
+  }
+
+  &--medium {
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    background: var(--surface-glass);
+    border-color: var(--border-subtle);
+    box-shadow: var(--elevation-2);
+  }
+
+  &--strong {
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    backdrop-filter: blur(24px) saturate(200%);
+    background: var(--surface-glass);
+    border-color: var(--border-default);
+    box-shadow: var(--elevation-glass);
+  }
+}
+
+// === Fallback class (solid surface, no backdrop-filter) ===
+//
+// Aktywne gdy:
+//   - core.appearance.translucentSurfaces feature flag OFF
+//   - prefers-reduced-transparency: reduce
+//   - prefers-contrast: more
+//   - Win/Linux Electron build bez backdrop-filter support
+
+.actuna-glass-fallback {
+  background: var(--surface-elevated-2);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elevation-3);
+
+  &--subtle {
+    background: var(--surface-elevated-1);
+    border-color: var(--border-subtle);
+    box-shadow: var(--elevation-1);
+  }
+
+  &--medium {
+    background: var(--surface-elevated-2);
+    border-color: var(--border-default);
+    box-shadow: var(--elevation-2);
+  }
+
+  &--strong {
+    background: var(--surface-elevated-3);
+    border: 2px solid var(--border-default);
+    box-shadow: var(--elevation-3);
+  }
+}
+
+// === Auto-fallback via media query ===
+// Już w tokens.less @media (prefers-reduced-transparency: reduce):
+//   --surface-glass: var(--surface-elevated-2)
+//   --elevation-glass: var(--elevation-3)
+// Plus backdrop-filter override do none.
+// Override redundant tutaj dla explicit fallback class users (hook).
