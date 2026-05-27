@@ -1,0 +1,11 @@
+{
+  "name": "threading-tree",
+  "version": "0.1.0",
+  "description": "Threading hybryda — algorithm wykrywania konarów (In-Reply-To + References + Subject), [OSTATNI] badge, popout Cmd+T. Bilet MVP #97.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}

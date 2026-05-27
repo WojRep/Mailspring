@@ -1,0 +1,12 @@
+{
+  "body": {
+    "mod-t": "threading-tree:open-popout"
+  },
+  ".thread-popout": {
+    "escape": "threading-tree:close-popout",
+    "j": "threading-tree:next-message",
+    "k": "threading-tree:prev-message",
+    "shift-j": "threading-tree:next-konar",
+    "shift-k": "threading-tree:prev-konar"
+  }
+}
