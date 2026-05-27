@@ -1,0 +1,11 @@
+{
+  "name": "background-scheduler",
+  "version": "0.1.0",
+  "description": "Background scheduler service + SQLite queue dla scheduled actions (#104 Snooze, #105 Send Later, #106 Follow-up, #100 scheduled rules). Bilet MVP #91.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}
