@@ -1,0 +1,11 @@
+{
+  "name": "time-intent-tags",
+  "version": "0.1.0",
+  "description": "Today / Upcoming / Anytime time-intent tags z keyboard T/U/A. Manifest §5 intent-first. Bilet MVP #96.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}

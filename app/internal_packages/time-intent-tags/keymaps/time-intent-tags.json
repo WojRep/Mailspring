@@ -1,0 +1,8 @@
+{
+  "body": {
+    "t": "time-intent-tags:set-today",
+    "u": "time-intent-tags:set-upcoming",
+    "a": "time-intent-tags:set-anytime",
+    "x": "time-intent-tags:clear"
+  }
+}
