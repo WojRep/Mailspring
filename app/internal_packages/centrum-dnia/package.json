@@ -1,0 +1,11 @@
+{
+  "name": "centrum-dnia",
+  "version": "0.1.0",
+  "description": "Centrum dnia / Today pane — agregat kalendarz + zadania + nieprzeczytane/przypięte maile. TM: NIE 'My Day' (MS). Bilet MVP #95.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}
