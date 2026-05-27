@@ -1,0 +1,11 @@
+{
+  "name": "priority-inbox-pin",
+  "version": "0.1.0",
+  "description": "Priority Inbox 2-bucket binary + Pin top-of-inbox — manifest §1 (uwaga jako waluta). Bilet MVP #93.",
+  "main": "./lib/main",
+  "license": "GPL-3.0",
+  "engines": {
+    "actunamail": "*"
+  },
+  "private": true
+}

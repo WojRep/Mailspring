@@ -1,0 +1,7 @@
+{
+  "body": {
+    "shift-p": "priority-inbox-pin:toggle-pin",
+    "mod-shift-p-i": "priority-inbox-pin:promote-to-priority",
+    "mod-shift-p-o": "priority-inbox-pin:demote-to-other"
+  }
+}
