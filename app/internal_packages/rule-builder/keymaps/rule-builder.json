@@ -1,0 +1,6 @@
+{
+  "body": {
+    "mod-alt-r": "rule-builder:open-builder",
+    "mod-alt-shift-r": "rule-builder:run-rules-now"
+  }
+}
