@@ -1,0 +1,15 @@
+{
+  "name": "rodo-consent",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "RODO consent tracking + right to erasure + bulk send guard — bilet MVP #113",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}
