@@ -6,18 +6,45 @@
  *   2. Auto-register system tags z innych pluginów gdy aktywne:
  *      - time-intent-tags (#96): Today/Upcoming/Anytime
  *      - priority-inbox-pin (#93): __system_priority/__system_other (manual overrides)
- *   3. Bind keymap mod+l → open picker.
- *   4. Cmd+K palette commands.
- *   5. Expose AppEnv.tagSystem API.
+ *   3. Mount UI: TagPicker overlay + TagChips reading-pane slot + PreferencesTags tab.
+ *   4. Bind keymap mod+l → open picker (dispatches do TagSystemUIBus).
+ *   5. Cmd+K palette commands.
+ *   6. Expose AppEnv.tagSystem API (Store + UIBus).
  */
 
+import { ComponentRegistry, WorkspaceStore, PreferencesUIStore } from 'actunamail-exports';
 import { TagStore, Tag } from './tag-store';
+import { TagSystemUIBus } from './tag-system-ui-bus';
+import TagPicker from './tag-picker';
+import TagChips from './tag-chips';
+import PreferencesTags from './preferences-tags';
 
 let shortcutDisposable: { dispose(): void } | null = null;
+let preferencesTabRegistered = false;
 
 export function activate() {
   TagStore.init();
   registerSystemTags();
+
+  // Mount overlays.
+  ComponentRegistry.register(TagPicker, { location: WorkspaceStore.Sheet.Global.Footer });
+  ComponentRegistry.register(TagChips, { role: 'MessageList:Header' });
+
+  // Preferences tab — guarded, API may vary across Mailspring forks.
+  try {
+    if (PreferencesUIStore && typeof (PreferencesUIStore as any).registerPreferencesTab === 'function') {
+      (PreferencesUIStore as any).registerPreferencesTab({
+        tabId: 'Tags',
+        displayName: 'Tags',
+        component: PreferencesTags,
+        order: 600,
+        keywords: ['tags', 'tagi', 'labels', 'etykiety', 'kolory'],
+      });
+      preferencesTabRegistered = true;
+    }
+  } catch (e) {
+    console.warn('[tag-system] Preferences tab registration failed (API niedostępne):', e);
+  }
 
   if ((window as any).AppEnv?.commands?.add) {
     shortcutDisposable = (window as any).AppEnv.commands.add(document.body, {
@@ -48,10 +75,21 @@ export function activate() {
   (window as any).AppEnv = (window as any).AppEnv || {};
   (window as any).AppEnv.tagSystem = {
     Store: TagStore,
+    UIBus: TagSystemUIBus,
   };
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(TagPicker);
+  ComponentRegistry.unregister(TagChips);
+  if (preferencesTabRegistered) {
+    try {
+      if (typeof (PreferencesUIStore as any).unregisterPreferencesTab === 'function') {
+        (PreferencesUIStore as any).unregisterPreferencesTab('Tags');
+      }
+    } catch (e) { /* no-op */ }
+    preferencesTabRegistered = false;
+  }
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -88,17 +126,25 @@ function openPicker(): void {
   try {
     const thread = (window as any).$m?.FocusedContentStore?.focused?.('thread');
     if (!thread?.id) return;
-    console.info('[tag-system] open picker for thread:', thread.id);
-    // TODO UI integration — picker modal w osobnym sprintu
-    // Mockup: design/mockups/04-tag-picker.html
+    TagSystemUIBus.openPicker(thread.id);
   } catch (e) { /* no thread */ }
 }
 
 function closePicker(): void {
-  // TODO
+  TagSystemUIBus.closePicker();
 }
 
 function openManager(): void {
-  console.info('[tag-system] open Tag Manager (Preferences > Tags)');
-  // TODO dispatch do Preferences pane
+  // Open Preferences > Tags tab. Mailspring routing — use Actions if present.
+  try {
+    const Actions = (window as any).$m?.Actions;
+    if (Actions?.switchPreferencesTab) {
+      Actions.switchPreferencesTab('Tags');
+      return;
+    }
+    // Fallback — emit UIBus event for any custom listener.
+    TagSystemUIBus.openManager();
+  } catch (e) {
+    TagSystemUIBus.openManager();
+  }
 }
