@@ -148,7 +148,7 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     const { container } = render(<PreferencesTags />);
     expect(container.querySelector('[role="listbox"]')).not.toBeNull();
     expect(container.querySelectorAll('[role="option"]').length).toBe(3);
-    expect(container.querySelectorAll('[role="radiogroup"]').length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelectorAll('[role="radiogroup"]').length).toBeGreaterThan(0);
   });
 
   it('system tag option ma aria-disabled', () => {

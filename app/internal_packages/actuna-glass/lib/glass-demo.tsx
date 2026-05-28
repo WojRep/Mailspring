@@ -26,6 +26,16 @@ interface State {
   previousActiveElement: Element | null;
 }
 
+/** AppEnv.config.onDidChange returns either a Disposable (z event-kit, real app)
+ *  lub plain function (mock w test env). Helper unifies cleanup call. */
+type Unsubscribe = (() => void) | { dispose: () => void } | null;
+
+function dispose(u: Unsubscribe): void {
+  if (!u) return;
+  if (typeof u === 'function') u();
+  else if (typeof u.dispose === 'function') u.dispose();
+}
+
 export default class GlassDemo extends React.Component<{}, State> {
   state: State = {
     open: false,
@@ -33,8 +43,8 @@ export default class GlassDemo extends React.Component<{}, State> {
     previousActiveElement: null,
   };
 
-  private _unsubscribeStore: (() => void) | null = null;
-  private _unsubscribeConfig: (() => void) | null = null;
+  private _unsubscribeStore: Unsubscribe = null;
+  private _unsubscribeConfig: Unsubscribe = null;
   private _dialogRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
@@ -49,8 +59,8 @@ export default class GlassDemo extends React.Component<{}, State> {
   }
 
   componentWillUnmount() {
-    if (this._unsubscribeStore) this._unsubscribeStore();
-    if (this._unsubscribeConfig) this._unsubscribeConfig();
+    dispose(this._unsubscribeStore);
+    dispose(this._unsubscribeConfig);
   }
 
   componentDidUpdate(_: {}, prev: State) {

@@ -73,8 +73,10 @@ export function useGlassMaterial(opts: UseGlassMaterialOptions = {}): UseGlassMa
     mqReduced.addEventListener?.('change', handler);
     mqContrast.addEventListener?.('change', handler);
 
-    // Listen to AppEnv.config changes
-    let unsubscribeConfig: (() => void) | null = null;
+    // Listen to AppEnv.config changes.
+    // Note: onDidChange may return a Disposable {dispose()} (event-kit) lub plain
+    // function (test mock). Cleanup helper unifies both.
+    let unsubscribeConfig: (() => void) | { dispose: () => void } | null = null;
     if ((window as any).AppEnv?.config?.onDidChange) {
       unsubscribeConfig = (window as any).AppEnv.config.onDidChange(FLAG_KEY, update);
     }
@@ -82,7 +84,12 @@ export function useGlassMaterial(opts: UseGlassMaterialOptions = {}): UseGlassMa
     return () => {
       mqReduced.removeEventListener?.('change', handler);
       mqContrast.removeEventListener?.('change', handler);
-      if (unsubscribeConfig) unsubscribeConfig();
+      if (unsubscribeConfig) {
+        if (typeof unsubscribeConfig === 'function') unsubscribeConfig();
+        else if (typeof (unsubscribeConfig as { dispose?: () => void }).dispose === 'function') {
+          (unsubscribeConfig as { dispose: () => void }).dispose();
+        }
+      }
     };
   }, [opts.force]);
 

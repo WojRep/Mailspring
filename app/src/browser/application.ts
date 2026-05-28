@@ -118,37 +118,48 @@ export default class Application extends EventEmitter {
       return;
     }
 
-    try {
-      const mailsync = new MailsyncProcess(options);
-      await mailsync.migrate();
-    } catch (err) {
-      let message = null;
-      let buttons = [localized('Quit')];
-      if (err.toString().includes('ENOENT')) {
-        message = localized(
-          `ActunaMail could not find the mailsync process. If you're building ActunaMail from source, make sure mailsync.tar.gz has been downloaded and unpacked in your working copy.`
-        );
-      } else if (err.toString().includes('spawn')) {
-        message = localized(`ActunaMail could not spawn the mailsync process. %@`, err.toString());
-      } else {
-        message = localized(
-          `We encountered a problem with your local email database. %@\n\nCheck that no other copies of ActunaMail are running and click Rebuild to reset your local cache.`,
-          err.toString()
-        );
-        buttons = [localized('Quit'), localized('Rebuild')];
-      }
+    // Spec mode: mailsync subprocess is intentionally NOT spawned here.
+    // mailsync-bridge.ts:94 already short-circuits MailsyncBridge for specs.
+    // migrate() tries to obtain the encrypted DB key from the prod keychain —
+    // unavailable in test mode, throws DBKeyLockedError, and the spec
+    // BrowserWindow never opens (silent hang on `npm test`). Specs use mock
+    // data + DatabaseStore stubs and don't need the real native subprocess.
+    // This guard is symmetric with the spec-mode bypass already present in
+    // _runTierBUnlockGate (l. 235) — production builds run mailsync.migrate()
+    // unchanged; only --test mode (dev-only flag) skips it.
+    if (!this.specMode) {
+      try {
+        const mailsync = new MailsyncProcess(options);
+        await mailsync.migrate();
+      } catch (err) {
+        let message = null;
+        let buttons = [localized('Quit')];
+        if (err.toString().includes('ENOENT')) {
+          message = localized(
+            `ActunaMail could not find the mailsync process. If you're building ActunaMail from source, make sure mailsync.tar.gz has been downloaded and unpacked in your working copy.`
+          );
+        } else if (err.toString().includes('spawn')) {
+          message = localized(`ActunaMail could not spawn the mailsync process. %@`, err.toString());
+        } else {
+          message = localized(
+            `We encountered a problem with your local email database. %@\n\nCheck that no other copies of ActunaMail are running and click Rebuild to reset your local cache.`,
+            err.toString()
+          );
+          buttons = [localized('Quit'), localized('Rebuild')];
+        }
 
-      const buttonIndex = dialog.showMessageBoxSync({ type: 'warning', buttons, message });
+        const buttonIndex = dialog.showMessageBoxSync({ type: 'warning', buttons, message });
 
-      if (buttonIndex === 0) {
-        app.quit();
-      } else {
-        this._deleteDatabase(() => {
-          app.relaunch();
+        if (buttonIndex === 0) {
           app.quit();
-        });
+        } else {
+          this._deleteDatabase(() => {
+            app.relaunch();
+            app.quit();
+          });
+        }
+        return;
       }
-      return;
     }
 
     const Config = require('../config').default;
