@@ -354,8 +354,16 @@ export default class AppEnvConstructor {
   }
 
   // Public: Is the current window running specs?
+  //
+  // Returns true for:
+  //   - Jasmine spec runner window (loadSettings.isSpec === true z spec-bootstrap).
+  //   - Playwright e2e launch (process.env.PLAYWRIGHT === '1' z helpers.ts launchApp).
+  //
+  // Both są dev-only test harness vectors; production builds NIGDY nie set
+  // ani --test flag ani PLAYWRIGHT env. Single guard tutaj propaguje się do
+  // 30+ inSpecMode callers (database-store, mailsync-bridge, key-manager, etc.).
   inSpecMode() {
-    return this.getLoadSettings().isSpec;
+    return this.getLoadSettings().isSpec || process.env.PLAYWRIGHT === '1';
   }
 
   // Public: Get the version of ActunaMail.

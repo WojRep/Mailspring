@@ -118,16 +118,26 @@ export default class Application extends EventEmitter {
       return;
     }
 
-    // Spec mode: mailsync subprocess is intentionally NOT spawned here.
-    // mailsync-bridge.ts:94 already short-circuits MailsyncBridge for specs.
+    // Test mode (Jasmine spec runner OR Playwright e2e): mailsync subprocess
+    // is intentionally NOT spawned here.
+    //   - Jasmine specMode (--test flag): mailsync-bridge.ts:94 already
+    //     short-circuits MailsyncBridge for specs.
+    //   - Playwright e2e (PLAYWRIGHT=1 env): helpers.ts/launchApp sets this w
+    //     test fixture; renderer otherwise would never finish init bo
+    //     mailsync.migrate throws DBKeyLockedError z fixture keychain.
+    //
     // migrate() tries to obtain the encrypted DB key from the prod keychain —
-    // unavailable in test mode, throws DBKeyLockedError, and the spec
-    // BrowserWindow never opens (silent hang on `npm test`). Specs use mock
-    // data + DatabaseStore stubs and don't need the real native subprocess.
+    // unavailable in test mode, throws DBKeyLockedError, dialog shows + app
+    // quits (Playwright sees blank renderer screenshot, Jasmine spec window
+    // never opens). Specs use mock data + DatabaseStore stubs and don't need
+    // the real native subprocess.
+    //
     // This guard is symmetric with the spec-mode bypass already present in
-    // _runTierBUnlockGate (l. 235) — production builds run mailsync.migrate()
-    // unchanged; only --test mode (dev-only flag) skips it.
-    if (!this.specMode) {
+    // _runTierBUnlockGate (l. 235). Production builds run mailsync.migrate()
+    // unchanged; only --test mode lub PLAYWRIGHT=1 (both dev-only flags +
+    // env vars that production builds NEVER receive) skip it.
+    const inTestMode = this.specMode || process.env.PLAYWRIGHT === '1';
+    if (!inTestMode) {
       try {
         const mailsync = new MailsyncProcess(options);
         await mailsync.migrate();
@@ -243,7 +253,10 @@ export default class Application extends EventEmitter {
    */
   async _runTierBUnlockGate(): Promise<boolean> {
     const KeyManager = require('../key-manager').default;
-    if (this.specMode || !KeyManager.isTierBEnabled()) {
+    // Skip gate w spec mode (--test) OR Playwright e2e (PLAYWRIGHT=1 env).
+    // Both są dev-only test harness vectors; production builds NIGDY nie set
+    // ani --test flag ani PLAYWRIGHT env → unlock gate runs normalnie tam.
+    if (this.specMode || process.env.PLAYWRIGHT === '1' || !KeyManager.isTierBEnabled()) {
       return true;
     }
     return new Promise<boolean>((resolve) => {
