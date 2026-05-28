@@ -9,8 +9,10 @@
  *   5. Expose `AppEnv.priorityInbox` public API.
  */
 
+import { ComponentRegistry } from 'actunamail-exports';
 import { PinStore } from './pin-store';
 import { classifyThread, bucketThreads, PriorityBucket, ThreadSnapshot } from './priority-classifier';
+import PinBadge from './pin-badge';
 
 const FLAG_KEY = 'core.workspace.priorityInbox';
 
@@ -18,6 +20,10 @@ let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
   PinStore.init();
+
+  // Mount PinBadge w thread row obok ⭐ MailImportantIcon (slot exposed w
+  // thread-list-columns c1 z exposedProps={thread: thread}).
+  ComponentRegistry.register(PinBadge, { role: 'ThreadListIcon' });
 
   // Config schema
   if ((window as any).AppEnv?.config?.setSchema) {
@@ -85,6 +91,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(PinBadge);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;

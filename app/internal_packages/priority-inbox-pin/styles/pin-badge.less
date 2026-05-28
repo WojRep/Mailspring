@@ -1,0 +1,35 @@
+// Pin badge styles — bilet MVP #93.
+// Mockup: design/mockups/02-inbox-task-queue.html.
+
+.pin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--accent-500);
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-sm);
+  margin-right: var(--space-1);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--surface-elevated-2);
+  }
+
+  // WCAG SC 2.4.13 — visible focus indicator z accent color.
+  &:focus-visible {
+    outline: 2px solid var(--accent-500);
+    outline-offset: 2px;
+  }
+}
+
+// Reduced motion → no hover transition.
+@media (prefers-reduced-motion: reduce) {
+  .pin-badge {
+    transition: none;
+  }
+}
