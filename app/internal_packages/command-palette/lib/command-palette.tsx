@@ -30,6 +30,8 @@ interface State {
 }
 
 export default class CommandPalette extends React.Component<{}, State> {
+  static displayName = 'CommandPalette';
+
   state: State = {
     open: false,
     query: '',

@@ -156,6 +156,20 @@ export async function launchApp(): Promise<{
   configDir: string;
 }> {
   const configDir = prepareTestConfigDir();
+  // Forward renderer console.error + uncaught pageerrors do test stdout — bardzo
+  // pomocne dla diagnozowania plugin activation failures i React crashes.
+  const setupDiag = (page: Page, label: string) => {
+    page.on('console', m => {
+      if (m.type() === 'error') {
+        // eslint-disable-next-line no-console
+        console.log(`[${label} console.error] ${m.text().slice(0, 300)}`);
+      }
+    });
+    page.on('pageerror', err => {
+      // eslint-disable-next-line no-console
+      console.log(`[${label} PAGEERROR] ${err.message.slice(0, 300)}`);
+    });
+  };
   // ELECTRON_RUN_AS_NODE=1 (set by some automation shells, e.g. Claude Code)
   // forces electron to start as plain Node, which then rejects Playwright's
   // injected `--remote-debugging-port=0` / `--inspect=0` flags. Strip it
@@ -171,6 +185,13 @@ export async function launchApp(): Promise<{
     env: { ...cleanEnv, PLAYWRIGHT: '1' },
     timeout: 30_000,
   });
+
+  electronApp.on('window', (page: Page) => {
+    setupDiag(page, `win-${electronApp.windows().length}`);
+  });
+  for (const w of electronApp.windows()) {
+    setupDiag(w, 'win-existing');
+  }
 
   const mainWindow = await waitForMainWindow(electronApp);
 

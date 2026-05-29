@@ -118,26 +118,20 @@ export default class Application extends EventEmitter {
       return;
     }
 
-    // Test mode (Jasmine spec runner OR Playwright e2e): mailsync subprocess
-    // is intentionally NOT spawned here.
-    //   - Jasmine specMode (--test flag): mailsync-bridge.ts:94 already
-    //     short-circuits MailsyncBridge for specs.
-    //   - Playwright e2e (PLAYWRIGHT=1 env): helpers.ts/launchApp sets this w
-    //     test fixture; renderer otherwise would never finish init bo
-    //     mailsync.migrate throws DBKeyLockedError z fixture keychain.
+    // Spec mode (Jasmine spec runner only): mailsync subprocess is intentionally
+    // NOT spawned here — mailsync-bridge.ts:94 short-circuits MailsyncBridge
+    // dla specs; jasmine tests używają mock data + DatabaseStore stubs i nie
+    // potrzebują real native subprocess. Without ten guard spec BrowserWindow
+    // never opens (silent hang na `npm test`).
     //
-    // migrate() tries to obtain the encrypted DB key from the prod keychain —
-    // unavailable in test mode, throws DBKeyLockedError, dialog shows + app
-    // quits (Playwright sees blank renderer screenshot, Jasmine spec window
-    // never opens). Specs use mock data + DatabaseStore stubs and don't need
-    // the real native subprocess.
+    // Playwright e2e (PLAYWRIGHT=1) DOES run mailsync.migrate normalnie —
+    // potrzebuje real SQLite schema + DB key (Tier A path: fresh config dir
+    // → safeStorage creates db-key.enc → migration creates tables). Bez tego
+    // renderer DatabaseStore queries → SqliteError → composer plugin nie
+    // aktywuje się → `.item-compose` nie renderuje się.
     //
-    // This guard is symmetric with the spec-mode bypass already present in
-    // _runTierBUnlockGate (l. 235). Production builds run mailsync.migrate()
-    // unchanged; only --test mode lub PLAYWRIGHT=1 (both dev-only flags +
-    // env vars that production builds NEVER receive) skip it.
-    const inTestMode = this.specMode || process.env.PLAYWRIGHT === '1';
-    if (!inTestMode) {
+    // Production builds run mailsync.migrate() unchanged.
+    if (!this.specMode) {
       try {
         const mailsync = new MailsyncProcess(options);
         await mailsync.migrate();

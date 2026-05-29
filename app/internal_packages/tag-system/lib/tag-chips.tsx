@@ -28,6 +28,7 @@ interface State {
 }
 
 export default class TagChips extends React.Component<Props, State> {
+  static displayName = 'TagChips';
   static containerRequired = false;
   state: State = { tags: [] };
 

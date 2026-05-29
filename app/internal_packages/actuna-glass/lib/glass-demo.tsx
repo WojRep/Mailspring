@@ -37,6 +37,8 @@ function dispose(u: Unsubscribe): void {
 }
 
 export default class GlassDemo extends React.Component<{}, State> {
+  static displayName = 'GlassDemo';
+
   state: State = {
     open: false,
     flagOn: false,

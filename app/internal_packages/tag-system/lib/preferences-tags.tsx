@@ -30,6 +30,8 @@ interface State {
 }
 
 export default class PreferencesTags extends React.Component<{}, State> {
+  static displayName = 'PreferencesTags';
+
   state: State = {
     selectedId: null,
     newName: '',

@@ -353,17 +353,18 @@ export default class AppEnvConstructor {
     return this.getLoadSettings().safeMode;
   }
 
-  // Public: Is the current window running specs?
+  // Public: Is the current window running Jasmine specs?
   //
-  // Returns true for:
-  //   - Jasmine spec runner window (loadSettings.isSpec === true z spec-bootstrap).
-  //   - Playwright e2e launch (process.env.PLAYWRIGHT === '1' z helpers.ts launchApp).
-  //
-  // Both są dev-only test harness vectors; production builds NIGDY nie set
-  // ani --test flag ani PLAYWRIGHT env. Single guard tutaj propaguje się do
-  // 30+ inSpecMode callers (database-store, mailsync-bridge, key-manager, etc.).
+  // NOTE: Returns ONLY for Jasmine spec window (loadSettings.isSpec, set by
+  // spec-bootstrap.ts). Playwright e2e launch z `PLAYWRIGHT=1` env DOES NOT
+  // qualify — Playwright tests need full plugin/component rendering (composer,
+  // thread-list, command-palette etc.), tylko BEZ mailsync subprocess
+  // i Tier B unlock gate (te osobno guarded w application.ts z explicit
+  // PLAYWRIGHT env check). Wcześniejsza wersja tej metody propagowała
+  // PLAYWRIGHT do 30+ inSpecMode callers (DatabaseStore, ComponentRegistry
+  // bootstrap, etc.) co WYŁĄCZAŁO rendering UI w e2e mode → empty renderer.
   inSpecMode() {
-    return this.getLoadSettings().isSpec || process.env.PLAYWRIGHT === '1';
+    return this.getLoadSettings().isSpec;
   }
 
   // Public: Get the version of ActunaMail.

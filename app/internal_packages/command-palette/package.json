@@ -8,6 +8,7 @@
     "actunamail": "*"
   },
   "private": true,
+  "syncInit": true,
   "windowTypes": {
     "default": true,
     "composer": false

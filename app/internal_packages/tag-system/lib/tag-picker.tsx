@@ -35,6 +35,8 @@ interface State {
 }
 
 export default class TagPicker extends React.Component<{}, State> {
+  static displayName = 'TagPicker';
+
   state: State = {
     open: false,
     threadId: null,

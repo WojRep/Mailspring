@@ -25,6 +25,7 @@ interface State {
 }
 
 export default class PinBadge extends React.Component<Props, State> {
+  static displayName = 'PinBadge';
   static containerRequired = false;
   state: State = { pinned: false };
 

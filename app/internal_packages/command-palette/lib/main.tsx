@@ -24,10 +24,18 @@ import { getBuiltInCommands } from './built-in-commands';
 let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
-  // 1. Load built-in commands
+  // 1. Public API on AppEnv — HOISTED FIRST so plugins activating after us
+  // (alphabetical order via PackageManager.activatePackages) can call
+  // AppEnv.commandPalette.register(...) successfully. Combined with
+  // "syncInit: true" in package.json, this guarantees the API is available
+  // before non-syncInit plugins enter their activate() phase.
+  (window as any).AppEnv = (window as any).AppEnv || {};
+  (window as any).AppEnv.commandPalette = CommandPaletteAPI;
+
+  // 2. Load built-in commands
   CommandPaletteStore.registerAll(getBuiltInCommands());
 
-  // 2. Register keyboard shortcuts (palette toggle)
+  // 3. Register keyboard shortcuts (palette toggle)
   // mod+k = Cmd+K (Mac) / Ctrl+K (Win/Linux)
   // mod+shift+p = alternative (palette VS Code style)
   if ((window as any).AppEnv?.commands?.add) {
@@ -38,16 +46,12 @@ export function activate() {
     });
   }
 
-  // 3. Mount overlay component — Sheet.Global.Footer jest zawsze renderowane
+  // 4. Mount overlay component — Sheet.Global.Footer jest zawsze renderowane
   // niezależnie od top sheet. Komponent ma position:fixed w CSS, więc renderuje
   // jako overlay nad całą aplikacją gdy isOpen() jest true.
   ComponentRegistry.register(CommandPalette, {
     location: WorkspaceStore.Sheet.Global.Footer,
   });
-
-  // 4. Public API on AppEnv
-  (window as any).AppEnv = (window as any).AppEnv || {};
-  (window as any).AppEnv.commandPalette = CommandPaletteAPI;
 }
 
 export function deactivate() {

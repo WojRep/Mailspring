@@ -93,15 +93,48 @@ class KeymapFile {
     }
 
     this._bindings = {};
-    Object.keys(keymaps).forEach((command) => {
-      let keystrokesArray = keymaps[command];
-      if (!(keystrokesArray instanceof Array)) {
-        keystrokesArray = [keystrokesArray];
+
+    // Atom-style keystroke normalization: translate "mod-shift-k" → "mod+shift+k"
+    // (mousetrap separator) while preserving non-key punctuation like the literal
+    // "+" or "-" key sigils when they stand alone.
+    const normalizeKeystrokes = (raw: string): string => {
+      if (typeof raw !== 'string') return raw;
+      if (raw.includes('+')) return raw; // already mousetrap-style
+      if (raw === '-' || raw.length === 1) return raw;
+      return raw.replace(/-/g, '+');
+    };
+
+    const addBinding = (command: string, keystrokes: any): void => {
+      if (typeof keystrokes !== 'string') {
+        log.warn(
+          `Skipping invalid keystrokes for "${command}" in ${this._path}: expected string, got ${typeof keystrokes}`
+        );
+        return;
       }
+      const normalized = normalizeKeystrokes(keystrokes);
+      this._manager.ensureKeystrokesRegistered(normalized);
+      this._bindings[command] = this._bindings[command] || [];
+      this._bindings[command].push(normalized);
+    };
+
+    Object.keys(keymaps).forEach((topKey) => {
+      const value = keymaps[topKey];
+      // Atom-style nested format: { "cssSelector": { "keystroke": "command:name" } }
+      // Selector scoping is ignored — Mailspring binds globally via mousetrap and
+      // scopes input/tree handling via stopCallback above.
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        Object.keys(value).forEach((keystroke) => {
+          const command = value[keystroke];
+          if (typeof command === 'string') {
+            addBinding(command, keystroke);
+          }
+        });
+        return;
+      }
+      // Flat format: { "command:name": "keystroke" } or { "command:name": ["k1", "k2"] }
+      const keystrokesArray = Array.isArray(value) ? value : [value];
       for (const keystrokes of keystrokesArray) {
-        this._manager.ensureKeystrokesRegistered(keystrokes);
-        this._bindings[command] = this._bindings[command] || [];
-        this._bindings[command].push(keystrokes);
+        addBinding(topKey, keystrokes);
       }
     });
     this._manager.keymapCacheInvalidated();
