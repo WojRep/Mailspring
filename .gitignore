@@ -33,6 +33,11 @@ certs
 **/Thumbs.db
 **/#emacs
 
+# Playwright e2e — local test account credentials (NEVER commit)
+playwright/.env.test.local
+playwright/.env.test.local.*
+!playwright/.env.test.local.example
+
 # Built cloud files
 n1_cloud_dist
 

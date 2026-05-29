@@ -99,7 +99,31 @@ const result = await executeInRenderer(
 
 ## Fixture dir caveat
 
-`prepareTestConfigDir()` in `helpers.ts` references a hard-coded `/Users/bengotow/Library/Application Support/ActunaMail-dev-building-for-playwright` fixture. If the path is missing on your machine the helper falls back to a synthetic default config — most tests still work. The Yahoo account credentials baked into the golden fixture are only required by sync-engine paths (search, real-IMAP flows); pure UI / state tests don't need them.
+`prepareTestConfigDir()` in `helpers.ts` references a hard-coded `/Users/bengotow/Library/Application Support/ActunaMail-dev-building-for-playwright` fixture (Foundry376 upstream maintainer's local path). If the path is missing on your machine the helper builds a synthetic config from env vars instead — most tests still work without the golden DB.
+
+### Test account setup (env-driven fallback)
+
+For real IMAP/SMTP round-trip tests (search, send-via-mailsync, sync engine deltas), provide credentials in a local-only env file:
+
+```bash
+cd app-client
+cp playwright/.env.test.local.example playwright/.env.test.local
+# edit playwright/.env.test.local and fill in TEST_ACCOUNT_PASSWORD
+```
+
+`playwright/.env.test.local` is `.gitignored` (NEVER commit real passwords). The file is consumed by `loadEnvFile` in `helpers.ts`; `process.env.TEST_ACCOUNT_*` (e.g. set by CI) takes precedence over the file.
+
+| Var | Default | Required? |
+| --- | --- | --- |
+| `TEST_ACCOUNT_EMAIL` | `sffsw323@actuna.pl` | no |
+| `TEST_ACCOUNT_PASSWORD` | (empty) | yes for real IMAP/SMTP; no for UI-only tests |
+| `TEST_ACCOUNT_PROVIDER` | `imap` | no |
+| `TEST_IMAP_HOST` | `mail.actuna.pl` | no |
+| `TEST_IMAP_PORT` | `993` (SSL/TLS) | no |
+| `TEST_SMTP_HOST` | `mail.actuna.pl` | no |
+| `TEST_SMTP_PORT` | `465` (SSL/TLS) | no |
+
+**Pure UI tests** (e.g. `wave-1-foundation.spec.ts`) work with the defaults alone — they exercise renderer rendering, palette, sheets etc. without hitting the IMAP wire.
 
 ## Picking a layer — decision tree
 

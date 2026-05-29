@@ -9,10 +9,58 @@ export const REPO_ROOT = path.resolve(__dirname, '..');
 export const APP_ROOT = path.join(REPO_ROOT, 'app');
 
 /**
- * Source config directory with the golden database and encrypted credentials.
+ * Source config directory with the golden database and encrypted credentials
+ * (Foundry376 upstream maintainer's fixture — present TYLKO na ich maszynach).
+ * Jeśli FIXTURE_DIR nie istnieje, używamy synthetic fallback config z
+ * env-driven test account (patrz prepareTestConfigDir poniżej).
  */
 const FIXTURE_DIR = '/Users/bengotow/Library/Application Support/ActunaMail-dev-building-for-playwright';
 const FIXTURE_DB = path.join(FIXTURE_DIR, 'edgehill.db');
+
+// ─── Env-driven test account ──────────────────────────────────────────────────
+//
+// Local-only `.env.test.local` (gitignored) overrides defaults. Format: KEY=value
+// per line, # for comments. Hosts (mail.actuna.pl) are publicznie znane MX
+// records — safe jako default w fallback config. Tylko PASSWORD jest secret
+// (NEVER w repo); pure UI tests działają bez password bo mailsync subprocess
+// nie auth'uje się — renderer init używa account jako placeholder dla
+// AccountStore.accounts.length > 0 gate.
+
+function loadEnvFile(filePath: string): Record<string, string> {
+  if (!fs.existsSync(filePath)) return {};
+  const env: Record<string, string> = {};
+  for (const line of fs.readFileSync(filePath, 'utf-8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq < 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    env[key] = value;
+  }
+  return env;
+}
+
+const _envFile = loadEnvFile(path.join(__dirname, '.env.test.local'));
+function envValue(key: string, fallback: string): string {
+  return process.env[key] || _envFile[key] || fallback;
+}
+
+const TEST_ACCOUNT = {
+  email: envValue('TEST_ACCOUNT_EMAIL', 'sffsw323@actuna.pl'),
+  password: envValue('TEST_ACCOUNT_PASSWORD', ''),
+  provider: envValue('TEST_ACCOUNT_PROVIDER', 'imap'),
+  imapHost: envValue('TEST_IMAP_HOST', 'mail.actuna.pl'),
+  imapPort: parseInt(envValue('TEST_IMAP_PORT', '993'), 10),
+  smtpHost: envValue('TEST_SMTP_HOST', 'mail.actuna.pl'),
+  smtpPort: parseInt(envValue('TEST_SMTP_PORT', '465'), 10),
+};
 
 // ─── Config & Launch ───────────────────────────────────────────────────────
 
@@ -71,29 +119,29 @@ export function prepareTestConfigDir(): string {
         },
         accounts: [
           {
-            id: 'c30d589a',
+            id: 'e2e-test-account',
             metadata: [],
-            name: 'Ben Gotow',
-            provider: 'yahoo',
-            emailAddress: 'bengotow@yahoo.com',
+            name: 'E2E Test Account',
+            provider: TEST_ACCOUNT.provider,
+            emailAddress: TEST_ACCOUNT.email,
             settings: {
-              imap_host: 'imap.mail.yahoo.com',
-              imap_port: 993,
-              imap_username: 'bengotow@yahoo.com',
+              imap_host: TEST_ACCOUNT.imapHost,
+              imap_port: TEST_ACCOUNT.imapPort,
+              imap_username: TEST_ACCOUNT.email,
               imap_security: 'SSL / TLS',
               imap_allow_insecure_ssl: false,
-              smtp_host: 'smtp.mail.yahoo.com',
-              smtp_port: 465,
-              smtp_username: 'bengotow@yahoo.com',
+              smtp_host: TEST_ACCOUNT.smtpHost,
+              smtp_port: TEST_ACCOUNT.smtpPort,
+              smtp_username: TEST_ACCOUNT.email,
               smtp_security: 'SSL / TLS',
               smtp_allow_insecure_ssl: false,
               container_folder: '',
             },
-            label: 'bengotow@yahoo.com',
+            label: TEST_ACCOUNT.email,
             autoaddress: { type: 'bcc', value: '' },
             aliases: [],
             syncState: 'ok',
-            authedAt: 1777692315.512,
+            authedAt: Math.floor(Date.now() / 1000),
             color: '',
             __cls: 'Account',
           },
