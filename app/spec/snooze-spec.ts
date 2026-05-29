@@ -140,11 +140,16 @@ describe('Snooze — bilet MVP #104', () => {
     });
 
     it('snoozeUntil w przeszłości throws', () => {
-      expect(() => SnoozeStore.snoozeUntil('t1', Date.now() - 1000)).toThrowError(/future/);
+      // Jasmine 1.x toThrow expects string match — sprawdzamy message ręcznie.
+      let err: any;
+      try { SnoozeStore.snoozeUntil('t1', Date.now() - 1000); } catch (e) { err = e; }
+      expect(err && err.message).toMatch(/future/);
     });
 
     it('snooze threadId required', () => {
-      expect(() => SnoozeStore.snoozeUntil('', Date.now() + 100000)).toThrowError(/threadId/);
+      let err: any;
+      try { SnoozeStore.snoozeUntil('', Date.now() + 100000); } catch (e) { err = e; }
+      expect(err && err.message).toMatch(/threadId/);
     });
 
     it('snooze drugi raz tego samego threadId nadpisuje', () => {
@@ -177,7 +182,9 @@ describe('Snooze — bilet MVP #104', () => {
 
     it('modify w przeszłości throws', () => {
       SnoozeStore.snoozeByPreset('t1', 'tomorrow_morning');
-      expect(() => SnoozeStore.modify('t1', Date.now() - 1000)).toThrowError(/future/);
+      let err: any;
+      try { SnoozeStore.modify('t1', Date.now() - 1000); } catch (e) { err = e; }
+      expect(err && err.message).toMatch(/future/);
     });
 
     it('modify nieistniejącego → undefined', () => {

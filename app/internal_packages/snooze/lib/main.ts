@@ -5,10 +5,14 @@
  *   1. SnoozeStore.init().
  *   2. Bind Cmd+Shift+H → open picker, Cmd+Shift+U → un-snooze now.
  *   3. Cmd+K palette commands (open picker, snoozed folder, preset commands).
- *   4. Expose AppEnv.snooze API.
+ *   4. Mount SnoozePicker overlay (Sheet.Global.Footer).
+ *   5. Expose AppEnv.snooze API.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import SnoozePicker from './snooze-picker';
 import { SnoozeStore } from './snooze-store';
+import { SnoozeUIBus } from './snooze-ui-bus';
 import { SnoozePreset, PRESET_LABELS_PL, PRESET_LABELS_EN, resolvePreset } from './snooze-presets';
 
 let shortcutDisposable: { dispose(): void } | null = null;
@@ -72,9 +76,14 @@ export function activate() {
     }
   }
 
+  ComponentRegistry.register(SnoozePicker, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
+
   (window as any).AppEnv = (window as any).AppEnv || {};
   (window as any).AppEnv.snooze = {
     Store: SnoozeStore,
+    UIBus: SnoozeUIBus,
     Presets: {
       labels_pl: PRESET_LABELS_PL,
       labels_en: PRESET_LABELS_EN,
@@ -84,6 +93,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(SnoozePicker);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -102,24 +112,39 @@ export function deactivate() {
   }
 }
 
+function getFocusedThreadId(): string | null {
+  try {
+    const focused = (window as any).$m?.FocusedContentStore?.focused?.('thread');
+    if (focused?.id) return focused.id;
+  } catch (e) { /* none focused */ }
+  return null;
+}
+
 function openPicker(): void {
-  console.info('[snooze] open snooze picker — reuse #90 shared time-control picker');
-  // TODO React modal — reuse #90 picker z 7 preset buttons + custom date/time
+  SnoozeUIBus.openPicker(getFocusedThreadId());
 }
 
 function unsnoozeNow(): void {
-  console.info('[snooze] un-snooze current thread');
-  // TODO: pull current threadId → SnoozeStore.unsnooze(tid) → dispatch task to move from Snoozed folder
+  const tid = getFocusedThreadId();
+  if (!tid) return;
+  SnoozeStore.unsnooze(tid);
 }
 
 function openSnoozedFolder(): void {
-  console.info('[snooze] open Snoozed folder view');
-  // TODO React queue list z "Wraca [date]" per mail
+  // Snoozed folder view jest osobnym ticketem (queue list w sidebar).
+  // Tu wystarczy info dla testów + future hook.
+  console.info('[snooze] open Snoozed folder view — TODO ticket for queue list');
 }
 
 function quickSnooze(preset: SnoozePreset): void {
-  console.info('[snooze] quick snooze preset:', preset);
-  // TODO: pull current threadId → SnoozeStore.snoozeByPreset(tid, preset)
+  const tid = getFocusedThreadId();
+  if (!tid) {
+    // Brak focused thread → otwórz picker bez thread (no-op state, user przy
+    // ponownym focusie może wrócić). Bezpieczniejsze niż silent no-op.
+    SnoozeUIBus.openPicker(null);
+    return;
+  }
+  SnoozeStore.snoozeByPreset(tid, preset);
 }
 
 export type { SnoozeEntry, SnoozeServerSupport, WakeResult } from './snooze-store';
