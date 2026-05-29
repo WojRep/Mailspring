@@ -74,8 +74,12 @@ describe('Rule builder — bilet MVP #100', () => {
 
   describe('CRUD', () => {
     it('create — wymaga name', () => {
-      expect(() => RuleStore.create({ name: '' })).toThrowError(/name required/);
-      expect(() => RuleStore.create({ name: '   ' })).toThrowError(/name required/);
+      // Jasmine 1.x toThrow not regex-aware — manual try/catch + toMatch.
+      let err1: any; let err2: any;
+      try { RuleStore.create({ name: '' }); } catch (e) { err1 = e; }
+      try { RuleStore.create({ name: '   ' }); } catch (e) { err2 = e; }
+      expect(err1 && err1.message).toMatch(/name required/);
+      expect(err2 && err2.message).toMatch(/name required/);
     });
 
     it('create — defaults: enabled=true, location=local, trigger=message_arrives, match=all, order=size', () => {
@@ -419,7 +423,9 @@ describe('Rule builder — bilet MVP #100', () => {
 
     it('invalid JSON throws', () => {
       expect(() => RuleStore.importJSON('not json')).toThrow();
-      expect(() => RuleStore.importJSON('{"foo":1}')).toThrowError(/rules/);
+      let err: any;
+      try { RuleStore.importJSON('{"foo":1}'); } catch (e) { err = e; }
+      expect(err && err.message).toMatch(/rules/);
     });
 
     it('version mismatch loguje warning ale importuje', () => {

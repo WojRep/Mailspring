@@ -1,0 +1,265 @@
+// Rule builder — bilet MVP #100.
+//
+// Sentence-based modal: WHEN [trigger] / MATCH [all|any] of [conditions] /
+// THEN [actions] / EXCEPT IF [exceptions]. UX inspirowany ClickUp.
+// Glass surface (actuna-glass --medium #92).
+
+@import "ui-variables";
+
+.rule-builder-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: 9000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 5vh;
+}
+
+.rule-builder {
+  width: min(720px, 96vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  outline: none;
+  background: var(--background-primary, #ffffff);
+}
+
+.rule-builder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+}
+
+.rule-builder-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-color, #1f1f1f);
+}
+
+.rule-builder-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--text-color-subtle, #6b6b6b);
+  cursor: pointer;
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.05)); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.rule-builder-form {
+  padding: 4px 20px 14px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rule-builder-top-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.rule-builder-name {
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.18));
+  border-radius: 7px;
+  background: var(--background-primary, #ffffff);
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.rule-builder-enabled,
+.rule-builder-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-color-subtle, #6b6b6b);
+  white-space: nowrap;
+  select {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.18));
+    border-radius: 5px;
+    background: var(--background-primary, #ffffff);
+    font: inherit;
+    font-size: 12px;
+    &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+  }
+}
+
+.rule-builder-sentence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--background-secondary, rgba(0, 0, 0, 0.04));
+  border-radius: 7px;
+}
+
+.rule-builder-keyword {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--accent-primary, #3b6bdb);
+  white-space: nowrap;
+}
+
+.rule-builder-trigger,
+.rule-builder-match {
+  padding: 5px 8px;
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.18));
+  border-radius: 6px;
+  background: var(--background-primary, #ffffff);
+  font: inherit;
+  font-size: 12px;
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.rule-builder-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--background-secondary, rgba(0, 0, 0, 0.03));
+  border-radius: 7px;
+}
+
+.rule-builder-section--exceptions {
+  background: rgba(220, 100, 0, 0.05);
+}
+
+.rule-builder-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rule-builder-section-tail {
+  font-size: 12px;
+  color: var(--text-color-subtle, #6b6b6b);
+}
+
+.rule-builder-condition-row,
+.rule-builder-exception-row,
+.rule-builder-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1.6fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.rule-builder-action-row {
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 2fr) auto;
+}
+
+.rule-builder-row-field,
+.rule-builder-row-op,
+.rule-builder-row-value,
+.rule-builder-action-type {
+  padding: 6px 8px;
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.18));
+  border-radius: 6px;
+  background: var(--background-primary, #ffffff);
+  font: inherit;
+  font-size: 12px;
+  min-width: 0;
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.rule-builder-row-value-empty {
+  font-size: 12px;
+  color: var(--text-color-subtle, #6b6b6b);
+  padding: 6px 8px;
+}
+
+.rule-builder-row-remove {
+  background: transparent;
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.10));
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: var(--text-color-subtle, #6b6b6b);
+  font-size: 14px;
+  line-height: 1;
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.06)); color: var(--text-color, #1f1f1f); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.rule-builder-add-row {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: var(--accent-primary, #3b6bdb);
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 12px;
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 2px; }
+}
+
+.rule-builder-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.06));
+}
+
+.rule-builder-footer-spacer {
+  flex: 1;
+}
+
+.rule-builder-cancel,
+.rule-builder-save,
+.rule-builder-delete {
+  padding: 7px 14px;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.rule-builder-cancel {
+  background: transparent;
+  border-color: var(--border-color-primary, rgba(0, 0, 0, 0.18));
+  color: var(--text-color, #1f1f1f);
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.04)); }
+}
+
+.rule-builder-save {
+  background: var(--accent-primary, #3b6bdb);
+  color: #fff;
+  &:hover:not([disabled]) { filter: brightness(1.07); }
+  &[disabled],
+  &[data-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.rule-builder-delete {
+  background: transparent;
+  color: var(--text-color-error, #b00020);
+  border-color: rgba(176, 0, 32, 0.4);
+  &:hover { background: rgba(176, 0, 32, 0.06); }
+}

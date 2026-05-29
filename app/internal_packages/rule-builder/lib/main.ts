@@ -9,7 +9,10 @@
  *   5. Expose AppEnv.rules API.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import RuleBuilder from './rule-builder';
 import { RuleStore } from './rule-store';
+import { RuleBuilderUIBus } from './rule-builder-ui-bus';
 import {
   AutomationRule,
   Action,
@@ -88,9 +91,14 @@ export function activate() {
     });
   }
 
+  ComponentRegistry.register(RuleBuilder, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
+
   (window as any).AppEnv = (window as any).AppEnv || {};
   (window as any).AppEnv.rules = {
     Store: RuleStore,
+    UIBus: RuleBuilderUIBus,
     Labels: {
       action_pl: ACTION_LABELS_PL,
       action_en: ACTION_LABELS_EN,
@@ -105,6 +113,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(RuleBuilder);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -126,18 +135,23 @@ export function deactivate() {
 }
 
 function openBuilder(): void {
-  console.info('[rule-builder] open sentence builder modal');
-  // TODO React sentence builder modal — design/mockups (rule-builder mockup TBD)
+  RuleBuilderUIBus.openBuilder(null);
 }
 
 function openRunRulesNow(): void {
-  console.info('[rule-builder] open Run Rules Now dialog');
-  // TODO React picker: select rules + folder → preview matches → confirm
+  // Lightweight Run Now picker — osobny modal odłożony na follow-up
+  // (Preferences > Rules list view). Tu wystarczy hint UI dla MVP +
+  // dispatch handler dla command-palette commands; future RunRulesNowDialog
+  // component będzie subskrybować RuleBuilderUIBus.isRunNowOpen() (już ready).
+  RuleBuilderUIBus.openRunNow();
+  console.info('[rule-builder] Run Rules Now picker — picker UI TODO (follow-up ticket)');
 }
 
 function openCreateFromEmail(): void {
-  console.info('[rule-builder] open Create-Rule-From-Email — pre-fill sender/subject');
-  // TODO React modal — pull selected thread → seed conditions
+  // Pull focused thread metadata → seed conditions w pre-fill.
+  // MVP: just open empty builder; future enhancement (osobny ticket)
+  // will inject selected thread metadata jako default conditions.
+  RuleBuilderUIBus.openBuilder(null);
 }
 
 function openPreferences(): void {

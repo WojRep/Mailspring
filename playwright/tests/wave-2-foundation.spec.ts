@@ -1,5 +1,5 @@
 /**
- * Wave 2 Foundation UI e2e — bilet MVP #104 (Snooze) + #99 (Smart Folder).
+ * Wave 2 Foundation UI e2e — bilet MVP #104 (Snooze) + #99 (Smart Folder) + #100 (Rule builder).
  *
  * Test strategy: per Wave 1 pattern — executeInRenderer dispatch (window.eval
  * blocked), keymap registration introspection, DOM assertions.
@@ -226,5 +226,100 @@ test.describe('Wave 2 Foundation UI — #104 SnoozePicker', () => {
     await mainWindow.locator('.smart-folder-wizard').focus();
     await mainWindow.keyboard.press('Escape');
     await expect(mainWindow.locator('.smart-folder-wizard')).toBeHidden({ timeout: 2000 });
+  });
+
+  // ─── #100 Rule builder ──────────────────────────────────────────────────────
+
+  async function openRuleBuilder(ruleId: string | null = null): Promise<void> {
+    await executeInRenderer(
+      electronApp,
+      `window.AppEnv.rules.UIBus.openBuilder(${JSON.stringify(ruleId)});`
+    );
+    await expect(mainWindow.locator('.rule-builder[role="dialog"]')).toBeVisible({ timeout: 3000 });
+  }
+
+  async function closeRuleBuilder(): Promise<void> {
+    await executeInRenderer(electronApp, `window.AppEnv.rules.UIBus.closeBuilder();`);
+    await expect(mainWindow.locator('.rule-builder')).toBeHidden({ timeout: 2000 });
+  }
+
+  test('#100 — builder otwiera się z aria-modal + aria-label', async () => {
+    await openRuleBuilder();
+    const dialog = mainWindow.locator('.rule-builder[role="dialog"]');
+    await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    await expect(dialog).toHaveAttribute('aria-label', /reguł|rule/i);
+    await closeRuleBuilder();
+  });
+
+  test('#100 — Create flow: name + Save → RuleStore.create + zamknięcie', async () => {
+    const ruleName = `E2E Rule ${Date.now()}`;
+    await openRuleBuilder();
+    await mainWindow.locator('.rule-builder-name').fill(ruleName);
+    await mainWindow.locator('.rule-builder-save').click();
+    await expect(mainWindow.locator('.rule-builder')).toBeHidden({ timeout: 2000 });
+    const exists = await executeInRenderer(
+      electronApp,
+      `(function(){
+         var list = window.AppEnv.rules.Store.list();
+         return list.some(function(r){return r.name === ${JSON.stringify(ruleName)};});
+       })()`
+    );
+    expect(exists).toBe(true);
+  });
+
+  test('#100 — Save disabled gdy name pusty', async () => {
+    await openRuleBuilder();
+    const save = mainWindow.locator('.rule-builder-save');
+    await expect(save).toHaveAttribute('data-disabled', 'true');
+    await mainWindow.locator('.rule-builder-name').fill('X');
+    await expect(save).toHaveAttribute('data-disabled', 'false');
+    await closeRuleBuilder();
+  });
+
+  test('#100 — Default: 1 condition + 1 action + 0 exceptions', async () => {
+    await openRuleBuilder();
+    await expect(mainWindow.locator('.rule-builder-condition-row')).toHaveCount(1);
+    await expect(mainWindow.locator('.rule-builder-action-row')).toHaveCount(1);
+    await expect(mainWindow.locator('.rule-builder-exception-row')).toHaveCount(0);
+    await closeRuleBuilder();
+  });
+
+  test('#100 — Add buttons dodają condition / action / exception', async () => {
+    await openRuleBuilder();
+    const addBtns = mainWindow.locator('.rule-builder-add-row');
+    await expect(addBtns).toHaveCount(3);
+    await addBtns.nth(0).click();
+    await addBtns.nth(1).click();
+    await addBtns.nth(2).click();
+    await expect(mainWindow.locator('.rule-builder-condition-row')).toHaveCount(2);
+    await expect(mainWindow.locator('.rule-builder-action-row')).toHaveCount(2);
+    await expect(mainWindow.locator('.rule-builder-exception-row')).toHaveCount(1);
+    await closeRuleBuilder();
+  });
+
+  test('#100 — Cmd+Alt+R keymap binding zarejestrowany (regression)', async () => {
+    const bindings = await executeInRenderer(
+      electronApp,
+      `JSON.stringify(window.AppEnv.keymaps.getBindingsForCommand('rule-builder:open-builder'))`
+    );
+    expect(JSON.parse(bindings)).toContain('mod+alt+r');
+  });
+
+  test('#100 — Cmd+K palette command "reguł / rule" jest discoverable', async () => {
+    await executeInRenderer(electronApp, `window.AppEnv.commands.dispatch('command-palette:toggle');`);
+    await expect(mainWindow.locator('.command-palette[role="dialog"]')).toBeVisible({ timeout: 3000 });
+    await mainWindow.locator('.command-palette-input').fill('reguł');
+    await mainWindow.waitForTimeout(200);
+    const items = mainWindow.locator('.command-palette-item');
+    expect(await items.count()).toBeGreaterThan(0);
+    await mainWindow.keyboard.press('Escape');
+    await expect(mainWindow.locator('.command-palette')).toBeHidden({ timeout: 2000 });
+  });
+
+  test('#100 — Escape zamyka builder', async () => {
+    await openRuleBuilder();
+    await mainWindow.locator('.rule-builder').focus();
+    await mainWindow.keyboard.press('Escape');
+    await expect(mainWindow.locator('.rule-builder')).toBeHidden({ timeout: 2000 });
   });
 });
