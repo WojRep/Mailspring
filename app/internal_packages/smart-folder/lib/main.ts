@@ -8,7 +8,10 @@
  *   4. Expose AppEnv.smartFolder API z parseSearchSyntax dla #98 tag picker integration.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import SmartFolderWizard from './smart-folder-wizard';
 import { SmartFolderStore } from './smart-folder-store';
+import { SmartFolderUIBus } from './smart-folder-ui-bus';
 import {
   evalRule,
   evalRules,
@@ -60,9 +63,14 @@ export function activate() {
     });
   }
 
+  ComponentRegistry.register(SmartFolderWizard, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
+
   (window as any).AppEnv = (window as any).AppEnv || {};
   (window as any).AppEnv.smartFolder = {
     Store: SmartFolderStore,
+    UIBus: SmartFolderUIBus,
     evalRule,
     evalRules,
     filterThreads,
@@ -71,6 +79,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(SmartFolderWizard);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -87,18 +96,21 @@ export function deactivate() {
 }
 
 function openWizard(): void {
-  console.info('[smart-folder] open wizard');
-  // TODO React wizard modal — Mockup: design/mockups/14-smart-folder-wizard.html
+  SmartFolderUIBus.openWizard(null);
 }
 
 function closeWizard(): void {
-  // TODO
+  SmartFolderUIBus.closeWizard();
 }
 
 function exportJSON(): void {
+  // File-system save dialog jest osobnym ticketem (drag-drop w Preferences).
+  // Tu udostępniamy JSON do clipboard fallback przez modern API.
   try {
     const json = SmartFolderStore.exportJSON();
-    // TODO show save dialog or copy to clipboard
+    if ((navigator as any)?.clipboard?.writeText) {
+      (navigator as any).clipboard.writeText(json).catch(() => { /* silent */ });
+    }
     console.info('[smart-folder] export JSON length:', json.length);
   } catch (e) {
     console.error('[smart-folder] export failed:', e);
@@ -106,8 +118,9 @@ function exportJSON(): void {
 }
 
 function importJSON(): void {
-  console.info('[smart-folder] open import file picker');
-  // TODO file picker → SmartFolderStore.importJSON(content)
+  // File picker UX → osobny ticket (Preferences drag-drop).
+  // Tu pozostawiamy hook dla future integration.
+  console.info('[smart-folder] open import file picker — TODO Preferences ticket');
 }
 
 export type { Rule, MatchMode, ThreadMeta, SmartFolderDefinition };

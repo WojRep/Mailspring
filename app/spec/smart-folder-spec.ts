@@ -241,10 +241,12 @@ describe('Smart Folder — bilet MVP #99', () => {
     });
 
     it('create — rzuca dla pustego name', () => {
-      expect(() => SmartFolderStore.create({ name: '', match: 'all', rules: [] }))
-        .toThrowError(/name required/);
-      expect(() => SmartFolderStore.create({ name: '   ', match: 'all', rules: [] }))
-        .toThrowError(/name required/);
+      // Jasmine 1.x toThrow not regex-aware — manual try/catch + toMatch.
+      let err1: any; let err2: any;
+      try { SmartFolderStore.create({ name: '', match: 'all', rules: [] }); } catch (e) { err1 = e; }
+      try { SmartFolderStore.create({ name: '   ', match: 'all', rules: [] }); } catch (e) { err2 = e; }
+      expect(err1 && err1.message).toMatch(/name required/);
+      expect(err2 && err2.message).toMatch(/name required/);
     });
 
     it('update patches fields + bumps updatedAt; preserves id+createdAt', () => {
@@ -354,7 +356,9 @@ describe('Smart Folder — bilet MVP #99', () => {
 
     it('importJSON — invalid payload throws', () => {
       expect(() => SmartFolderStore.importJSON('not json')).toThrow();
-      expect(() => SmartFolderStore.importJSON('{"foo":1}')).toThrowError(/folders/);
+      let err: any;
+      try { SmartFolderStore.importJSON('{"foo":1}'); } catch (e) { err = e; }
+      expect(err && err.message).toMatch(/folders/);
     });
 
     it('importJSON — version mismatch loguje warning, ale importuje', () => {

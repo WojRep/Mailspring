@@ -1,5 +1,5 @@
 /**
- * Wave 2 Foundation UI e2e — bilet MVP #104 (Snooze picker UI).
+ * Wave 2 Foundation UI e2e — bilet MVP #104 (Snooze) + #99 (Smart Folder).
  *
  * Test strategy: per Wave 1 pattern — executeInRenderer dispatch (window.eval
  * blocked), keymap registration introspection, DOM assertions.
@@ -140,5 +140,91 @@ test.describe('Wave 2 Foundation UI — #104 SnoozePicker', () => {
     expect(firstText?.toLowerCase()).toContain('snooze');
     await mainWindow.keyboard.press('Escape');
     await expect(mainWindow.locator('.command-palette')).toBeHidden({ timeout: 2000 });
+  });
+
+  // ─── #99 Smart Folder wizard ────────────────────────────────────────────────
+
+  async function openWizard(folderId: string | null = null): Promise<void> {
+    await executeInRenderer(
+      electronApp,
+      `window.AppEnv.smartFolder.UIBus.openWizard(${JSON.stringify(folderId)});`
+    );
+    await expect(mainWindow.locator('.smart-folder-wizard[role="dialog"]')).toBeVisible({ timeout: 3000 });
+  }
+
+  async function closeWizard(): Promise<void> {
+    await executeInRenderer(electronApp, `window.AppEnv.smartFolder.UIBus.closeWizard();`);
+    await expect(mainWindow.locator('.smart-folder-wizard')).toBeHidden({ timeout: 2000 });
+  }
+
+  test('#99 — wizard otwiera się z aria-modal + aria-label', async () => {
+    await openWizard();
+    const dialog = mainWindow.locator('.smart-folder-wizard[role="dialog"]');
+    await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    await expect(dialog).toHaveAttribute('aria-label', /smart folder/i);
+    await closeWizard();
+  });
+
+  test('#99 — Create flow: name + Save → SmartFolderStore.create + zamknięcie', async () => {
+    // Reset store sample na czysty start.
+    const folderName = `E2E Newsletter ${Date.now()}`;
+    await openWizard();
+    await mainWindow.locator('.smart-folder-wizard-name').fill(folderName);
+    await mainWindow.locator('.smart-folder-wizard-save').click();
+    await expect(mainWindow.locator('.smart-folder-wizard')).toBeHidden({ timeout: 2000 });
+    const exists = await executeInRenderer(
+      electronApp,
+      `(function(){
+         var list = window.AppEnv.smartFolder.Store.list();
+         return list.some(function(f){return f.name === ${JSON.stringify(folderName)};});
+       })()`
+    );
+    expect(exists).toBe(true);
+  });
+
+  test('#99 — Save disabled gdy name pusty', async () => {
+    await openWizard();
+    const save = mainWindow.locator('.smart-folder-wizard-save');
+    await expect(save).toHaveAttribute('data-disabled', 'true');
+    await mainWindow.locator('.smart-folder-wizard-name').fill('X');
+    await expect(save).toHaveAttribute('data-disabled', 'false');
+    await closeWizard();
+  });
+
+  test('#99 — Add rule button dodaje nowe wiersze', async () => {
+    await openWizard();
+    await expect(mainWindow.locator('.smart-folder-wizard-rule-row')).toHaveCount(1);
+    await mainWindow.locator('.smart-folder-wizard-add-rule').click();
+    await mainWindow.locator('.smart-folder-wizard-add-rule').click();
+    await expect(mainWindow.locator('.smart-folder-wizard-rule-row')).toHaveCount(3);
+    await closeWizard();
+  });
+
+  test('#99 — Cmd+Shift+N keymap binding zarejestrowany (regression)', async () => {
+    const bindings = await executeInRenderer(
+      electronApp,
+      `JSON.stringify(window.AppEnv.keymaps.getBindingsForCommand('smart-folder:open-wizard'))`
+    );
+    expect(JSON.parse(bindings)).toContain('mod+shift+n');
+  });
+
+  test('#99 — Cmd+K palette command "smart folder" jest discoverable', async () => {
+    await executeInRenderer(electronApp, `window.AppEnv.commands.dispatch('command-palette:toggle');`);
+    await expect(mainWindow.locator('.command-palette[role="dialog"]')).toBeVisible({ timeout: 3000 });
+    await mainWindow.locator('.command-palette-input').fill('smart folder');
+    await mainWindow.waitForTimeout(200);
+    const items = mainWindow.locator('.command-palette-item');
+    expect(await items.count()).toBeGreaterThan(0);
+    const firstText = await items.first().textContent();
+    expect(firstText?.toLowerCase()).toMatch(/smart folder/);
+    await mainWindow.keyboard.press('Escape');
+    await expect(mainWindow.locator('.command-palette')).toBeHidden({ timeout: 2000 });
+  });
+
+  test('#99 — Escape zamyka wizard', async () => {
+    await openWizard();
+    await mainWindow.locator('.smart-folder-wizard').focus();
+    await mainWindow.keyboard.press('Escape');
+    await expect(mainWindow.locator('.smart-folder-wizard')).toBeHidden({ timeout: 2000 });
   });
 });
