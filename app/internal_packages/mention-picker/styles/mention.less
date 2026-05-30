@@ -1,0 +1,47 @@
+// Mention dropdown — #108 + plan v1.0 mockup 20-mention-picker.html.
+
+@import "ui-variables";
+
+.mention-dropdown {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92vw;
+  max-width: 320px;
+  max-height: 260px;
+  background: var(--background-primary, #ffffff);
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.12));
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  overflow-y: auto;
+  z-index: 9100;
+  padding: 4px 0;
+  outline: none;
+}
+
+.mention-empty {
+  padding: 10px;
+  font-size: 12px;
+  color: var(--text-color-subtle, #6b6b6b);
+  text-align: center;
+}
+
+.mention-item {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px;
+  cursor: pointer;
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.04)); }
+}
+
+.mention-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color, #1f1f1f);
+}
+
+.mention-email {
+  font-size: 11px;
+  color: var(--text-color-subtle, #6b6b6b);
+}

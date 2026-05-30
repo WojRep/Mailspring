@@ -18,8 +18,15 @@ import {
   extractEmailFromMention,
   MENTION_TRIGGER_MIN_CHARS,
 } from './mention-engine';
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import MentionDropdown from './mention-dropdown';
+import { MentionUIBus } from './mention-ui-bus';
 
 export function activate() {
+  ComponentRegistry.register(MentionDropdown, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
+
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     palette.register({
@@ -46,6 +53,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(MentionDropdown);
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     palette.unregister('mention-picker:open');
@@ -56,7 +64,7 @@ export function deactivate() {
 }
 
 function openManually(): void {
-  console.info('[mention-picker] manual trigger — UI dropdown TBD');
+  MentionUIBus.openWithQuery('');
 }
 
 export type { MentionMatch, MentionInsertion, MentionInsertMode } from './mention-engine';
