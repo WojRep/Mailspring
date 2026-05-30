@@ -100,11 +100,13 @@ class ConsentStoreImpl {
     return record;
   }
 
-  /** Czy email ma aktywną zgodę? (granted i NIE revoked po grant). */
+  /** Czy email ma aktywną zgodę? (granted i NIE revoked po grant).
+   *  Uwaga: gdy revokedAt >= grantedAt → revoke wins (równość timestampów
+   *  np. w spec mode TimeOverride.frozen → revoke jest po grant w call order). */
   hasActiveConsent(email: string): boolean {
     const r = this._records.get(this._key(email));
     if (!r || r.consentGrantedAt === undefined) return false;
-    if (r.consentRevokedAt !== undefined && r.consentRevokedAt > r.consentGrantedAt) return false;
+    if (r.consentRevokedAt !== undefined && r.consentRevokedAt >= r.consentGrantedAt) return false;
     return true;
   }
 

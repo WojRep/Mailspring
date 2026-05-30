@@ -45,13 +45,14 @@ export const REGULAR_CONTACT_THRESHOLD = 5;
 export function classifyThread(thread: ThreadSnapshot): PriorityBucket {
   if (!thread || !thread.id) return 'other';
 
-  // (a) Pin
-  if (PinStore.isPinned(thread.id)) return 'priority';
-
-  // (b) Manual override tags
+  // (a) Manual override tags — explicit user decision wins over Pin.
+  // Semantyka: __system_other = "wiem że pinned, ale to NIE jest priority".
   const tags = thread.tags || [];
   if (tags.includes(TAG_OTHER_OVERRIDE)) return 'other';
   if (tags.includes(TAG_PRIORITY_OVERRIDE)) return 'priority';
+
+  // (b) Pin (no explicit override)
+  if (PinStore.isPinned(thread.id)) return 'priority';
 
   // (d) Explicit Important / VIP
   if (thread.hasImportantTag || tags.includes(TAG_IMPORTANT) || tags.includes(TAG_VIP)) {

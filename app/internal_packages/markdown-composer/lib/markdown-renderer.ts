@@ -88,8 +88,11 @@ export function renderInline(text: string): string {
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   // Italic (single _underscore_, no inner spaces wymóg)
   s = s.replace(/_([^_]+)_/g, '<em>$1</em>');
-  // Link: [label](url) z URL sanitization
-  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
+  // Link: [label](url) z URL sanitization. Wzór regex obsługuje single-level
+  // nested parens w URL (np. javascript:alert(1) ma '(1)' wewnątrz) żeby
+  // sanitization mogła rozpoznać i całkowicie odrzucić (bez zostawiania
+  // trailing ')' jak gdyby url kończył się na pierwszym ')').
+  s = s.replace(/\[([^\]]+)\]\(((?:\([^)]*\)|[^)])*)\)/g, (_match, label, url) => {
     const safeUrl = sanitizeUrl(url);
     if (!safeUrl) return label;
     return `<a href="${safeUrl}">${label}</a>`;
@@ -102,7 +105,7 @@ function stripInline(text: string): string {
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/_([^_]+)_/g, '$1')
     .replace(/`([^`]+)`/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    .replace(/\[([^\]]+)\]\((?:\([^)]*\)|[^)])*\)/g, '$1');
 }
 
 export function sanitizeUrl(url: string): string {
