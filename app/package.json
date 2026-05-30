@@ -94,5 +94,8 @@
   },
   "optionalDependencies": {
     "windows-focus-assist": "^1.4.0"
+  },
+  "devDependencies": {
+    "ws": "^8.21.0"
   }
 }
