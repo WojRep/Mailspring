@@ -144,11 +144,9 @@ test.describe('Wave 7 — #112 PGP + #113 RODO + #114 Audit + #116 Cleaning', ()
     expect(present).toBe(true);
   });
 
-  test('#114 AuditLogViewer registered + Preferences tab "AuditLog"', async () => {
-    const present = await executeInRenderer(electronApp,
-      `!!window.$m.ComponentRegistry.findComponentByName('AuditLogViewer')`);
-    expect(present).toBe(true);
-    // Verify tab registered
+  test('#114 AuditLogViewer Preferences tab "AuditLog" zarejestrowany', async () => {
+    // AuditLogViewer NIE jest mounted via ComponentRegistry (jest lazy
+    // componentClassFn w Preferences TabItem). Sprawdzamy tab registration.
     const hasTab = await executeInRenderer(electronApp,
       `(function(){
          try {
@@ -156,7 +154,6 @@ test.describe('Wave 7 — #112 PGP + #113 RODO + #114 Audit + #116 Cleaning', ()
            if (!s) return false;
            var tabs = (typeof s.tabs === 'function') ? s.tabs() : s._tabs;
            if (!tabs) return false;
-           // tabs may be Immutable.List, array, or Map-like — handle several shapes
            if (tabs.some && typeof tabs.some === 'function') {
              return tabs.some(function(x){return x && x.tabId === 'AuditLog';});
            }
@@ -167,7 +164,7 @@ test.describe('Wave 7 — #112 PGP + #113 RODO + #114 Audit + #116 Cleaning', ()
              return tabs.toArray().some(function(x){return x && x.tabId === 'AuditLog';});
            }
            return JSON.stringify(tabs).indexOf('AuditLog') >= 0;
-         } catch(e) { return 'ERR: ' + e.message; }
+         } catch(e) { return false; }
        })()`);
     expect(hasTab).toBe(true);
   });
