@@ -51,7 +51,7 @@ describe('@mention picker — bilet MVP #108', () => {
     });
 
     it('respektuje MENTION_TRIGGER_MIN_CHARS', () => {
-      expect(MENTION_TRIGGER_MIN_CHARS).toBeGreaterThanOrEqual(1);
+      expect((MENTION_TRIGGER_MIN_CHARS) >= (1)).toBe(true);
     });
   });
 

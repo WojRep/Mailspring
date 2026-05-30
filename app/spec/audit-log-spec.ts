@@ -48,8 +48,8 @@ describe('Audit log — bilet MVP #114', () => {
     });
 
     it('setRetentionDays invalid throws', () => {
-      expect(() => AuditLogStore.setRetentionDays(7)).toThrowError(/30\/90\/180/);
-      expect(() => AuditLogStore.setRetentionDays(2000)).toThrowError(/30\/90\/180/);
+      { let _err: any; try { AuditLogStore.setRetentionDays(7); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/30\/90\/180/); }
+      { let _err: any; try { AuditLogStore.setRetentionDays(2000); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/30\/90\/180/); }
     });
   });
 

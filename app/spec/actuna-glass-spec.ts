@@ -11,19 +11,28 @@ import { isGlassMaterialEnabled } from '../internal_packages/actuna-glass/lib/us
 describe('actuna-glass — bilet MVP #92', () => {
 
   describe('isGlassMaterialEnabled', () => {
-    let originalAppEnv: any;
+    let originalConfig: any;
     let mockConfig: any;
 
     beforeEach(() => {
-      originalAppEnv = (window as any).AppEnv;
+      // ŚWIADOMY zakaz: NIE zamieniać window.AppEnv globalnie — kolejne
+      // specs renderują komponenty wymagające AppEnv.commands / packages /
+      // keymaps i pollution cascade-failuje setki testów.
+      originalConfig = (window as any).AppEnv?.config;
       mockConfig = { _values: {} as { [k: string]: any } };
       mockConfig.get = (key: string) => mockConfig._values[key];
       mockConfig.set = (key: string, val: any) => { mockConfig._values[key] = val; };
-      (window as any).AppEnv = { config: mockConfig };
+      if ((window as any).AppEnv) {
+        (window as any).AppEnv.config = mockConfig;
+      } else {
+        (window as any).AppEnv = { config: mockConfig };
+      }
     });
 
     afterEach(() => {
-      (window as any).AppEnv = originalAppEnv;
+      if ((window as any).AppEnv && originalConfig !== undefined) {
+        (window as any).AppEnv.config = originalConfig;
+      }
     });
 
     it('returns false when flag is unset (default OFF)', () => {

@@ -305,8 +305,9 @@ describe('Follow-up — bilet MVP #106', () => {
     });
 
     it('load clamp settings do bounds', () => {
-      localStorage.setItem('actuna.followup-settings', JSON.stringify({ detectionThresholdDays: 99 }));
+      // _reset() czyści localStorage — wykonać PRZED setItem.
       FollowUpStore._reset();
+      localStorage.setItem('actuna.followup-settings', JSON.stringify({ detectionThresholdDays: 99 }));
       FollowUpStore.init();
       expect(FollowUpStore.getSettings().detectionThresholdDays).toBe(DETECTION_THRESHOLD_MAX_DAYS);
     });

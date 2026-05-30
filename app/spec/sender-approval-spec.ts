@@ -104,7 +104,7 @@ describe('Sender Approval — bilet MVP #94', () => {
       expect(SenderApprovalStore.isUnknown('defer@example.com')).toBe(true);
     });
 
-    it('listQuarantine sorted by lastReceivedAt desc', (done) => {
+    it('listQuarantine sorted by lastReceivedAt desc', () => {
       const t0 = Date.now() - 5000;
       const t1 = Date.now() - 1000;
       SenderApprovalStore.addToQuarantine({ email: 'a@x.com', lastReceivedAt: t0 });
@@ -112,7 +112,6 @@ describe('Sender Approval — bilet MVP #94', () => {
       const list = SenderApprovalStore.listQuarantine();
       expect(list[0].email).toBe('b@x.com');
       expect(list[1].email).toBe('a@x.com');
-      done();
     });
 
     it('stats returns correct counts', () => {
@@ -139,7 +138,7 @@ describe('Sender Approval — bilet MVP #94', () => {
       const unsub = SenderApprovalStore.listen(() => count++);
       SenderApprovalStore.addToQuarantine({ email: 'a@x.com' });
       SenderApprovalStore.acceptSender('a@x.com');
-      expect(count).toBeGreaterThanOrEqual(2);
+      expect((count) >= (2)).toBe(true);
       unsub();
     });
 

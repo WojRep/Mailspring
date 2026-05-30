@@ -229,12 +229,13 @@ describe('Onboarding Tutorial — bilet MVP #110', () => {
     });
 
     it('load skip invalid step ids', () => {
+      // _reset() czyści localStorage — wykonać PRZED setItem.
+      TutorialStore._reset();
       localStorage.setItem('actuna.onboarding-tutorial', JSON.stringify({
         status: 'in_progress',
         completedSteps: [0, 99, -1, 5],
         locale: 'pl',
       }));
-      TutorialStore._reset();
       TutorialStore.init();
       expect(TutorialStore.getState().completedSteps.sort()).toEqual([0, 5]);
     });

@@ -154,8 +154,8 @@ describe('Send Later extras — bilet MVP #105', () => {
       const t0 = Date.now();
       const e = SendLaterStore.enqueueForUndo({ draftId: 'd1' });
       const expected = t0 + UNDO_WINDOW_DEFAULT_SEC * 1000;
-      expect(e.holdUntil).toBeGreaterThanOrEqual(expected - 50);
-      expect(e.holdUntil).toBeLessThanOrEqual(expected + 50);
+      expect((e.holdUntil) >= (expected - 50)).toBe(true);
+      expect((e.holdUntil) <= (expected + 50)).toBe(true);
       expect(e.undoWindowSec).toBe(UNDO_WINDOW_DEFAULT_SEC);
     });
 
@@ -171,7 +171,7 @@ describe('Send Later extras — bilet MVP #105', () => {
       expect(SendLaterStore.countUndoWindow()).toBe(0);
     });
 
-    it('undo poza oknem → undefined (już za późno)', (done) => {
+    it('undo poza oknem → undefined (już za późno)', () => {
       SendLaterStore.setUndoWindow(5); // min
       // Manually inject entry z holdUntil w przeszłości
       const past: any = {
@@ -186,7 +186,6 @@ describe('Send Later extras — bilet MVP #105', () => {
       expect(undone).toBeUndefined();
       // Entry pozostaje (tickFlush usuwa, nie undo)
       expect(SendLaterStore.countUndoWindow()).toBe(1);
-      done();
     });
 
     it('undo nieistniejącego → undefined', () => {
@@ -297,10 +296,10 @@ describe('Send Later extras — bilet MVP #105', () => {
     });
 
     it('load clamp settings do bounds', () => {
-      localStorage.setItem('actuna.send-later-settings', JSON.stringify({ undoWindowSec: 999 }));
+      // _reset() czyści localStorage — wykonać PRZED setItem.
       SendLaterStore._reset();
+      localStorage.setItem('actuna.send-later-settings', JSON.stringify({ undoWindowSec: 999 }));
       SendLaterStore.init();
-      // Po reset _settings vraca do default 5, init() ładuje ponownie z localStorage
       // _load clampuje do MAX
       expect(SendLaterStore.getSettings().undoWindowSec).toBe(UNDO_WINDOW_MAX_SEC);
     });

@@ -25,16 +25,20 @@ import { Template } from '../../src/components/scenario-editor-models';
 describe('44g — EditableTable action buttons a11y', function editableTableA11ySpec() {
   afterEach(cleanup);
 
+  // Użyć prawdziwego TableDataSource żeby spełnić instanceOf prop-type check
+  // (in. PropTypes warning cascade + console pollution w spec output).
+  const TableDataSource = require('../../src/components/table/table-data-source').default;
+  const dataSource = new TableDataSource();
+  dataSource.rows = () => [['a']];
+  dataSource.columns = () => ['Col1'];
+  dataSource.cellAt = ({ rowIdx, colIdx }: any) => ['a'][colIdx];
+  dataSource.isHeaderRow = (idx: any) => idx === 0;
+  dataSource.rowAt = (_idx: any) => ['a'];
+  dataSource.colAt = (_idx: any) => 'Col1';
+  dataSource.isEqual = () => false;
+
   const baseProps = {
-    tableDataSource: {
-      columns: () => ['Col1'],
-      rows: () => [['a']],
-      cellAt: ({ rowIdx, colIdx }) => ['a'][colIdx],
-      isHeaderRow: idx => idx === 0,
-      rowAt: idx => ['a'],
-      colAt: idx => 'Col1',
-      isEqual: () => false,
-    } as any,
+    tableDataSource: dataSource,
     onCellEdited: () => {},
     onAddColumn: () => {},
     onRemoveColumn: () => {},

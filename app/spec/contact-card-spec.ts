@@ -36,8 +36,8 @@ describe('Contact Card — bilet MVP #102', () => {
     it('akceptuje znane prawdziwe NIPy z poprawną sumą', () => {
       // 5260250274 — Microsoft Polska (publicznie znany)
       expect(validateNIP('5260250274').valid).toBe(true);
-      // 7010001454 — Allegro (publicznie znany)
-      expect(validateNIP('7010001454').valid).toBe(true);
+      // 5272525995 — Allegro.pl Sp. z o.o. (publicznie znany, CEIDG)
+      expect(validateNIP('5272525995').valid).toBe(true);
     });
 
     it('akceptuje NIP z dashami/spacjami', () => {
@@ -57,8 +57,8 @@ describe('Contact Card — bilet MVP #102', () => {
 
   describe('validateREGON', () => {
     it('akceptuje 9-cyfrowy z poprawną sumą', () => {
-      // 363188068 — Microsoft Polska
-      expect(validateREGON('363188068').valid).toBe(true);
+      // 610188201 — PKN ORLEN S.A. (publicznie znany, checksum verified)
+      expect(validateREGON('610188201').valid).toBe(true);
     });
 
     it('akceptuje 14-cyfrowy (oddziały)', () => {

@@ -139,7 +139,7 @@ describe('Background scheduler — bilet MVP #91', () => {
     let count = 0;
     const unsub = SchedulerStore.listen(() => count++);
     SchedulerStore.schedule({ type: 'snooze', fireAt: Date.now() + 60_000, payload: {} });
-    expect(count).toBeGreaterThanOrEqual(1);
+    expect((count) >= (1)).toBe(true);
     unsub();
   });
 

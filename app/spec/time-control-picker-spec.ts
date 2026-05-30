@@ -109,7 +109,7 @@ describe('Time-control picker — bilet MVP #90', () => {
 
     it('confidence is 0.95 for exact patterns', () => {
       const result = parseNaturalLanguage('tomorrow 9am');
-      expect(result!.confidence).toBeGreaterThanOrEqual(0.9);
+      expect((result!.confidence) >= (0.9)).toBe(true);
     });
 
     it('description is non-empty', () => {

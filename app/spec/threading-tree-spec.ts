@@ -138,7 +138,7 @@ describe('Threading tree — bilet MVP #97', () => {
       // Wszystko w jeden wątek przez Subject match
       expect(tree.totalMessages).toBe(3);
       // Root = a (oldest), b i c jako dzieci
-      expect(tree.roots.length).toBeGreaterThanOrEqual(1);
+      expect((tree.roots.length) >= (1)).toBe(true);
     });
   });
 

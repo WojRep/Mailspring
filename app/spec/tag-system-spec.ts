@@ -215,7 +215,7 @@ describe('Tag system — bilet MVP #98', () => {
       TagStore.register(mkTag('a'));
       TagStore.apply('t1', 'a');
       TagStore.remove('t1', 'a');
-      expect(count).toBeGreaterThanOrEqual(3);
+      expect((count) >= (3)).toBe(true);
       unsub();
     });
   });

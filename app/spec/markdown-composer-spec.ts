@@ -173,7 +173,7 @@ describe('Slash command registry — bilet MVP #107', () => {
     });
 
     it('empty query → wszystkie', () => {
-      expect(SlashCommandRegistry.search('').length).toBeGreaterThanOrEqual(7);
+      expect((SlashCommandRegistry.search('').length) >= (7)).toBe(true);
     });
 
     it('prefix match scoring (highest)', () => {

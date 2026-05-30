@@ -177,11 +177,12 @@ describe('Keyboard Mapping — bilet MVP #109', () => {
     });
 
     it('load skip invalid preset name', () => {
+      // _reset() CZYŚCI localStorage — wykonać PRZED setItem, nie po.
+      KeyboardMappingStore._reset();
       localStorage.setItem('actuna.keyboard-mapping', JSON.stringify({
         globalPreset: 'invalid_preset',
         accountOverrides: { 'a': 'gmail', 'b': 'invalid' },
       }));
-      KeyboardMappingStore._reset();
       KeyboardMappingStore.init();
       // globalPreset fallback do default
       expect(KeyboardMappingStore.getSettings().globalPreset).toBe('default');

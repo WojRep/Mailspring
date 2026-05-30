@@ -92,7 +92,7 @@ describe('Centrum dnia — bilet MVP #95', () => {
     it('refresh updates lastRefresh timestamp', () => {
       const before = CentrumDniaStore.getLastRefresh();
       CentrumDniaStore.refresh();
-      expect(CentrumDniaStore.getLastRefresh()).toBeGreaterThanOrEqual(before);
+      expect((CentrumDniaStore.getLastRefresh()) >= (before)).toBe(true);
     });
 
     it('refresh emits to listeners', () => {

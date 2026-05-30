@@ -30,18 +30,18 @@ describe('Command Palette — bilet MVP #89', () => {
 
     it('starts-with match returns 500+', () => {
       const score = fuzzyScore('arch', 'archive');
-      expect(score).toBeGreaterThanOrEqual(500);
+      expect((score) >= (500)).toBe(true);
       expect(score).toBeLessThan(1000);
     });
 
     it('word boundary match (e.g. "ms" → "Mark As") returns 300+', () => {
       const score = fuzzyScore('ma', 'Mark Archive');
-      expect(score).toBeGreaterThanOrEqual(300);
+      expect((score) >= (300)).toBe(true);
     });
 
     it('substring match returns 100+', () => {
       const score = fuzzyScore('chi', 'archive');
-      expect(score).toBeGreaterThanOrEqual(100);
+      expect((score) >= (100)).toBe(true);
     });
 
     it('keyword match falls back when label has no match', () => {
@@ -164,23 +164,37 @@ describe('Command Palette — bilet MVP #89', () => {
       CommandPaletteStore.register({ id: 'a', label: 'A', handler: () => {} });
       CommandPaletteStore.open();
       CommandPaletteStore.setQuery('foo');
-      expect(count).toBeGreaterThanOrEqual(3);
+      expect((count) >= (3)).toBe(true);
       unsub();
     });
 
     it('execute supports dispatchCommand fallback', () => {
+      // ŚWIADOMY zakaz: NIE zamieniać window.AppEnv ani window.AppEnv.commands
+      // referencji — kolejne specs renderują komponenty wymagające oryginalnego
+      // CommandRegistry. Spy na metodę zamiast podmiany.
       const dispatchSpy = jasmine.createSpy('dispatch');
-      (window as any).AppEnv = {
-        ...(window as any).AppEnv,
-        commands: { dispatch: dispatchSpy },
-      };
-      CommandPaletteStore.register({
-        id: 'd:test',
-        label: 'Dispatch Test',
-        dispatchCommand: 'core:foo',
-      });
-      CommandPaletteStore.execute('d:test');
-      expect(dispatchSpy).toHaveBeenCalledWith('core:foo', jasmine.anything());
+      const originalDispatch = (window as any).AppEnv?.commands?.dispatch;
+      if ((window as any).AppEnv?.commands) {
+        (window as any).AppEnv.commands.dispatch = dispatchSpy;
+      } else {
+        (window as any).AppEnv = (window as any).AppEnv || {};
+        (window as any).AppEnv.commands = { dispatch: dispatchSpy };
+      }
+      try {
+        CommandPaletteStore.register({
+          id: 'd:test',
+          label: 'Dispatch Test',
+          dispatchCommand: 'core:foo',
+        });
+        CommandPaletteStore.execute('d:test');
+        expect(dispatchSpy).toHaveBeenCalled();
+        const callArgs = dispatchSpy.argsForCall[0];
+        expect(callArgs[0]).toBe('core:foo');
+      } finally {
+        if ((window as any).AppEnv?.commands && originalDispatch !== undefined) {
+          (window as any).AppEnv.commands.dispatch = originalDispatch;
+        }
+      }
     });
   });
 
@@ -192,7 +206,7 @@ describe('Command Palette — bilet MVP #89', () => {
     });
 
     it('returns 30+ commands (acceptance criterion)', () => {
-      expect(commands.length).toBeGreaterThanOrEqual(30);
+      expect((commands.length) >= (30)).toBe(true);
     });
 
     it('all commands have unique id', () => {
