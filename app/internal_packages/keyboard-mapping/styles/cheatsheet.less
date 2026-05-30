@@ -1,0 +1,104 @@
+// Cheat sheet overlay — #109 plan v1.0 mockup 21-keyboard-cheatsheet.html.
+
+@import "ui-variables";
+
+.cheatsheet-overlay {
+  position: fixed;
+  top: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96vw;
+  max-width: 720px;
+  max-height: 88vh;
+  background: var(--background-primary, #ffffff);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-direction: column;
+  z-index: 9100;
+  outline: none;
+  overflow: hidden;
+}
+
+.cheatsheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+  border-bottom: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.08));
+}
+
+.cheatsheet-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cheatsheet-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-color-subtle, #6b6b6b);
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.05)); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.cheatsheet-body {
+  padding: 14px 20px 18px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.cheatsheet-section-title {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-primary, #3b6bdb);
+}
+
+.cheatsheet-bindings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cheatsheet-binding {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.cheatsheet-shortcut {
+  font-family: -apple-system, monospace;
+  font-size: 11px;
+  padding: 3px 8px;
+  background: var(--background-secondary, rgba(0, 0, 0, 0.05));
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.12));
+  border-radius: 4px;
+  text-align: center;
+}
+
+.cheatsheet-label {
+  color: var(--text-color, #1f1f1f);
+}
+
+.cheatsheet-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-style: italic;
+  color: var(--text-color-subtle, #6b6b6b);
+}

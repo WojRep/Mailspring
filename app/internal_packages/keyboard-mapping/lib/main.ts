@@ -2,6 +2,9 @@
  * Keyboard Mapping plugin entry — bilet MVP #109.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import CheatSheetOverlay from './cheatsheet-overlay';
+import { CheatSheetUIBus } from './cheatsheet-ui-bus';
 import { KeyboardMappingStore } from './keyboard-mapping-store';
 import { PRESET_BINDINGS, PRESET_LABELS_PL, PRESET_LABELS_EN } from './keymap-presets';
 
@@ -9,6 +12,10 @@ let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
   KeyboardMappingStore.init();
+
+  ComponentRegistry.register(CheatSheetOverlay, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
 
   if ((window as any).AppEnv?.commands?.add) {
     shortcutDisposable = (window as any).AppEnv.commands.add(document.body, {
@@ -46,6 +53,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(CheatSheetOverlay);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -61,7 +69,7 @@ export function deactivate() {
 }
 
 function openCheatSheet(): void {
-  console.info('[keyboard-mapping] open cheat sheet overlay');
+  CheatSheetUIBus.toggle();
 }
 
 function openPreferences(): void {
