@@ -55,8 +55,8 @@ describe('Audit log — bilet MVP #114', () => {
 
   describe('log API — entry creation + chain', () => {
     it('log() wymaga eventType + subsystem', () => {
-      expect(() => (AuditLogStore as any).log({})).toThrowError(/required/);
-      expect(() => AuditLogStore.log({ eventType: '', subsystem: 'tags' })).toThrowError(/required/);
+      { let _err; try { (AuditLogStore as any).log({}); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/required/); }
+      { let _err; try { AuditLogStore.log({ eventType: '', subsystem: 'tags' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/required/); }
     });
 
     it('log() tworzy entry z id + timestamp + actor=user default', () => {

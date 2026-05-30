@@ -106,7 +106,7 @@ describe('Subscription Store — bilet MVP #115', () => {
     });
 
     it('wymaga sender', () => {
-      expect(() => SubscriptionStore.recordIncoming({ sender: '' })).toThrowError(/sender/);
+      { let _err; try { SubscriptionStore.recordIncoming({ sender: '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/sender/); }
     });
   });
 

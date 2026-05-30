@@ -44,8 +44,8 @@ describe('Akcje seryjne — bilet MVP #101', () => {
 
   describe('CRUD', () => {
     it('create — wymaga name', () => {
-      expect(() => CompoundActionStore.create({ name: '' })).toThrowError(/name required/);
-      expect(() => CompoundActionStore.create({ name: '   ' })).toThrowError(/name required/);
+      { let _err; try { CompoundActionStore.create({ name: '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/name required/); }
+      { let _err; try { CompoundActionStore.create({ name: '   ' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/name required/); }
     });
 
     it('create — defaults: showInToolbar=true, toolbarOrder=size', () => {
@@ -111,14 +111,12 @@ describe('Akcje seryjne — bilet MVP #101', () => {
   describe('shortcut binding + conflict detection', () => {
     it('create — conflict gdy ten sam global shortcut', () => {
       CompoundActionStore.create({ name: 'A', shortcut: 1 });
-      expect(() => CompoundActionStore.create({ name: 'B', shortcut: 1 }))
-        .toThrowError(/already bound/);
+      { let _err; try { CompoundActionStore.create({ name: 'B', shortcut: 1 }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/already bound/); }
     });
 
     it('create — global vs account-specific konfliktuje', () => {
       CompoundActionStore.create({ name: 'Global', shortcut: 1 });
-      expect(() => CompoundActionStore.create({ name: 'AccA', shortcut: 1, accountId: 'a' }))
-        .toThrowError(/already bound/);
+      { let _err; try { CompoundActionStore.create({ name: 'AccA', shortcut: 1, accountId: 'a' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/already bound/); }
     });
 
     it('create — różne accounts NIE konfliktują', () => {
@@ -131,8 +129,7 @@ describe('Akcje seryjne — bilet MVP #101', () => {
     it('update — zmiana shortcut na conflict throws', () => {
       const a = CompoundActionStore.create({ name: 'A', shortcut: 1 });
       CompoundActionStore.create({ name: 'B', shortcut: 2 });
-      expect(() => CompoundActionStore.update(a.id, { shortcut: 2 }))
-        .toThrowError(/already bound/);
+      { let _err; try { CompoundActionStore.update(a.id, { shortcut: 2 }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/already bound/); }
     });
 
     it('update — zmiana shortcut na ten sam (self) NIE konfliktuje', () => {
@@ -291,7 +288,7 @@ describe('Akcje seryjne — bilet MVP #101', () => {
 
     it('invalid JSON throws', () => {
       expect(() => CompoundActionStore.importJSON('not json')).toThrow();
-      expect(() => CompoundActionStore.importJSON('{"foo":1}')).toThrowError(/compoundActions/);
+      { let _err; try { CompoundActionStore.importJSON('{"foo":1}'); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/compoundActions/); }
     });
 
     it('version mismatch loguje warning', () => {

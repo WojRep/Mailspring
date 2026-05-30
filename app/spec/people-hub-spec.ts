@@ -172,7 +172,7 @@ describe('People hub — bilet MVP #103', () => {
 
   describe('Sender Groups CRUD', () => {
     it('createGroup wymaga name', () => {
-      expect(() => PeopleHubStore.createGroup({ name: '' })).toThrowError(/name required/);
+      { let _err; try { PeopleHubStore.createGroup({ name: '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/name required/); }
     });
 
     it('createGroup z autoDomain lowercases + strips @', () => {
@@ -353,8 +353,7 @@ describe('People hub — bilet MVP #103', () => {
 
   describe('CardDAVAdapter', () => {
     it('addAccount wymaga url + username', () => {
-      expect(() => CardDAVAdapter.addAccount({ provider: 'icloud', url: '', username: '' }))
-        .toThrowError(/url \+ username required/);
+      { let _err; try { CardDAVAdapter.addAccount({ provider: 'icloud', url: '', username: '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/url \+ username required/); }
     });
 
     it('addAccount + listAccounts + removeAccount', () => {

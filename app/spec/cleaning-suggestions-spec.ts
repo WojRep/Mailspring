@@ -214,7 +214,7 @@ describe('Cleaning Store — bilet MVP #116', () => {
     });
 
     it('setReadLaterTriggerTag wymaga value', () => {
-      expect(() => CleaningStore.setReadLaterTriggerTag('')).toThrowError(/required/);
+      { let _err; try { CleaningStore.setReadLaterTriggerTag(''); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/required/); }
       CleaningStore.setReadLaterTriggerTag('important-newsletter');
       expect(CleaningStore.getReadLaterSettings().triggerTag).toBe('important-newsletter');
     });

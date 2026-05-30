@@ -46,8 +46,8 @@ describe('Follow-up — bilet MVP #106', () => {
     });
 
     it('setDetectionThreshold poza bounds throws', () => {
-      expect(() => FollowUpStore.setDetectionThreshold(0)).toThrowError(/1-14/);
-      expect(() => FollowUpStore.setDetectionThreshold(15)).toThrowError(/1-14/);
+      { let _err; try { FollowUpStore.setDetectionThreshold(0); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/1-14/); }
+      { let _err; try { FollowUpStore.setDetectionThreshold(15); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/1-14/); }
     });
   });
 
@@ -155,7 +155,7 @@ describe('Follow-up — bilet MVP #106', () => {
 
     it('snooze w przeszłości throws', () => {
       const tid = seed();
-      expect(() => FollowUpStore.snooze(tid, Date.now() - 1000)).toThrowError(/future/);
+      { let _err; try { FollowUpStore.snooze(tid, Date.now() - 1000); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/future/); }
     });
 
     it('dismiss → status="dismissed"', () => {
@@ -215,10 +215,8 @@ describe('Follow-up — bilet MVP #106', () => {
     });
 
     it('setManualReminder days poza bounds throws', () => {
-      expect(() => FollowUpStore.setManualReminder('t1', undefined, undefined, Date.now(), 0))
-        .toThrowError(/1-30/);
-      expect(() => FollowUpStore.setManualReminder('t1', undefined, undefined, Date.now(), 31))
-        .toThrowError(/1-30/);
+      { let _err; try { FollowUpStore.setManualReminder('t1', undefined, undefined, Date.now(), 0); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/1-30/); }
+      { let _err; try { FollowUpStore.setManualReminder('t1', undefined, undefined, Date.now(), 31); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/1-30/); }
     });
 
     it('tickManualReminders fires due + clears manualRemindAt', () => {

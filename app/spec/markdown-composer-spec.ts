@@ -140,13 +140,11 @@ describe('Slash command registry — bilet MVP #107', () => {
 
   describe('register / unregister / list', () => {
     it('register wymaga slug + label', () => {
-      expect(() => SlashCommandRegistry.register({ slug: '', label: 'X', handler: () => '' }))
-        .toThrowError(/slug \+ label/);
+      { let _err; try { SlashCommandRegistry.register({ slug: '', label: 'X', handler: () => '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/slug \+ label/); }
     });
 
     it('register odrzuca slug ze spacją', () => {
-      expect(() => SlashCommandRegistry.register({ slug: 'has space', label: 'X', handler: () => '' }))
-        .toThrowError(/cannot contain space/);
+      { let _err; try { SlashCommandRegistry.register({ slug: 'has space', label: 'X', handler: () => '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/cannot contain space/); }
     });
 
     it('register + get case-insensitive', () => {

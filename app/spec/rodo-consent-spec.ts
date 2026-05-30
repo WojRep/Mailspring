@@ -49,8 +49,8 @@ describe('RODO consent — bilet MVP #113', () => {
     });
 
     it('grant/revoke wymaga email', () => {
-      expect(() => ConsentStore.grantConsent('')).toThrowError(/email/);
-      expect(() => ConsentStore.revokeConsent('')).toThrowError(/email/);
+      { let _err; try { ConsentStore.grantConsent(''); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email/); }
+      { let _err; try { ConsentStore.revokeConsent(''); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email/); }
     });
   });
 

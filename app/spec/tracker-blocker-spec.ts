@@ -134,8 +134,8 @@ describe('RFC 8098 MDN — bilet MVP #111', () => {
     });
 
     it('throws dla invalid email', () => {
-      expect(() => buildMdnHeader('')).toThrowError(/email/);
-      expect(() => buildMdnHeader('not-email')).toThrowError(/email/);
+      { let _err; try { buildMdnHeader(''); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email/); }
+      { let _err; try { buildMdnHeader('not-email'); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email/); }
     });
   });
 

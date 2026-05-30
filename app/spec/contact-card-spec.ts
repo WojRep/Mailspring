@@ -155,8 +155,8 @@ describe('Contact Card — bilet MVP #102', () => {
     });
 
     it('upsert wymaga email', () => {
-      expect(() => ContactCardStore.upsert('')).toThrowError(/email required/);
-      expect(() => ContactCardStore.upsert('   ')).toThrowError(/email required/);
+      { let _err; try { ContactCardStore.upsert(''); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email required/); }
+      { let _err; try { ContactCardStore.upsert('   '); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email required/); }
     });
 
     it('upsert email — case insensitive + trim', () => {

@@ -61,8 +61,7 @@ describe('Keyboard Mapping — bilet MVP #109', () => {
     });
 
     it('setGlobalPreset unknown → throws', () => {
-      expect(() => KeyboardMappingStore.setGlobalPreset('hyperion' as any))
-        .toThrowError(/unknown preset/);
+      { let _err; try { KeyboardMappingStore.setGlobalPreset('hyperion' as any); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/unknown preset/); }
     });
 
     it('setAccountOverride dodaje + remove (null)', () => {
@@ -73,8 +72,7 @@ describe('Keyboard Mapping — bilet MVP #109', () => {
     });
 
     it('setAccountOverride wymaga accountId', () => {
-      expect(() => KeyboardMappingStore.setAccountOverride('', 'gmail'))
-        .toThrowError(/accountId required/);
+      { let _err; try { KeyboardMappingStore.setAccountOverride('', 'gmail'); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/accountId required/); }
     });
 
     it('cheatSheetShortcutEnabled default true (WCAG 2.1.4 togglable)', () => {

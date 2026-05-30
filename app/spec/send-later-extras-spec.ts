@@ -76,8 +76,8 @@ describe('Send Later extras — bilet MVP #105', () => {
 
   describe('schedule / cancel / modify / wakeScheduled', () => {
     it('schedule wymaga draftId + future sendAt', () => {
-      expect(() => SendLaterStore.schedule({ draftId: '', sendAt: Date.now() + 1000 })).toThrowError(/draftId/);
-      expect(() => SendLaterStore.schedule({ draftId: 'd1', sendAt: Date.now() - 1000 })).toThrowError(/future/);
+      { let _err; try { SendLaterStore.schedule({ draftId: '', sendAt: Date.now() + 1000 }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/draftId/); }
+      { let _err; try { SendLaterStore.schedule({ draftId: 'd1', sendAt: Date.now() - 1000 }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/future/); }
     });
 
     it('schedule defaults: serverSupport=local_only', () => {
@@ -120,7 +120,7 @@ describe('Send Later extras — bilet MVP #105', () => {
 
     it('modify w przeszłości throws', () => {
       const d = SendLaterStore.schedule({ draftId: 'd1', sendAt: Date.now() + 100000 });
-      expect(() => SendLaterStore.modify(d.draftId, Date.now() - 1000)).toThrowError(/future/);
+      { let _err; try { SendLaterStore.modify(d.draftId, Date.now() - 1000); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/future/); }
     });
 
     it('listScheduled sortuje wakeAt asc', () => {
@@ -160,7 +160,7 @@ describe('Send Later extras — bilet MVP #105', () => {
     });
 
     it('enqueueForUndo wymaga draftId', () => {
-      expect(() => SendLaterStore.enqueueForUndo({ draftId: '' })).toThrowError(/draftId/);
+      { let _err; try { SendLaterStore.enqueueForUndo({ draftId: '' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/draftId/); }
     });
 
     it('undo w oknie zwraca entry + usuwa', () => {
@@ -236,8 +236,8 @@ describe('Send Later extras — bilet MVP #105', () => {
     });
 
     it('setUndoWindow poza bounds throws', () => {
-      expect(() => SendLaterStore.setUndoWindow(4)).toThrowError(/5-30/);
-      expect(() => SendLaterStore.setUndoWindow(31)).toThrowError(/5-30/);
+      { let _err; try { SendLaterStore.setUndoWindow(4); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/5-30/); }
+      { let _err; try { SendLaterStore.setUndoWindow(31); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/5-30/); }
     });
   });
 

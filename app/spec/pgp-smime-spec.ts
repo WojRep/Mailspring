@@ -25,19 +25,19 @@ describe('PGP/SMIME — bilet MVP #112', () => {
 
   describe('upsertOwnPair', () => {
     it('wymaga accountId + email', () => {
-      expect(() => PgpKeyStore.upsertOwnPair({
+      { let _err; try { PgpKeyStore.upsertOwnPair({
         accountId: '', email: 'bob@x.com', type: 'rsa_4096',
         publicKeyArmored: FAKE_PUB_KEY, fingerprint: 'abc',
         source: 'generated', hasPassphrase: true, signOutgoing: false,
-      })).toThrowError(/accountId/);
+      }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/accountId/); }
     });
 
     it('wymaga publicKeyArmored + fingerprint', () => {
-      expect(() => PgpKeyStore.upsertOwnPair({
+      { let _err; try { PgpKeyStore.upsertOwnPair({
         accountId: 'a', email: 'bob@x.com', type: 'rsa_4096',
         publicKeyArmored: '', fingerprint: 'abc',
         source: 'generated', hasPassphrase: true, signOutgoing: false,
-      })).toThrowError(/publicKeyArmored/);
+      }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/publicKeyArmored/); }
     });
 
     it('tworzy pair z auto id + createdAt + email lowercase', () => {
@@ -147,8 +147,7 @@ describe('PGP/SMIME — bilet MVP #112', () => {
     });
 
     it('importPublicKey wymaga email + publicKey + fingerprint', () => {
-      expect(() => PgpKeyStore.importPublicKey({ email: '', publicKeyArmored: FAKE_PUB_KEY, fingerprint: 'x', trustLevel: 'tofu' }))
-        .toThrowError(/email/);
+      { let _err; try { PgpKeyStore.importPublicKey({ email: '', publicKeyArmored: FAKE_PUB_KEY, fingerprint: 'x', trustLevel: 'tofu' }); } catch (e) { _err = e; } expect(_err && _err.message).toMatch(/email/); }
     });
   });
 
