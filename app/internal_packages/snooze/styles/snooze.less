@@ -21,7 +21,9 @@
 }
 
 .snooze-picker {
-  width: min(440px, 92vw);
+  // Less.js intercepts CSS native min(); use width + max-width pair instead.
+  width: 92vw;
+  max-width: 440px;
   max-height: 78vh;
   display: flex;
   flex-direction: column;

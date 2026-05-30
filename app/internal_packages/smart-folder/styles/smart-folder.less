@@ -21,7 +21,9 @@
 }
 
 .smart-folder-wizard {
-  width: min(620px, 94vw);
+  // Less.js intercepts CSS native min(); use width + max-width pair instead.
+  width: 94vw;
+  max-width: 620px;
   max-height: 82vh;
   display: flex;
   flex-direction: column;
