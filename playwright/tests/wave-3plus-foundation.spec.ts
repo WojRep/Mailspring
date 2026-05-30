@@ -228,6 +228,50 @@ test.describe('Keymap registrations (regression — Wave 3-8 features)', () => {
   });
 });
 
+test.describe('Iteration 1 v0.5.4 — inline UI affordances (#93 Pin, #98 Tag, #95 Centrum dnia)', () => {
+  test('PinToolbarButton registered to ThreadActionsToolbarButton role (#93)', async () => {
+    const registered = await executeInRenderer(electronApp, `
+      (function() {
+        try {
+          const cr = window.$m && window.$m.ComponentRegistry;
+          if (!cr) return false;
+          const comps = cr.findComponentsMatching({ role: 'ThreadActionsToolbarButton' }) || [];
+          return comps.some(c => c && c.displayName === 'PinToolbarButton');
+        } catch (e) { return false; }
+      })()
+    `);
+    expect(registered).toBe(true);
+  });
+
+  test('TagToolbarButton registered to ThreadActionsToolbarButton role (#98)', async () => {
+    const registered = await executeInRenderer(electronApp, `
+      (function() {
+        try {
+          const cr = window.$m && window.$m.ComponentRegistry;
+          if (!cr) return false;
+          const comps = cr.findComponentsMatching({ role: 'ThreadActionsToolbarButton' }) || [];
+          return comps.some(c => c && c.displayName === 'TagToolbarButton');
+        } catch (e) { return false; }
+      })()
+    `);
+    expect(registered).toBe(true);
+  });
+
+  test('CentrumDniaButton registered to ThreadActionsToolbarButton role (#95)', async () => {
+    const registered = await executeInRenderer(electronApp, `
+      (function() {
+        try {
+          const cr = window.$m && window.$m.ComponentRegistry;
+          if (!cr) return false;
+          const comps = cr.findComponentsMatching({ role: 'ThreadActionsToolbarButton' }) || [];
+          return comps.some(c => c && c.displayName === 'CentrumDniaButton');
+        } catch (e) { return false; }
+      })()
+    `);
+    expect(registered).toBe(true);
+  });
+});
+
 test.describe('Cmd+K palette discoverability (Wave 3-8 features)', () => {
   test.beforeEach(async () => {
     // Ensure palette closed
