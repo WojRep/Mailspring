@@ -122,7 +122,9 @@ class MasterBeforeEach {
     });
 
     AppEnv.config = new Config();
-    AppEnv.loadConfig();
+    if (typeof AppEnv.loadConfig === 'function') {
+      AppEnv.loadConfig();
+    }
   }
 
   _resetClipboard() {
