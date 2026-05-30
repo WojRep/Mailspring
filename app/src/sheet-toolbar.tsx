@@ -150,8 +150,11 @@ class ToolbarWindowControls extends React.Component<Record<string, unknown>, { a
   };
 
   render() {
+    // macOS: native traffic lights renderowane przez Electron przy
+    // titleBarStyle='hiddenInset' (window-launcher.ts:51, fix 2026-05-30).
+    // Custom render dawniej był workaroundem dla frame:false. Obecnie
+    // duplikował native chrome → podwójna ikona (bug user-visible 2026-05-30).
     const enabled =
-      process.platform === 'darwin' ||
       (process.platform === 'linux' &&
         AppEnv.config.get('core.workspace.menubarStyle') === 'hamburger');
 
