@@ -1,0 +1,65 @@
+// Slash commands dropdown — #107 plan v1.0 mockup 19-markdown-slash.html.
+
+@import "ui-variables";
+
+.slash-commands-dropdown {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92vw;
+  max-width: 360px;
+  max-height: 280px;
+  background: var(--background-primary, #ffffff);
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.12));
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  overflow-y: auto;
+  z-index: 9100;
+  padding: 6px 0;
+}
+
+.slash-commands-empty {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--text-color-subtle, #6b6b6b);
+  text-align: center;
+}
+
+.slash-command-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.04)); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: -2px; }
+}
+
+.slash-command-slug {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-family: -apple-system, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-primary, #3b6bdb);
+  background: var(--background-secondary, rgba(0, 0, 0, 0.04));
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.slash-command-label {
+  grid-column: 2;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color, #1f1f1f);
+}
+
+.slash-command-desc {
+  grid-column: 2;
+  font-size: 11px;
+  color: var(--text-color-subtle, #6b6b6b);
+  margin-top: 1px;
+}

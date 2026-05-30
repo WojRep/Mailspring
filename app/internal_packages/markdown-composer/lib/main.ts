@@ -8,6 +8,9 @@
  *   4. Expose AppEnv.markdownComposer.{render, SlashRegistry} API.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import SlashCommandsDropdown from './slash-commands-dropdown';
+import { SlashUIBus } from './slash-ui-bus';
 import { renderMarkdown, renderInline, sanitizeUrl } from './markdown-renderer';
 import { SlashCommandRegistry, registerBuiltinSlashCommands } from './slash-command-registry';
 
@@ -15,6 +18,12 @@ let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
   registerBuiltinSlashCommands();
+
+  // Mount dropdown w Sheet.Global.Footer; visible gdy SlashUIBus.isOpen().
+  // Composer keymap "/" wire-up — follow-up ticket (wymaga composer event hooks).
+  ComponentRegistry.register(SlashCommandsDropdown, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
 
   if ((window as any).AppEnv?.commands?.add) {
     shortcutDisposable = (window as any).AppEnv.commands.add(document.body, {
@@ -52,6 +61,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(SlashCommandsDropdown);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -72,7 +82,7 @@ function togglePreview(): void {
 }
 
 function openSlashPicker(): void {
-  console.info('[markdown-composer] open slash picker');
+  SlashUIBus.openWithQuery('');
 }
 
 export type { RenderResult } from './markdown-renderer';
