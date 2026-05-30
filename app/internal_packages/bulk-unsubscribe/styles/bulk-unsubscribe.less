@@ -1,0 +1,53 @@
+// Bulk Unsubscribe banner — #115 + plan v1.0 mockup 24-bulk-unsubscribe.html.
+// Mounted w MessageList:Header. Display gdy thread.headers["List-Unsubscribe"].
+
+@import "ui-variables";
+
+.bulk-unsubscribe-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--background-warning, rgba(245, 166, 35, 0.08));
+  border: 1px solid rgba(245, 166, 35, 0.25);
+  border-radius: 8px;
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--text-color, #1f1f1f);
+}
+
+.bulk-unsubscribe-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.bulk-unsubscribe-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.bulk-unsubscribe-action {
+  padding: 5px 12px;
+  background: var(--accent-primary, #3b6bdb);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  &:hover { filter: brightness(1.07); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.bulk-unsubscribe-dismiss {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: var(--text-color-subtle, #6b6b6b);
+  border-radius: 4px;
+  &:hover { background: rgba(0, 0, 0, 0.06); color: var(--text-color, #1f1f1f); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}

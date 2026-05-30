@@ -1,0 +1,66 @@
+// Quick Steps toolbar — #101 + plan v1.0 mockup 15-compound-actions.html.
+//
+// Inline row of compact action buttons z shortcut indicator (1-9).
+// Slot: MessageList:Header (obok TagChips + PinBadge). Hide gdy 0 buttons.
+
+@import "ui-variables";
+
+.quick-steps-toolbar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 6px 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.quick-step-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 10px;
+  background: var(--background-secondary, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.08));
+  border-radius: 14px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-color, #1f1f1f);
+  transition: background 0.12s ease, border-color 0.12s ease;
+
+  &:hover {
+    background: var(--background-tertiary, rgba(0, 0, 0, 0.08));
+    border-color: var(--border-color-primary, rgba(0, 0, 0, 0.18));
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent-primary, #3b6bdb);
+    outline-offset: 1px;
+  }
+  &:active {
+    background: var(--accent-primary, #3b6bdb);
+    color: #fff;
+  }
+}
+
+.quick-step-name {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.quick-step-shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: var(--accent-primary, #3b6bdb);
+  color: #fff;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

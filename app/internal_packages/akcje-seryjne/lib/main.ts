@@ -8,6 +8,8 @@
  *   4. Expose AppEnv.akcjeSeryjne API.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import QuickStepsToolbar from './quick-steps-toolbar';
 import { CompoundActionStore, CompoundShortcut, DESTRUCTIVE_ACTIONS, BULK_DESTRUCTIVE_THRESHOLD } from './compound-action-store';
 
 let shortcutDisposable: { dispose(): void } | null = null;
@@ -15,6 +17,14 @@ let storeUnsub: (() => void) | null = null;
 
 export function activate() {
   CompoundActionStore.init();
+
+  // Mount Quick Steps toolbar w MessageList header — toolbar buttons widoczne
+  // gdy są compound actions z showInToolbar=true. Plan v1.0 #101 + mockup
+  // 15-compound-actions.html. Slot: MessageList:Header (obok TagChips #98 +
+  // PinBadge #93 — wszystkie 3 dzielą ten sam header slot).
+  ComponentRegistry.register(QuickStepsToolbar, {
+    role: 'MessageList:Header',
+  });
 
   if ((window as any).AppEnv?.commands?.add) {
     const handlers: Record<string, () => void> = {
@@ -43,6 +53,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(QuickStepsToolbar);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
