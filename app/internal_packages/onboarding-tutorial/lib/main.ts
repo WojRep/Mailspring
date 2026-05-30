@@ -2,11 +2,19 @@
  * Onboarding Tutorial plugin entry — bilet MVP #110.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import OnboardingTutorialOverlay from './onboarding-tutorial-overlay';
 import { TutorialStore } from './tutorial-store';
 import { TUTORIAL_STEPS, TOTAL_STEPS } from './tutorial-steps';
 
 export function activate() {
   TutorialStore.init();
+
+  // Mount overlay w Sheet.Global.Footer — visible gdy tutorial in_progress.
+  // Plan v1.0 #110 + mockup 22-onboarding-tutorial.html.
+  ComponentRegistry.register(OnboardingTutorialOverlay, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
 
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
@@ -42,6 +50,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(OnboardingTutorialOverlay);
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     ['tutorial:start', 'tutorial:restart', 'tutorial:skip'].forEach(id => palette.unregister(id));

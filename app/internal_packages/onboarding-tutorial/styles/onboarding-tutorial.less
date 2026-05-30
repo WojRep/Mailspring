@@ -1,0 +1,93 @@
+// Onboarding tutorial overlay — #110 + plan v1.0 mockup 22-onboarding-tutorial.html.
+// Vim-tutorial analog overlay; visible gdy TutorialStore.status === 'in_progress'.
+
+@import "ui-variables";
+
+.onboarding-tutorial-overlay {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9100;
+  width: 92vw;
+  max-width: 420px;
+  background: var(--background-primary, #ffffff);
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  padding: 16px 20px;
+  font-size: 13px;
+  color: var(--text-color, #1f1f1f);
+}
+
+.onboarding-tutorial-progress {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-primary, #3b6bdb);
+  margin-bottom: 8px;
+}
+
+.onboarding-tutorial-prompt {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.onboarding-tutorial-hint {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: var(--text-color-subtle, #6b6b6b);
+  line-height: 1.4;
+}
+
+.onboarding-tutorial-shortcut {
+  margin: 0 0 14px 0;
+  font-size: 12px;
+}
+
+.onboarding-tutorial-shortcut-label {
+  color: var(--text-color-subtle, #6b6b6b);
+}
+
+.onboarding-tutorial-shortcut kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--background-secondary, rgba(0, 0, 0, 0.06));
+  border: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.15));
+  border-radius: 4px;
+  font-family: -apple-system, monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.onboarding-tutorial-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.onboarding-tutorial-skip-step,
+.onboarding-tutorial-skip-all {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.onboarding-tutorial-skip-step {
+  background: var(--background-secondary, rgba(0, 0, 0, 0.04));
+  border-color: var(--border-color-primary, rgba(0, 0, 0, 0.12));
+  color: var(--text-color, #1f1f1f);
+  &:hover { background: var(--background-tertiary, rgba(0, 0, 0, 0.08)); }
+}
+
+.onboarding-tutorial-skip-all {
+  background: transparent;
+  color: var(--text-color-subtle, #6b6b6b);
+  &:hover { color: var(--text-color, #1f1f1f); background: rgba(0, 0, 0, 0.04); }
+}
