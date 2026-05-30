@@ -2,10 +2,14 @@
  * RODO Consent plugin entry — bilet MVP #113.
  */
 
+import { ComponentRegistry } from 'actunamail-exports';
+import RodoConsentBanner from './rodo-consent-banner';
 import { ConsentStore, BULK_SEND_THRESHOLD, shouldCheckBulkSend } from './consent-store';
 
 export function activate() {
   ConsentStore.init();
+
+  ComponentRegistry.register(RodoConsentBanner, { role: 'Composer:Footer' });
 
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
@@ -55,6 +59,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(RodoConsentBanner);
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     [

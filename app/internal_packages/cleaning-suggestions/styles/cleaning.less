@@ -1,0 +1,18 @@
+@import "ui-variables";
+.cleaning-suggestions-panel { padding: 8px 12px; background: var(--background-secondary, rgba(0,0,0,0.04)); border-radius: 8px; margin: 4px 0; }
+.cleaning-suggestions-title { margin: 0 0 6px 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-color-subtle, #6b6b6b); }
+.cleaning-suggestions-empty { font-size: 11px; color: var(--text-color-subtle, #6b6b6b); font-style: italic; margin: 0; }
+.cleaning-suggestions-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.cleaning-suggestion-item { display: flex; gap: 10px; align-items: center; padding: 4px 0; }
+.cleaning-suggestion-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 11px; }
+.cleaning-suggestion-scope { color: var(--text-color, #1f1f1f); }
+.cleaning-suggestion-count { color: var(--text-color-subtle, #6b6b6b); }
+.cleaning-suggestion-category { font-size: 10px; color: var(--accent-primary, #3b6bdb); text-transform: uppercase; letter-spacing: 0.04em; }
+.cleaning-suggestion-actions { display: flex; gap: 4px; }
+.cleaning-dismiss-btn, .cleaning-act-btn {
+  padding: 3px 8px; font-size: 10px; border-radius: 4px; cursor: pointer;
+  border: 1px solid var(--border-color-primary, rgba(0,0,0,0.12)); background: transparent; color: var(--text-color, #1f1f1f);
+  &:hover { background: var(--background-tertiary, rgba(0,0,0,0.08)); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+.cleaning-act-btn { background: var(--accent-primary, #3b6bdb); color: #fff; border-color: var(--accent-primary, #3b6bdb); }

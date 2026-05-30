@@ -1,0 +1,31 @@
+@import "ui-variables";
+.rodo-consent-banner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: rgba(245, 166, 35, 0.10);
+  border: 1px solid rgba(245, 166, 35, 0.30);
+  border-radius: 8px;
+  margin: 6px 0;
+  font-size: 12px;
+}
+.rodo-consent-icon { font-size: 18px; line-height: 1; }
+.rodo-consent-body { flex: 1; min-width: 0; }
+.rodo-consent-title { font-weight: 600; color: var(--text-color, #1f1f1f); margin-bottom: 4px; }
+.rodo-consent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.rodo-consent-item { display: flex; align-items: center; gap: 8px; }
+.rodo-consent-email { font-family: -apple-system, monospace; font-size: 11px; }
+.rodo-grant-btn {
+  padding: 3px 10px;
+  font-size: 11px;
+  border: none;
+  border-radius: 5px;
+  background: var(--accent-primary, #3b6bdb);
+  color: #fff;
+  cursor: pointer;
+  &:hover { filter: brightness(1.07); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+.rodo-consent-item--revoked .rodo-consent-email { color: var(--text-color-error, #b00020); }
+.rodo-revoked-marker { font-size: 10px; color: var(--text-color-error, #b00020); font-style: italic; }

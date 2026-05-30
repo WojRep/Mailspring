@@ -11,10 +11,15 @@
  * licencja, OK z GPL.
  */
 
+import { ComponentRegistry } from 'actunamail-exports';
+import PgpEncryptButton from './pgp-encrypt-button';
 import { PgpKeyStore, TIER_B_FIELDS } from './pgp-key-store';
 
 export function activate() {
   PgpKeyStore.init();
+
+  // Composer header slot integration. Plan v1.0 #112.
+  ComponentRegistry.register(PgpEncryptButton, { role: 'Composer:ActionButton' });
 
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
@@ -63,6 +68,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(PgpEncryptButton);
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     [

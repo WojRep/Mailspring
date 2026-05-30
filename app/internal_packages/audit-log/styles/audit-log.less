@@ -1,0 +1,14 @@
+@import "ui-variables";
+.audit-log-viewer { padding: 16px 20px; }
+.audit-log-header { margin-bottom: 12px; }
+.audit-log-title { margin: 0; font-size: 14px; font-weight: 600; }
+.audit-log-empty { font-style: italic; color: var(--text-color-subtle, #6b6b6b); }
+.audit-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border-color-primary, rgba(0, 0, 0, 0.06)); }
+  th { font-weight: 600; color: var(--text-color-subtle, #6b6b6b); text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; }
+  td { font-family: -apple-system, monospace; }
+}
+.audit-log-row:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.03)); }

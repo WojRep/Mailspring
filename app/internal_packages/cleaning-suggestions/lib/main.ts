@@ -2,6 +2,8 @@
  * Cleaning Suggestions + Read Later plugin entry — bilet MVP #116.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import CleaningSuggestionsPanel from './cleaning-suggestions-panel';
 import { CleaningStore } from './cleaning-store';
 import {
   analyzeForSuggestions,
@@ -13,6 +15,9 @@ import {
 
 export function activate() {
   CleaningStore.init();
+
+  // Mount panel w MessageList:Header (proactive suggestions w inbox view).
+  ComponentRegistry.register(CleaningSuggestionsPanel, { role: 'MessageList:Header' });
 
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
@@ -60,6 +65,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(CleaningSuggestionsPanel);
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     ['cleaning:run-scan', 'cleaning:first-run', 'cleaning:read-later', 'cleaning:preferences']
