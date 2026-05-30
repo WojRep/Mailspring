@@ -1,0 +1,15 @@
+@import "ui-variables";
+.centrum-dnia-pane {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 320px; max-width: 92vw;
+  background: var(--background-primary, #ffffff);
+  border-left: 1px solid var(--border-color-primary, rgba(0,0,0,0.08));
+  z-index: 9000;
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.10);
+}
+.centrum-dnia-header { display:flex; align-items:center; justify-content:space-between; padding: 14px 16px; border-bottom:1px solid var(--border-color-primary, rgba(0,0,0,0.06)); }
+.centrum-dnia-title { margin:0; font-size:14px; font-weight:600; }
+.centrum-dnia-close { background:transparent; border:none; font-size:20px; cursor:pointer; color:var(--text-color-subtle); }
+.centrum-dnia-sections { display:flex; flex-direction:column; padding:6px; gap:6px; }
+.centrum-dnia-section { padding:8px 12px; border:1px solid var(--border-color-primary, rgba(0,0,0,0.06)); border-radius:8px; }
+.centrum-dnia-section-toggle { background:transparent; border:none; font-weight:600; cursor:pointer; padding:0; width:100%; text-align:left; }

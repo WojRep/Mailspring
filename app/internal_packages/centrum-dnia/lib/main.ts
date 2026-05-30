@@ -8,12 +8,15 @@
  *   4. Expose `AppEnv.centrumDnia` public API.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import CentrumDniaPane from './centrum-dnia-pane';
 import { CentrumDniaStore } from './centrum-dnia-store';
 
 let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
   CentrumDniaStore.init();
+  ComponentRegistry.register(CentrumDniaPane, { location: WorkspaceStore.Sheet.Global.Footer });
 
   if ((window as any).AppEnv?.commands?.add) {
     shortcutDisposable = (window as any).AppEnv.commands.add(document.body, {
@@ -50,6 +53,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(CentrumDniaPane);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
