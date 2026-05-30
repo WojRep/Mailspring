@@ -385,21 +385,36 @@ const start = () => {
     //    (ticket 45e UX).
     try {
       const { safeStorage, dialog } = require('electron');
+      const path = require('path');
+      const fs = require('fs');
       const {
         verifySafeStorageBackend,
         detectV02Data,
         archiveV02Data,
       } = require('./first-launch-checks');
-      const gate = verifySafeStorageBackend(safeStorage, process.platform);
-      if (!gate.ok) {
-        dialog.showMessageBoxSync({
-          type: 'error',
-          buttons: ['Quit'],
-          title: 'ActunaMail — encryption unavailable',
-          message: gate.message,
-        });
-        app.quit();
-        return;
+
+      // Tier B bypass: gdy user ma Tier B encryption enabled (file db-key.tierb.enc
+      // istnieje w configDirPath), boot path nie wymaga safeStorage wcale — DBKey
+      // jest unwrappowany z password przez Argon2 (KeyManager.unlockTierB), NIE
+      // przez Keychain/safeStorage. Refuse-to-start gate był over-strict i blokował
+      // legitimnego użytkownika z Tier B na macOS gdzie ad-hoc signed apps
+      // nie mają dostępu do safeStorage w Sequoia (26.x) — Apple security
+      // tightening dla unsigned apps. Tier A users (without Tier B) NADAL muszą
+      // przejść safeStorage gate bo ich DBKey siedzi w Keychain.
+      const tierBKeyPath = path.join(options.configDirPath, 'db-key.tierb.enc');
+      const hasTierB = fs.existsSync(tierBKeyPath);
+      if (!hasTierB) {
+        const gate = verifySafeStorageBackend(safeStorage, process.platform);
+        if (!gate.ok) {
+          dialog.showMessageBoxSync({
+            type: 'error',
+            buttons: ['Quit'],
+            title: 'ActunaMail — encryption unavailable',
+            message: gate.message + '\n\nIf you have set up Tier B (master password) on another system, copy db-key.tierb.enc to: ' + options.configDirPath,
+          });
+          app.quit();
+          return;
+        }
       }
       // Ticket 45e — register IPC handler for manual archive cleanup
       // (Preferences > Magazyn "Usuń archiwum v0.2.x" button).

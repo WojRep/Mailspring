@@ -43,6 +43,12 @@ export default class WindowLauncher {
   }) {
     this._defaultWindowOpts = {
       frame: process.platform !== 'darwin',
+      // macOS: frame=false makes traffic lights (close/min/zoom) disappear by
+      // default. titleBarStyle='hiddenInset' restores them positioned inside
+      // the toolbar area — user can close/minimize the window normally.
+      // Fixes user-visible regression "nie mogę zamknąć aplikacji z paska"
+      // (2026-05-30) — production build na macOS had no window close button.
+      titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
       toolbar: process.platform !== 'linux',
       hidden: false,
       devMode,
