@@ -17,6 +17,8 @@ import { TagStore, Tag } from './tag-store';
 import { TagSystemUIBus } from './tag-system-ui-bus';
 import TagPicker from './tag-picker';
 import TagChips from './tag-chips';
+
+const { localized } = require('actunamail-exports');
 import PreferencesTags from './preferences-tags';
 
 let shortcutDisposable: { dispose(): void } | null = null;
@@ -30,20 +32,24 @@ export function activate() {
   ComponentRegistry.register(TagPicker, { location: WorkspaceStore.Sheet.Global.Footer });
   ComponentRegistry.register(TagChips, { role: 'MessageList:Header' });
 
-  // Preferences tab — guarded, API may vary across Mailspring forks.
+  // Preferences tab — używamy real Mailspring API: TabItem instance z
+  // componentClassFn (lazy require) per preferences/lib/main.tsx pattern.
+  // WRONG pattern (plain object z `component:`) renderuje undefined → biały
+  // ekran (zgłoszone 2026-05-30 user: "ustawienia Tagi nadal biały ekran").
   try {
-    if (PreferencesUIStore && typeof (PreferencesUIStore as any).registerPreferencesTab === 'function') {
-      (PreferencesUIStore as any).registerPreferencesTab({
-        tabId: 'Tags',
-        displayName: 'Tags',
-        component: PreferencesTags,
-        order: 600,
-        keywords: ['tags', 'tagi', 'labels', 'etykiety', 'kolory'],
-      });
+    if (PreferencesUIStore && PreferencesUIStore.TabItem && typeof PreferencesUIStore.registerPreferencesTab === 'function') {
+      PreferencesUIStore.registerPreferencesTab(
+        new PreferencesUIStore.TabItem({
+          tabId: 'Tags',
+          displayName: localized('Tags'),
+          componentClassFn: () => PreferencesTags,
+          order: 9,
+        })
+      );
       preferencesTabRegistered = true;
     }
   } catch (e) {
-    console.warn('[tag-system] Preferences tab registration failed (API niedostępne):', e);
+    console.warn('[tag-system] Preferences tab registration failed:', e);
   }
 
   if ((window as any).AppEnv?.commands?.add) {
