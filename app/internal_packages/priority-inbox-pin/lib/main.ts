@@ -13,6 +13,7 @@ import { ComponentRegistry } from 'actunamail-exports';
 import { PinStore } from './pin-store';
 import { classifyThread, bucketThreads, PriorityBucket, ThreadSnapshot } from './priority-classifier';
 import PinBadge from './pin-badge';
+import PinToolbarButton from './pin-toolbar-button';
 
 const FLAG_KEY = 'core.workspace.priorityInbox';
 
@@ -24,6 +25,11 @@ export function activate() {
   // Mount PinBadge w thread row obok ⭐ MailImportantIcon (slot exposed w
   // thread-list-columns c1 z exposedProps={thread: thread}).
   ComponentRegistry.register(PinBadge, { role: 'ThreadListIcon' });
+
+  // Mount PinToolbarButton w thread toolbar (gdy wątek otwarty) — discoverable
+  // click affordance dla 'pin / set as important' bez znajomości Shift+P
+  // shortcut. Address user-reported gap 2026-05-30.
+  ComponentRegistry.register(PinToolbarButton, { role: 'ThreadActionsToolbarButton' });
 
   // Config schema
   if ((window as any).AppEnv?.config?.setSchema) {
@@ -92,6 +98,7 @@ export function activate() {
 
 export function deactivate() {
   ComponentRegistry.unregister(PinBadge);
+  ComponentRegistry.unregister(PinToolbarButton);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;

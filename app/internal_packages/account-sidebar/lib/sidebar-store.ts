@@ -105,13 +105,26 @@ class SidebarStore extends ActunaMailStore {
     let pinnedCount = 0;
     let snoozedCount = 0;
     try {
-      const pi = require('../../priority-inbox-pin/lib/pin-store');
-      const PriorityStore = pi.PriorityInboxStore || pi.default;
-      if (PriorityStore && typeof PriorityStore.count === 'function') {
-        focusedCount = PriorityStore.count({ bucket: 'high' }) || 0;
-        pinnedCount = PriorityStore.count({ pinned: true }) || 0;
+      // Pinned count z PinStore (#93 Pin local-only)
+      const pinModule = require('../../priority-inbox-pin/lib/pin-store');
+      const PinStore = pinModule.PinStore || pinModule.default;
+      if (PinStore && typeof PinStore.count === 'function') {
+        pinnedCount = PinStore.count();
       }
-    } catch (e) { /* #93 not active */ }
+    } catch (e) { /* #93 Pin not active */ }
+    try {
+      // Focused count z classifier (#93 Priority Inbox 2-bucket binary).
+      // classifyThread tagged 'priority' dla bucket=high.
+      // Heuristic: current unread threads classified jako priority (z PriorityStore
+      // gdy istnieje, else 0 — sidebar pokaże 0 dopóki user nie oznaczy maili
+      // explicit TAG_PRIORITY_OVERRIDE lub system nie wykryje auto-priority).
+      const pcModule = require('../../priority-inbox-pin/lib/priority-classifier');
+      if (pcModule && typeof pcModule.classifyThread === 'function') {
+        // MVP: focused count = pinned count (każdy pinned = focused per default).
+        // V1.x: real classifier per-thread aggregation.
+        focusedCount = pinnedCount;
+      }
+    } catch (e) { /* #93 classifier not active */ }
     try {
       const sn = require('../../snooze/lib/snooze-store');
       const SnoozeStore = sn.SnoozeStore || sn.default;

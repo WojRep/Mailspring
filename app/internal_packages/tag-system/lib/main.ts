@@ -17,6 +17,7 @@ import { TagStore, Tag } from './tag-store';
 import { TagSystemUIBus } from './tag-system-ui-bus';
 import TagPicker from './tag-picker';
 import TagChips from './tag-chips';
+import TagToolbarButton from './tag-toolbar-button';
 
 const { localized } = require('actunamail-exports');
 import PreferencesTags from './preferences-tags';
@@ -31,6 +32,9 @@ export function activate() {
   // Mount overlays.
   ComponentRegistry.register(TagPicker, { location: WorkspaceStore.Sheet.Global.Footer });
   ComponentRegistry.register(TagChips, { role: 'MessageList:Header' });
+  // Inline button "Dodaj tag" w thread toolbar — discoverable affordance
+  // bez znajomości Cmd+L shortcut. Address user-reported gap 2026-05-30.
+  ComponentRegistry.register(TagToolbarButton, { role: 'ThreadActionsToolbarButton' });
 
   // Preferences tab — używamy real Mailspring API: TabItem instance z
   // componentClassFn (lazy require) per preferences/lib/main.tsx pattern.
@@ -88,6 +92,7 @@ export function activate() {
 export function deactivate() {
   ComponentRegistry.unregister(TagPicker);
   ComponentRegistry.unregister(TagChips);
+  ComponentRegistry.unregister(TagToolbarButton);
   if (preferencesTabRegistered) {
     try {
       if (typeof (PreferencesUIStore as any).unregisterPreferencesTab === 'function') {
