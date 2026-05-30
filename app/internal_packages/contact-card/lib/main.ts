@@ -10,6 +10,9 @@
  * Hover preview (200ms delay) wire-up odłożony do UI ticket.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import ContactCardOverlay from './contact-card-overlay';
+import { ContactCardUIBus } from './contact-card-ui-bus';
 import {
   ContactCardStore,
   validateNIP,
@@ -25,6 +28,11 @@ let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
   ContactCardStore.init();
+
+  // Mount overlay w Sheet.Global.Footer. Plan v1.0 #102 + mockup 10-contact-card.html.
+  ComponentRegistry.register(ContactCardOverlay, {
+    location: WorkspaceStore.Sheet.Global.Footer,
+  });
 
   if ((window as any).AppEnv?.commands?.add) {
     shortcutDisposable = (window as any).AppEnv.commands.add(document.body, {
@@ -69,6 +77,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(ContactCardOverlay);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;
@@ -84,13 +93,23 @@ export function deactivate() {
 }
 
 function openForCurrentSender(): void {
-  console.info('[contact-card] open card for current sender');
-  // TODO: pull current focused message from FocusedContentStore → resolve sender email → ContactCardStore.upsert(email) → open React modal
+  // Resolve sender email z FocusedContentStore → upsert do ContactCardStore →
+  // open overlay przez UIBus. Gdy brak focused thread / sender — open empty
+  // (user widzi state hint).
+  let email: string | null = null;
+  try {
+    const focused = (window as any).$m?.FocusedContentStore?.focused?.('thread');
+    const lastMsg = focused?.messages?.[focused.messages.length - 1];
+    email = (lastMsg?.from?.[0]?.email || lastMsg?.fromContact?.email || null);
+    if (email) {
+      ContactCardStore.upsert(email);
+    }
+  } catch (e) { /* no focused */ }
+  ContactCardUIBus.openFor(email);
 }
 
 function openPeopleList(): void {
-  console.info('[contact-card] open People list (foundation dla #103 People hub)');
-  // TODO React People list view
+  console.info('[contact-card] open People list (foundation dla #103 People hub) — UI follow-up ticket');
 }
 
 export type { ContactCard, ContactNote, ContactTask, ContactStats, ThreadForStats, RelationshipTag, DealStatus } from './contact-card-store';

@@ -1,0 +1,128 @@
+// Contact card overlay — #102 + plan v1.0 mockup 10-contact-card.html.
+
+@import "ui-variables";
+
+.contact-card-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: 9000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8vh;
+}
+
+.contact-card-overlay {
+  width: 92vw;
+  max-width: 480px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-primary, #ffffff);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  outline: none;
+  overflow: hidden;
+}
+
+.contact-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+}
+
+.contact-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-color, #1f1f1f);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-card-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--text-color-subtle, #6b6b6b);
+  cursor: pointer;
+  &:hover { background: var(--background-secondary, rgba(0, 0, 0, 0.05)); }
+  &:focus-visible { outline: 2px solid var(--accent-primary, #3b6bdb); outline-offset: 1px; }
+}
+
+.contact-card-body {
+  padding: 8px 20px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.contact-card-email-row,
+.contact-card-org-row,
+.contact-card-deal-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.contact-card-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-color-subtle, #6b6b6b);
+  font-weight: 500;
+  min-width: 90px;
+}
+
+.contact-card-email {
+  color: var(--accent-primary, #3b6bdb);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.contact-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.contact-card-tag-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--background-secondary, rgba(0, 0, 0, 0.06));
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-color, #1f1f1f);
+}
+
+.contact-card-deal-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.contact-card-deal-active { background: rgba(39, 174, 96, 0.15); color: #1f7a3f; }
+.contact-card-deal-warm   { background: rgba(245, 166, 35, 0.15); color: #a06814; }
+.contact-card-deal-cold   { background: rgba(108, 132, 162, 0.15); color: #4a5868; }
+.contact-card-deal-won    { background: rgba(39, 174, 96, 0.20); color: #1f7a3f; }
+.contact-card-deal-lost   { background: rgba(208, 2, 27, 0.12); color: #a01b1b; }
+
+.contact-card-empty {
+  color: var(--text-color-subtle, #6b6b6b);
+  font-style: italic;
+  margin: 0;
+}
