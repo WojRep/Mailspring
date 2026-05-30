@@ -7,5 +7,10 @@
   "engines": {
     "actunamail": "*"
   },
+  "windowTypes": {
+    "default": true,
+    "composer": true,
+    "thread-popout": true
+  },
   "private": true
 }
