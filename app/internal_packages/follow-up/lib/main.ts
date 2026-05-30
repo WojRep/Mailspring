@@ -8,6 +8,8 @@
  *   4. Expose AppEnv.followUp API.
  */
 
+import { ComponentRegistry, WorkspaceStore } from 'actunamail-exports';
+import FollowUpWaitingPanel from './follow-up-waiting-panel';
 import {
   FollowUpStore,
   DETECTION_THRESHOLD_DEFAULT_DAYS,
@@ -19,6 +21,12 @@ let shortcutDisposable: { dispose(): void } | null = null;
 
 export function activate() {
   FollowUpStore.init();
+
+  // Mount Waiting panel w MessageListHeaders slot (lub RootSidebar locked).
+  // Plan v1.0 #106 + mockup 18-follow-up-waiting.html.
+  ComponentRegistry.register(FollowUpWaitingPanel, {
+    location: WorkspaceStore.Location.RootSidebar,
+  });
 
   if ((window as any).AppEnv?.commands?.add) {
     shortcutDisposable = (window as any).AppEnv.commands.add(document.body, {
@@ -67,6 +75,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(FollowUpWaitingPanel);
   if (shortcutDisposable) {
     shortcutDisposable.dispose();
     shortcutDisposable = null;

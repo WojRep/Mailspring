@@ -9,6 +9,8 @@
  * checkbox + recipient dialog odłożone do UI ticket.
  */
 
+import { ComponentRegistry } from 'actunamail-exports';
+import TrackerProtectionIndicator from './tracker-protection-indicator';
 import { isTrackerUrl, trackerMatch, TRACKER_DOMAINS, TRACKER_DOMAIN_COUNT } from './tracker-blocklist';
 import {
   stripAndTransformImages,
@@ -23,6 +25,8 @@ import {
 } from './mdn-rfc-8098';
 
 export function activate() {
+  ComponentRegistry.register(TrackerProtectionIndicator, { role: 'MessageList:Header' });
+
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     palette.register({
@@ -54,6 +58,7 @@ export function activate() {
 }
 
 export function deactivate() {
+  ComponentRegistry.unregister(TrackerProtectionIndicator);
   const palette = (window as any).AppEnv?.commandPalette;
   if (palette) {
     palette.unregister('tracker-blocker:open-prefs');
