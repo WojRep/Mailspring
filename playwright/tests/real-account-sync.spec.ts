@@ -83,4 +83,74 @@ test.describe('Real account sync (sffsw323@actuna.pl)', () => {
     expect(authFailed).toBe(false);
     expect(result.folders).toBeGreaterThan(0);
   });
+
+  test('seeded emails sync; server $Pinned surfaces as Thread.pinned (cross-device) + visual proof', async () => {
+    test.skip(!PW, 'no TEST_ACCOUNT_PASSWORD — skipping real sync');
+
+    // Ensure authenticated (idempotent re-inject + relaunch).
+    await executeInRenderer(
+      electronApp,
+      `(function(){
+        var $m = window.$m;
+        var acct = $m.AccountStore.accounts()[0];
+        var PW = ${JSON.stringify(PW)};
+        return Promise.resolve()
+          .then(function(){ return $m.KeyManager.replacePassword(acct.emailAddress + '-imap', PW); })
+          .then(function(){ return $m.KeyManager.replacePassword(acct.emailAddress + '-smtp', PW); })
+          .then(function(){ window.AppEnv.mailsyncBridge.forceRelaunchClient(acct); return true; });
+      })()`,
+    );
+
+    // Poll until the seeded INBOX messages have synced into the local DB.
+    let stats: any = { threads: 0, pinned: 0 };
+    for (let i = 0; i < 60; i++) {
+      stats = await executeInRenderer(
+        electronApp,
+        `(function(){
+          var $m = window.$m;
+          return Promise.all([
+            $m.DatabaseStore.findAll($m.Thread),
+            $m.DatabaseStore.findAll($m.Thread).where($m.Thread.attributes.pinned.equal(true)),
+            $m.DatabaseStore.findAll($m.Thread).where($m.Thread.attributes.starred.equal(true)),
+          ]).then(function(r){
+            return { threads: r[0].length, pinned: r[1].length, starred: r[2].length };
+          });
+        })()`,
+      );
+      if (stats.threads >= 7 && stats.pinned >= 1) break;
+      await mainWindow.waitForTimeout(2000);
+    }
+    // eslint-disable-next-line no-console
+    console.log('SEEDED_SYNC', JSON.stringify(stats));
+
+    // Cross-device proof: the $Pinned keyword set on the SERVER (by the seed
+    // script) was read by mailsync into Thread.pinned — i.e. a pin made
+    // elsewhere shows up here.
+    expect(stats.threads).toBeGreaterThanOrEqual(7);
+    expect(stats.pinned).toBeGreaterThanOrEqual(1);
+    expect(stats.starred).toBeGreaterThanOrEqual(1);
+
+    // Visual proof — screenshots of the running app on real data.
+    await mainWindow.waitForTimeout(1500);
+    await mainWindow.screenshot({ path: 'playwright/test-results/real-01-inbox.png' });
+
+    await mainWindow.locator('.account-sidebar .item .name:has-text("Pinned")').first().click();
+    await mainWindow.waitForTimeout(1200);
+    await mainWindow.screenshot({ path: 'playwright/test-results/real-02-pinned.png' });
+
+    await mainWindow.locator('.account-sidebar .item .name:has-text("Focused")').first().click();
+    await mainWindow.waitForTimeout(1200);
+    await mainWindow.screenshot({ path: 'playwright/test-results/real-03-focused.png' });
+
+    await executeInRenderer(
+      electronApp,
+      `(function(){
+        var api = window.AppEnv && window.AppEnv.centrumDnia;
+        if (api && api.Store) api.Store.openPane();
+        return true;
+      })()`,
+    );
+    await mainWindow.waitForTimeout(1500);
+    await mainWindow.screenshot({ path: 'playwright/test-results/real-04-centrum-dnia.png' });
+  });
 });
