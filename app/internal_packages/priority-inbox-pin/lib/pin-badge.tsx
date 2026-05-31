@@ -16,7 +16,7 @@ import { PinStore } from './pin-store';
 const { localized } = require('actunamail-exports');
 
 interface Props {
-  thread?: { id: string };
+  thread?: { id: string; pinned?: boolean };
   threadId?: string;
 }
 
@@ -43,7 +43,11 @@ export default class PinBadge extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this._getThreadId(prevProps) !== this._getThreadId(this.props)) {
+    const idChanged = this._getThreadId(prevProps) !== this._getThreadId(this.props);
+    // Cross-device (#46): the same thread can arrive again via a sync delta with
+    // a flipped `pinned` flag — re-sync on that too, not just on id change.
+    const pinnedChanged = this._modelPinned(prevProps) !== this._modelPinned(this.props);
+    if (idChanged || pinnedChanged) {
       this._sync();
     }
   }
@@ -52,9 +56,16 @@ export default class PinBadge extends React.Component<Props, State> {
     if (this._unsubscribe) this._unsubscribe();
   }
 
+  // Synced model is the cross-device source of truth (Thread.pinned via IMAP
+  // `$Pinned`); the local PinStore cache is an instant fallback.
+  private _modelPinned(props = this.props): boolean {
+    return !!(props.thread && (props.thread as any).pinned);
+  }
+
   private _sync = (): void => {
     const tid = this._getThreadId();
-    this.setState({ pinned: tid ? PinStore.isPinned(tid) : false });
+    const pinned = this._modelPinned() || (tid ? PinStore.isPinned(tid) : false);
+    this.setState({ pinned });
   };
 
   private _onToggle = (e: React.MouseEvent | React.KeyboardEvent): void => {
@@ -73,7 +84,7 @@ export default class PinBadge extends React.Component<Props, State> {
   render() {
     if (!this.state.pinned) return null;
     const label = localized(
-      'Przypięty wątek — kliknij aby odpiąć / Pinned thread — click to unpin',
+      'Przypięty wątek — kliknij aby odpiąć / Pinned thread — click to unpin'
     );
     return (
       <span

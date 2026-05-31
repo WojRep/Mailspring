@@ -40,7 +40,11 @@ export default class PinToolbarButton extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prev: Props) {
-    if ((prev.items || []).length !== (this.props.items || []).length) {
+    const lengthChanged = (prev.items || []).length !== (this.props.items || []).length;
+    // Cross-device (#46): re-sync also when the focused thread's pinned flips
+    // via a sync delta (same selection, new Thread.pinned).
+    const pinnedChanged = this._modelPinned(prev) !== this._modelPinned(this.props);
+    if (lengthChanged || pinnedChanged) {
       this._sync();
     }
   }
@@ -56,9 +60,17 @@ export default class PinToolbarButton extends React.Component<Props, State> {
     return first && first.id ? first.id : null;
   }
 
+  // Synced model (Thread.pinned via IMAP `$Pinned`) is the cross-device source
+  // of truth; the local PinStore cache is an instant fallback.
+  private _modelPinned(props = this.props): boolean {
+    const first = (props.items || [])[0];
+    return !!(first && first.pinned);
+  }
+
   private _sync = (): void => {
     const id = this._focusedThreadId();
-    this.setState({ pinned: id ? PinStore.isPinned(id) : false });
+    const pinned = this._modelPinned() || (id ? PinStore.isPinned(id) : false);
+    this.setState({ pinned });
   };
 
   private _onClick = (): void => {
@@ -85,7 +97,9 @@ export default class PinToolbarButton extends React.Component<Props, State> {
         aria-pressed={this.state.pinned}
         onClick={this._onClick}
       >
-        <span aria-hidden="true" style={{ fontSize: '14px' }}>{icon}</span>
+        <span aria-hidden="true" style={{ fontSize: '14px' }}>
+          {icon}
+        </span>
       </button>
     );
   }

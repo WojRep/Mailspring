@@ -122,6 +122,12 @@ export class Message extends ModelWithMetadata {
       modelKey: 'starred',
     }),
 
+    // Pin cross-device (decyzja plan_to_version_1.0/46): IMAP keyword `$Pinned`.
+    pinned: Attributes.Boolean({
+      queryable: true,
+      modelKey: 'pinned',
+    }),
+
     snippet: Attributes.String({
       modelKey: 'snippet',
     }),
@@ -202,6 +208,7 @@ export class Message extends ModelWithMetadata {
   public threadId: string;
   public snippet: string;
   public starred: boolean;
+  public pinned: boolean;
   public unread: boolean;
   public pristine: boolean;
   public draft: boolean;

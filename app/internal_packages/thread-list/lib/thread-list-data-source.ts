@@ -87,11 +87,16 @@ const _flatMapJoiningMessages = ($threadsResultSet) => {
             const PinStore = pinMod && (pinMod.PinStore || pinMod.default);
             if (PinStore && typeof PinStore.isPinned === 'function') {
               clone.__pinned = PinStore.isPinned(clone.id);
-              clone.__pinnedAt = clone.__pinned && typeof PinStore.getPinnedAt === 'function'
-                ? PinStore.getPinnedAt(clone.id)
-                : (clone.__pinned ? Date.now() : 0);
+              clone.__pinnedAt =
+                clone.__pinned && typeof PinStore.getPinnedAt === 'function'
+                  ? PinStore.getPinnedAt(clone.id)
+                  : clone.__pinned
+                    ? Date.now()
+                    : 0;
             }
-          } catch (e) { /* #93 inactive */ }
+          } catch (e) {
+            /* #93 inactive */
+          }
           try {
             const snMod = require('../../snooze/lib/snooze-store');
             const SnoozeStore = snMod && (snMod.SnoozeStore || snMod.default);
@@ -101,7 +106,33 @@ const _flatMapJoiningMessages = ($threadsResultSet) => {
               const entry = SnoozeStore.getEntry(clone.id);
               clone.__snoozed = !!(entry && entry.wakeAt && entry.wakeAt > Date.now());
             }
-          } catch (e) { /* #104 inactive */ }
+          } catch (e) {
+            /* #104 inactive */
+          }
+          // Focused auto-detection (decyzja 46 + user 2026-05-31): deterministyczne
+          // reguły biznesowe (klasyfikator: Important/VIP/override tagi) raportują
+          // dodatkowo ważne wątki do FocusedStore. pinned/starred pokrywa już
+          // zapytanie FocusedMailboxPerspective, więc raportujemy tylko nadwyżkę.
+          // AI dokłada się osobno przez FocusedStore.registerProvider (opt-in plugin).
+          try {
+            const fsMod = require('../../priority-inbox-pin/lib/focused-store');
+            const pcMod = require('../../priority-inbox-pin/lib/priority-classifier');
+            const FocusedStore = fsMod && (fsMod.FocusedStore || fsMod.default);
+            if (FocusedStore && pcMod && typeof pcMod.classifyThread === 'function') {
+              const labels = ((clone as any).labels || [])
+                .map((l: any) => l && (l.displayName || l.name))
+                .filter(Boolean);
+              const isPriority =
+                pcMod.classifyThread({
+                  id: clone.id,
+                  tags: labels,
+                  hasImportantTag: labels.some((n: string) => /important|ważn/i.test(n)),
+                }) === 'priority';
+              FocusedStore.report(clone.id, isPriority && !clone.__pinned && !clone.starred);
+            }
+          } catch (e) {
+            /* focused/classifier inactive */
+          }
           threadsWithMessages[clone.id] = clone;
         });
 

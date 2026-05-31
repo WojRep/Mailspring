@@ -13,3 +13,17 @@
 .centrum-dnia-sections { display:flex; flex-direction:column; padding:6px; gap:6px; }
 .centrum-dnia-section { padding:8px 12px; border:1px solid var(--border-color-primary, rgba(0,0,0,0.06)); border-radius:8px; }
 .centrum-dnia-section-toggle { background:transparent; border:none; font-weight:600; cursor:pointer; padding:0; width:100%; text-align:left; }
+
+// "Maile dnia" section content (decyzja 46 follow-up)
+.centrum-dnia-section-content { margin-top:8px; display:flex; flex-direction:column; gap:2px; }
+.centrum-dnia-empty { font-size:12px; color:var(--text-color-subtle, #888); padding:6px 0; }
+.centrum-dnia-mail-row {
+  display:flex; align-items:center; gap:6px;
+  background:transparent; border:none; cursor:pointer;
+  width:100%; text-align:left; padding:6px 4px; border-radius:6px;
+  font-size:13px; color:var(--text-color, inherit);
+}
+.centrum-dnia-mail-row:hover { background:var(--background-secondary, rgba(0,0,0,0.04)); }
+.centrum-dnia-mail-row.pinned .centrum-dnia-mail-subject { font-weight:600; }
+.centrum-dnia-mail-pin { flex:0 0 auto; font-size:12px; }
+.centrum-dnia-mail-subject { flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

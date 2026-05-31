@@ -8,7 +8,6 @@ import PinBadge from '../lib/pin-badge';
 import { PinStore } from '../lib/pin-store';
 
 describe('Pin badge — bilet MVP #93', () => {
-
   beforeEach(() => {
     PinStore._reset();
     PinStore.init();
@@ -31,12 +30,33 @@ describe('Pin badge — bilet MVP #93', () => {
     expect(badge?.getAttribute('aria-label')).toBeTruthy();
   });
 
+  // Cross-device (decyzja plan_to_version_1.0/46): na urządzeniu B pin przychodzi
+  // przez sync jako Thread.pinned — lokalny cache jest pusty. Badge musi czytać
+  // model jako źródło prawdy (z fallbackiem na cache).
+  it('renders 📌 from synced thread.pinned even when local cache is empty', () => {
+    const { container } = render(<PinBadge thread={{ id: 'remote-1', pinned: true } as any} />);
+    expect(container.querySelector('.pin-badge')).not.toBeNull();
+  });
+
+  it('re-renders when thread.pinned flips via sync delta (same id)', () => {
+    const { container, rerender } = render(
+      <PinBadge thread={{ id: 'r2', pinned: false } as any} />
+    );
+    expect(container.querySelector('.pin-badge')).toBeNull();
+    rerender(<PinBadge thread={{ id: 'r2', pinned: true } as any} />);
+    expect(container.querySelector('.pin-badge')).not.toBeNull();
+  });
+
   it('re-renders when PinStore.pin/unpin', () => {
     const { container } = render(<PinBadge thread={{ id: 't1' }} />);
     expect(container.querySelector('.pin-badge')).toBeNull();
-    act(() => { PinStore.pin('t1'); });
+    act(() => {
+      PinStore.pin('t1');
+    });
     expect(container.querySelector('.pin-badge')).not.toBeNull();
-    act(() => { PinStore.unpin('t1'); });
+    act(() => {
+      PinStore.unpin('t1');
+    });
     expect(container.querySelector('.pin-badge')).toBeNull();
   });
 
@@ -44,7 +64,9 @@ describe('Pin badge — bilet MVP #93', () => {
     PinStore.pin('t1');
     const { container } = render(<PinBadge thread={{ id: 't1' }} />);
     const badge = container.querySelector('.pin-badge') as HTMLElement;
-    act(() => { fireEvent.click(badge); });
+    act(() => {
+      fireEvent.click(badge);
+    });
     expect(PinStore.isPinned('t1')).toBe(false);
   });
 
@@ -52,7 +74,9 @@ describe('Pin badge — bilet MVP #93', () => {
     PinStore.pin('t1');
     const { container } = render(<PinBadge thread={{ id: 't1' }} />);
     const badge = container.querySelector('.pin-badge') as HTMLElement;
-    act(() => { fireEvent.keyDown(badge, { key: 'Enter' }); });
+    act(() => {
+      fireEvent.keyDown(badge, { key: 'Enter' });
+    });
     expect(PinStore.isPinned('t1')).toBe(false);
   });
 
@@ -60,7 +84,9 @@ describe('Pin badge — bilet MVP #93', () => {
     PinStore.pin('t1');
     const { container } = render(<PinBadge thread={{ id: 't1' }} />);
     const badge = container.querySelector('.pin-badge') as HTMLElement;
-    act(() => { fireEvent.keyDown(badge, { key: ' ' }); });
+    act(() => {
+      fireEvent.keyDown(badge, { key: ' ' });
+    });
     expect(PinStore.isPinned('t1')).toBe(false);
   });
 
@@ -68,7 +94,9 @@ describe('Pin badge — bilet MVP #93', () => {
     PinStore.pin('t1');
     const { container } = render(<PinBadge thread={{ id: 't1' }} />);
     const badge = container.querySelector('.pin-badge') as HTMLElement;
-    act(() => { fireEvent.keyDown(badge, { key: 'a' }); });
+    act(() => {
+      fireEvent.keyDown(badge, { key: 'a' });
+    });
     expect(PinStore.isPinned('t1')).toBe(true);
   });
 
@@ -87,7 +115,9 @@ describe('Pin badge — bilet MVP #93', () => {
     expect(container.querySelector('.pin-badge')).toBeNull();
     unmount();
     // After unmount, store changes should not crash
-    expect(() => { PinStore.pin('t1'); }).not.toThrow();
+    expect(() => {
+      PinStore.pin('t1');
+    }).not.toThrow();
   });
 
   it('threadId prop change resubscribes do nowego state', () => {
@@ -96,7 +126,9 @@ describe('Pin badge — bilet MVP #93', () => {
     expect(container.querySelector('.pin-badge')).not.toBeNull();
     rerender(<PinBadge threadId="t2" />);
     expect(container.querySelector('.pin-badge')).toBeNull();
-    act(() => { PinStore.pin('t2'); });
+    act(() => {
+      PinStore.pin('t2');
+    });
     expect(container.querySelector('.pin-badge')).not.toBeNull();
   });
 

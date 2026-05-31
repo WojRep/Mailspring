@@ -12,6 +12,8 @@
  */
 
 import SidebarStore from '../internal_packages/account-sidebar/lib/sidebar-store';
+import { PinStore } from '../internal_packages/priority-inbox-pin/lib/pin-store';
+import { SnoozeStore } from '../internal_packages/snooze/lib/snooze-store';
 
 describe('SidebarStore — Tags + Attention Layers sections (plan v1.0)', () => {
   describe('tagsSection() — #98 integration', () => {
@@ -79,6 +81,73 @@ describe('SidebarStore — Tags + Attention Layers sections (plan v1.0)', () => 
       expect(hasPriority).toBe(true);
       expect(hasPin).toBe(true);
       expect(hasSnooze).toBe(true);
+    });
+  });
+
+  // Bugfix: the three Attention Layers rows were inert (no onSelect, no
+  // perspective) so clicking them did nothing. Each row must now open a
+  // filtered virtual-folder view (ThreadIdListPerspective) of the relevant
+  // threads, exactly like a real folder dispatches focusMailboxPerspective.
+  describe('attentionLayersSection() — clickable filtered views (bugfix)', () => {
+    beforeEach(() => {
+      PinStore._reset();
+      PinStore.init();
+      SnoozeStore._reset();
+      SnoozeStore.init();
+    });
+    afterEach(() => {
+      PinStore._reset();
+      SnoozeStore._reset();
+    });
+
+    const byId = (section: any, id: string) => section.items.find((i: any) => i.id === id);
+
+    it('every attention item exposes an onSelect handler', () => {
+      const section = (SidebarStore as any).attentionLayersSection();
+      expect(section.items.length).toBeGreaterThan(2);
+      for (const item of section.items) {
+        expect(typeof item.onSelect).toBe('function');
+      }
+    });
+
+    it('Focused = FocusedMailboxPerspective (auto-detected), Pinned = PinnedMailboxPerspective', () => {
+      const section = (SidebarStore as any).attentionLayersSection();
+      const focused = byId(section, 'attention-focused');
+      const pinned = byId(section, 'attention-pinned');
+      // Both query the synced model (cross-device), not a localStorage list.
+      // Focused = pinned ∪ starred ∪ rules/AI; Pinned = only pinned (a subset).
+      expect(focused.perspective.constructor.name).toBe('FocusedMailboxPerspective');
+      expect(pinned.perspective.constructor.name).toBe('PinnedMailboxPerspective');
+      expect(pinned.perspective.pinned).toBe(true);
+    });
+
+    it('Snoozed carries a ThreadIdListPerspective matching SnoozeStore.list()', () => {
+      SnoozeStore.snoozeUntil('thread-x', Date.now() + 3600000);
+      SnoozeStore.snoozeUntil('thread-y', Date.now() + 7200000);
+      const section = (SidebarStore as any).attentionLayersSection();
+      const snoozed = byId(section, 'attention-snoozed');
+      expect(snoozed.perspective.constructor.name).toBe('ThreadIdListPerspective');
+      const expected = SnoozeStore.list()
+        .map((e: any) => e.threadId)
+        .sort();
+      expect(snoozed.perspective.toJSON().threadIds.slice().sort()).toEqual(expected);
+    });
+
+    it('clicking an item dispatches focusMailboxPerspective with its perspective', () => {
+      const { Actions } = require('actunamail-exports');
+      spyOn(Actions, 'focusMailboxPerspective');
+      const section = (SidebarStore as any).attentionLayersSection();
+      const item = section.items[0];
+      item.onSelect(item);
+      expect(Actions.focusMailboxPerspective).toHaveBeenCalledWith(item.perspective);
+    });
+
+    it('count badge reflects store count, not unread', () => {
+      PinStore.pin('t1');
+      PinStore.pin('t2');
+      PinStore.pin('t3');
+      const section = (SidebarStore as any).attentionLayersSection();
+      expect(byId(section, 'attention-pinned').count).toBe(3);
     });
   });
 });

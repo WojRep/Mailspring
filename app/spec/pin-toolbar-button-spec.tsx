@@ -13,14 +13,21 @@ import { render, cleanup, fireEvent } from '@testing-library/react';
 
 let PinToolbarButton: any = null;
 try {
-  PinToolbarButton = require('../internal_packages/priority-inbox-pin/lib/pin-toolbar-button').default;
-} catch (e) { /* RED */ }
+  PinToolbarButton =
+    require('../internal_packages/priority-inbox-pin/lib/pin-toolbar-button').default;
+} catch (e) {
+  /* RED */
+}
 
 const { PinStore } = require('../internal_packages/priority-inbox-pin/lib/pin-store');
 
 describe('PinToolbarButton — #93 plan v1.0 inline discoverability', () => {
-  beforeEach(() => { PinStore._reset && PinStore._reset(); });
-  afterEach(() => { cleanup(); });
+  beforeEach(() => {
+    PinStore._reset && PinStore._reset();
+  });
+  afterEach(() => {
+    cleanup();
+  });
 
   it('component exists', () => {
     expect(PinToolbarButton).not.toBeNull();
@@ -46,6 +53,16 @@ describe('PinToolbarButton — #93 plan v1.0 inline discoverability', () => {
     const { container } = render(<PinToolbarButton items={[{ id: 't2' }]} />);
     const btn = container.querySelector('.pin-toolbar-button') as HTMLElement;
     expect(btn.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  // Cross-device (decyzja plan_to_version_1.0/46): na urządzeniu B pin przychodzi
+  // jako Thread.pinned (cache pusty). Toolbar czyta model jako źródło prawdy.
+  it('reflects synced thread.pinned even with empty local cache', () => {
+    if (!PinToolbarButton) return;
+    const { container } = render(<PinToolbarButton items={[{ id: 'remote-1', pinned: true }]} />);
+    const btn = container.querySelector('.pin-toolbar-button') as HTMLElement;
+    expect(btn).not.toBeNull();
+    expect(btn.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('click toggles pin state', () => {

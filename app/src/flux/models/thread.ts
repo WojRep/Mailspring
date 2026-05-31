@@ -58,6 +58,14 @@ export class Thread extends ModelWithMetadata {
       modelKey: 'starred',
     }),
 
+    // Pin cross-device (decyzja plan_to_version_1.0/46): synced via IMAP keyword
+    // `$Pinned` (kalka `starred`/`\Flagged`). Mail zostaje w miejscu — sortowany
+    // na górę skrzynki, perspektywa "Pinned" filtruje po tym atrybucie.
+    pinned: Attributes.Boolean({
+      queryable: true,
+      modelKey: 'pinned',
+    }),
+
     version: Attributes.Number({
       queryable: true,
       jsonKey: 'v',
@@ -141,6 +149,7 @@ export class Thread extends ModelWithMetadata {
   public subject: string;
   public unread: boolean;
   public starred: boolean;
+  public pinned: boolean;
   public version: number;
   public folders: Folder[];
   public labels: Label[];

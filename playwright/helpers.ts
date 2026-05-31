@@ -52,7 +52,7 @@ function envValue(key: string, fallback: string): string {
   return process.env[key] || _envFile[key] || fallback;
 }
 
-const TEST_ACCOUNT = {
+export const TEST_ACCOUNT = {
   email: envValue('TEST_ACCOUNT_EMAIL', 'sffsw323@actuna.pl'),
   password: envValue('TEST_ACCOUNT_PASSWORD', ''),
   provider: envValue('TEST_ACCOUNT_PROVIDER', 'imap'),

@@ -9,9 +9,11 @@ import {
   OutboxStore,
   FocusedPerspectiveStore,
   CategoryStore,
+  MailboxPerspective,
 } from 'actunamail-exports';
 
 import SidebarSection from './sidebar-section';
+import SidebarItem from './sidebar-item';
 import * as SidebarActions from './sidebar-actions';
 import * as AccountCommands from './account-commands';
 import { Disposable } from 'event-kit';
@@ -75,18 +77,23 @@ class SidebarStore extends ActunaMailStore {
       if (TagStore && typeof TagStore.list === 'function') {
         tags = TagStore.list().filter((t: any) => !t.systemManaged);
       }
-    } catch (e) { /* tag-system not active */ }
+    } catch (e) {
+      /* tag-system not active */
+    }
     return {
       title: 'Tags',
-      items: tags.map(t => ({
-        id: `tag-${t.id}`,
-        name: t.name,
-        iconName: 'tag.png',
-        accountIds: [],
-        children: [],
-        collapsed: false,
-        unreadCount: 0,
-      } as any)),
+      items: tags.map(
+        (t) =>
+          ({
+            id: `tag-${t.id}`,
+            name: t.name,
+            iconName: 'tag.png',
+            accountIds: [],
+            children: [],
+            collapsed: false,
+            unreadCount: 0,
+          }) as any
+      ),
     };
   }
 
@@ -101,67 +108,55 @@ class SidebarStore extends ActunaMailStore {
    * router (klik dispatches AppEnv.commands lub directly opens filtered view).
    */
   attentionLayersSection(): ISidebarSection {
-    let focusedCount = 0;
+    const accountIds = AccountStore.accountIds();
+
+    // Pinned/Focused: perspektywa zapytaniowa po zsynchronizowanym `Thread.pinned`
+    // (keyword IMAP `$Pinned`) — reflektuje piny z dowolnego urządzenia (decyzja
+    // plan_to_version_1.0/46). Focused = Pinned (skrót MVP, user-confirmed).
+    // Count badge bierze z PinStore (instant cache); lista z modelu (cross-device).
+    // Snoozed: lokalna lista (snooze cross-device to osobny, jeszcze nieukończony
+    // feature) — perspektywa ThreadIdListPerspective po SnoozeStore.
     let pinnedCount = 0;
-    let snoozedCount = 0;
+    let snoozedIds: string[] = [];
     try {
-      // Pinned count z PinStore (#93 Pin local-only)
       const pinModule = require('../../priority-inbox-pin/lib/pin-store');
       const PinStore = pinModule.PinStore || pinModule.default;
       if (PinStore && typeof PinStore.count === 'function') {
         pinnedCount = PinStore.count();
       }
-    } catch (e) { /* #93 Pin not active */ }
-    try {
-      // Focused count z classifier (#93 Priority Inbox 2-bucket binary).
-      // classifyThread tagged 'priority' dla bucket=high.
-      // Heuristic: current unread threads classified jako priority (z PriorityStore
-      // gdy istnieje, else 0 — sidebar pokaże 0 dopóki user nie oznaczy maili
-      // explicit TAG_PRIORITY_OVERRIDE lub system nie wykryje auto-priority).
-      const pcModule = require('../../priority-inbox-pin/lib/priority-classifier');
-      if (pcModule && typeof pcModule.classifyThread === 'function') {
-        // MVP: focused count = pinned count (każdy pinned = focused per default).
-        // V1.x: real classifier per-thread aggregation.
-        focusedCount = pinnedCount;
-      }
-    } catch (e) { /* #93 classifier not active */ }
+    } catch (e) {
+      /* #93 Pin not active */
+    }
     try {
       const sn = require('../../snooze/lib/snooze-store');
       const SnoozeStore = sn.SnoozeStore || sn.default;
-      if (SnoozeStore && typeof SnoozeStore.count === 'function') {
-        snoozedCount = SnoozeStore.count();
+      if (SnoozeStore && typeof SnoozeStore.list === 'function') {
+        snoozedIds = SnoozeStore.list().map((e: { threadId: string }) => e.threadId);
       }
-    } catch (e) { /* #104 not active */ }
+    } catch (e) {
+      /* #104 Snooze not active */
+    }
+
     return {
       title: 'Attention Layers',
       items: [
-        {
-          id: 'attention-focused',
+        // Focused = auto-wykryte ważne (pinned ∪ starred ∪ reguły/AI) — query po
+        // modelu. Count pomijamy (wymaga zapytania zliczającego, nie z cache).
+        SidebarItem.forPerspective('attention-focused', MailboxPerspective.forFocused(accountIds), {
           name: 'Focused',
           iconName: 'star.png',
-          accountIds: [],
-          children: [],
-          collapsed: false,
-          unreadCount: focusedCount,
-        } as any,
-        {
-          id: 'attention-pinned',
+        }),
+        // Pinned = wyłącznie przypięte (podzbiór Focused). Count z PinStore (cache).
+        SidebarItem.forPerspective('attention-pinned', MailboxPerspective.forPinned(accountIds), {
           name: 'Pinned',
           iconName: 'star.png',
-          accountIds: [],
-          children: [],
-          collapsed: false,
-          unreadCount: pinnedCount,
-        } as any,
-        {
-          id: 'attention-snoozed',
-          name: 'Snoozed',
-          iconName: 'clock.png',
-          accountIds: [],
-          children: [],
-          collapsed: false,
-          unreadCount: snoozedCount,
-        } as any,
+          count: pinnedCount,
+        }),
+        SidebarItem.forPerspective(
+          'attention-snoozed',
+          MailboxPerspective.forThreadIds(snoozedIds, accountIds, 'Snoozed'),
+          { name: 'Snoozed', iconName: 'clock.png', count: snoozedIds.length }
+        ),
       ],
     };
   }
@@ -187,15 +182,18 @@ class SidebarStore extends ActunaMailStore {
     }
     return {
       title: 'Smart Folders',
-      items: folders.map(f => ({
-        id: `smart-folder-${f.id}`,
-        name: f.name,
-        iconName: 'tag.png',
-        accountIds: [],
-        children: [],
-        collapsed: false,
-        unreadCount: 0,
-      } as any)),
+      items: folders.map(
+        (f) =>
+          ({
+            id: `smart-folder-${f.id}`,
+            name: f.name,
+            iconName: 'tag.png',
+            accountIds: [],
+            children: [],
+            collapsed: false,
+            unreadCount: 0,
+          }) as any
+      ),
     };
   }
 

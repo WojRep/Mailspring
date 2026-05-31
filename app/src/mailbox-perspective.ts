@@ -12,6 +12,7 @@ import OutboxStore from './flux/stores/outbox-store';
 import ThreadCountsStore from './flux/stores/thread-counts-store';
 import FolderSyncProgressStore from './flux/stores/folder-sync-progress-store';
 import { MutableQuerySubscription } from './flux/models/mutable-query-subscription';
+import { Matcher } from './flux/attributes';
 import UnreadQuerySubscription from './flux/models/unread-query-subscription';
 import { Thread } from './flux/models/thread';
 import { Category } from './flux/models/category';
@@ -23,6 +24,7 @@ import { QuerySubscription } from 'actunamail-exports';
 
 let WorkspaceStore = null;
 let ChangeStarredTask = null;
+let ChangePinnedTask = null;
 let ChangeLabelsTask = null;
 let ChangeFolderTask = null;
 let ChangeUnreadTask = null;
@@ -57,6 +59,20 @@ export class MailboxPerspective {
 
   static forStarred(accountsOrIds: string[]) {
     return new StarredMailboxPerspective(accountsOrIds);
+  }
+
+  // Pin cross-device (decyzja plan_to_version_1.0/46): virtual folder of threads
+  // carrying the synced `Thread.pinned` flag (IMAP keyword `$Pinned`). Queries the
+  // attribute directly, so it reflects pins made on any device.
+  static forPinned(accountsOrIds: string[]) {
+    return new PinnedMailboxPerspective(accountsOrIds);
+  }
+
+  // Focused = automatycznie wykryte ważne wątki (decyzja 46 + user 2026-05-31):
+  // przypięte ∪ oznaczone gwiazdką (ważne) ∪ reguły biznesowe/AI (FocusedStore).
+  // Pinned jest podzbiorem Focused.
+  static forFocused(accountsOrIds: string[]) {
+    return new FocusedMailboxPerspective(accountsOrIds);
   }
 
   // Virtual folder of an explicit, caller-supplied set of threads — used
@@ -333,6 +349,117 @@ class StarredMailboxPerspective extends MailboxPerspective {
 }
 
 /*
+ * Pin cross-device (decyzja plan_to_version_1.0/46). Mirrors StarredMailboxPerspective
+ * but on the synced `Thread.pinned` attribute (IMAP keyword `$Pinned`). Drag-in pins,
+ * remove-from-list unpins — both via ChangePinnedTask, so they sync across devices.
+ */
+class PinnedMailboxPerspective extends MailboxPerspective {
+  pinned = true;
+  name = localized('Pinned');
+  iconName = 'star.png';
+
+  threads() {
+    const query = DatabaseStore.findAll<Thread>(Thread)
+      .where([Thread.attributes.pinned.equal(true), Thread.attributes.inAllMail.equal(true)])
+      .limit(0);
+
+    if (this.accountIds.length < AccountStore.accounts().length) {
+      query.where(Thread.attributes.accountId.in(this.accountIds));
+    }
+
+    return new MutableQuerySubscription<Thread>(query, {
+      emitResultSet: true,
+      updateOnSeparateThread: true,
+    });
+  }
+
+  canReceiveThreadsFromAccountIds(threads: string[]) {
+    return super.canReceiveThreadsFromAccountIds(threads);
+  }
+
+  actionsForReceivingThreads(threads: Thread[], accountId: string) {
+    ChangePinnedTask =
+      ChangePinnedTask || require('./flux/tasks/change-pinned-task').ChangePinnedTask;
+    return new ChangePinnedTask({
+      accountId,
+      threads,
+      pinned: true,
+      source: 'Dragged Into List',
+    });
+  }
+
+  tasksForRemovingItems(threads: Thread[]) {
+    ChangePinnedTask =
+      ChangePinnedTask || require('./flux/tasks/change-pinned-task').ChangePinnedTask;
+    return [
+      new ChangePinnedTask({
+        threads,
+        pinned: false,
+        source: 'Removed From List',
+      }),
+    ];
+  }
+}
+
+/*
+ * Focused (decyzja plan_to_version_1.0/46 + user 2026-05-31): automatyczne
+ * wykrywanie ważnych maili w INBOX. Query: `pinned = true OR starred = true OR
+ * id IN extraIds`, gdzie extraIds = reguły biznesowe (klasyfikator) ∪ AI
+ * (opt-in plugin), dostarczane przez FocusedStore. Pinned ⊆ Focused. Pure view.
+ */
+class FocusedMailboxPerspective extends MailboxPerspective {
+  pinned = false;
+  name = localized('Focused');
+  iconName = 'star.png';
+
+  // Lazy + decoupled: FocusedStore żyje w pluginie priority-inbox-pin. Brak
+  // pluginu / AI → extraIds = [] (Focused = pinned ∪ starred).
+  private _extraIds(): string[] {
+    try {
+      const mod = require('../internal_packages/priority-inbox-pin/lib/focused-store');
+      const FocusedStore = mod && (mod.FocusedStore || mod.default);
+      return FocusedStore && typeof FocusedStore.extraIds === 'function'
+        ? FocusedStore.extraIds()
+        : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  threads() {
+    const orMatchers: Matcher[] = [
+      Thread.attributes.pinned.equal(true),
+      Thread.attributes.starred.equal(true),
+    ];
+    const extra = this._extraIds();
+    if (extra.length > 0) {
+      orMatchers.push(Thread.attributes.id.in(extra));
+    }
+    const query = DatabaseStore.findAll<Thread>(Thread)
+      .where([new Matcher.Or(orMatchers), Thread.attributes.inAllMail.equal(true)])
+      .limit(0);
+
+    if (this.accountIds.length < AccountStore.accounts().length) {
+      query.where(Thread.attributes.accountId.in(this.accountIds));
+    }
+
+    return new MutableQuerySubscription<Thread>(query, {
+      emitResultSet: true,
+      updateOnSeparateThread: true,
+    });
+  }
+
+  // Pure view — Focused jest wyliczany, nie przyjmuje drag-in ani usuwania.
+  canReceiveThreadsFromAccountIds() {
+    return false;
+  }
+
+  tasksForRemovingItems() {
+    return [];
+  }
+}
+
+/*
  * A perspective that shows an explicit, caller-supplied list of threads —
  * a "virtual folder" of threads selected by a feature (e.g. the Actuna AI
  * assistant). Non-mutating: it applies no labels, folders or flags; it is
@@ -462,6 +589,17 @@ class CategoryMailboxPerspective extends MailboxPerspective {
 
     if (this.isSent()) {
       query.order(Thread.attributes.lastMessageSentTimestamp.descending());
+    }
+
+    if (this.isInbox()) {
+      // Pin cross-device (decyzja plan_to_version_1.0/46): przypięte wątki na
+      // górze skrzynki. Sort na poziomie zapytania po kolumnie `pinned` —
+      // bezpieczny dla wirtualizacji (w przeciwieństwie do reorderu po stronie
+      // klienta). Wtórnie sortujemy po dacie otrzymania (jak dotychczas).
+      query.order([
+        Thread.attributes.pinned.descending(),
+        Thread.attributes.lastMessageReceivedTimestamp.descending(),
+      ]);
     }
 
     if (!['spam', 'trash'].includes(this.categoriesSharedRole())) {
