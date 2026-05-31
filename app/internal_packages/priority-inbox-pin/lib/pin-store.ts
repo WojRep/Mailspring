@@ -66,6 +66,11 @@ class PinStoreImpl {
     return this._pinned.size;
   }
 
+  /** Zwraca timestamp przypięcia thread (do sort weight). 0 gdy nie pinned. */
+  getPinnedAt(threadId: string): number {
+    return this._pinned.get(threadId) || 0;
+  }
+
   listen(cb: () => void): () => void {
     this._listeners.add(cb);
     return () => this._listeners.delete(cb);

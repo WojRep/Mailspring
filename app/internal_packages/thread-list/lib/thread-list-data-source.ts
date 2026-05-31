@@ -79,6 +79,29 @@ const _flatMapJoiningMessages = ($threadsResultSet) => {
           const clone = new Thread(thread) as any;
           clone.__messages = messagesResultSets[idx] ? messagesResultSets[idx].models() : [];
           clone.__messages = clone.__messages.filter((m) => !m.isHidden());
+          // Wave 3-8 augmentation: tag thread z pin/snooze state (lazy + safe).
+          // Per user-reported gap 2026-05-31: 'Jak działa logika biznesowa
+          // optymalizacji pracy z folderami, focused, snoozed, pined'.
+          try {
+            const pinMod = require('../../priority-inbox-pin/lib/pin-store');
+            const PinStore = pinMod && (pinMod.PinStore || pinMod.default);
+            if (PinStore && typeof PinStore.isPinned === 'function') {
+              clone.__pinned = PinStore.isPinned(clone.id);
+              clone.__pinnedAt = clone.__pinned && typeof PinStore.getPinnedAt === 'function'
+                ? PinStore.getPinnedAt(clone.id)
+                : (clone.__pinned ? Date.now() : 0);
+            }
+          } catch (e) { /* #93 inactive */ }
+          try {
+            const snMod = require('../../snooze/lib/snooze-store');
+            const SnoozeStore = snMod && (snMod.SnoozeStore || snMod.default);
+            if (SnoozeStore && typeof SnoozeStore.isSnoozed === 'function') {
+              clone.__snoozed = SnoozeStore.isSnoozed(clone.id);
+            } else if (SnoozeStore && typeof SnoozeStore.getEntry === 'function') {
+              const entry = SnoozeStore.getEntry(clone.id);
+              clone.__snoozed = !!(entry && entry.wakeAt && entry.wakeAt > Date.now());
+            }
+          } catch (e) { /* #104 inactive */ }
           threadsWithMessages[clone.id] = clone;
         });
 

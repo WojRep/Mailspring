@@ -53,6 +53,12 @@ export default class ThreadListContextMenu {
           this.markAsReadItem(),
           this.starItem(),
           { type: 'separator' },
+          // Wave 3-8 items (plan v1.0 #93/#96/#98/#104)
+          this.pinItem(),
+          this.snoozeItem() as any,
+          this.addTagItem(),
+          this.timeIntentItem() as any,
+          { type: 'separator' },
           this.trashItem(),
           this.markAsSpamItem(),
           { type: 'separator' },
@@ -313,6 +319,119 @@ export default class ThreadListContextMenu {
           })
         );
       },
+    };
+  }
+
+  // ======================================================================
+  // Wave 3-8 context menu items (plan v1.0 #93/#96/#98/#104).
+  // Per user-reported gap 2026-05-31 'dlaczego nie ma tych opcji w menu
+  // kontekstowym pod prawym przyciskiem?'. Każda metoda safely lazy-requires
+  // odpowiedni store + zwraca null/no-op gdy package nie aktywny.
+  // ======================================================================
+
+  pinItem(): TemplateItem | null {
+    let PinStore: any = null;
+    try { PinStore = require('../../priority-inbox-pin/lib/pin-store').PinStore; } catch (e) { /* #93 inactive */ }
+    const ids = this.threadIds;
+    if (!ids || ids.length === 0) return null;
+    const allPinned = PinStore && ids.every((id) => PinStore.isPinned(id));
+    const label = allPinned
+      ? (ids.length > 1 ? localized('Odepnij wszystkie / Unpin all') : localized('Odepnij / Unpin'))
+      : (ids.length > 1 ? localized('Przypnij wszystkie / Pin all') : localized('Przypnij jako ważne / Pin as important'));
+    return {
+      label,
+      click: () => {
+        if (!PinStore) return;
+        for (const id of ids) {
+          if (allPinned) PinStore.unpin(id);
+          else PinStore.pin(id);
+        }
+      },
+    } as TemplateItem;
+  }
+
+  snoozeItem(): any {
+    let SnoozeStore: any = null;
+    try { SnoozeStore = require('../../snooze/lib/snooze-store').SnoozeStore; } catch (e) { /* #104 inactive */ }
+    const ids = this.threadIds;
+    if (!ids || ids.length === 0) return null;
+    const presets = [
+      { label: localized('Za godzinę / In 1 hour'), ms: 60 * 60 * 1000 },
+      { label: localized('Dziś wieczorem / This evening (18:00)'), ms: -1, preset: 'evening' },
+      { label: localized('Jutro rano / Tomorrow morning (9:00)'), ms: -1, preset: 'tomorrow' },
+      { label: localized('Za tydzień / In 1 week'), ms: 7 * 24 * 60 * 60 * 1000 },
+    ];
+    return {
+      label: localized('Odłóż / Snooze'),
+      submenu: presets.map((p) => ({
+        label: p.label,
+        click: () => {
+          if (!SnoozeStore) return;
+          const wakeAt = p.ms > 0 ? Date.now() + p.ms : this._computePresetWake(p.preset);
+          for (const id of ids) {
+            try {
+              if (typeof SnoozeStore.snoozeUntil === 'function') {
+                SnoozeStore.snoozeUntil(id, wakeAt, { preset: p.preset });
+              } else if (typeof SnoozeStore.snooze === 'function') {
+                SnoozeStore.snooze({ threadId: id, wakeAt, preset: p.preset });
+              }
+            } catch (e) { /* */ }
+          }
+        },
+      })),
+    };
+  }
+
+  private _computePresetWake(preset: string | undefined): number {
+    const d = new Date();
+    if (preset === 'evening') {
+      d.setHours(18, 0, 0, 0);
+      if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1);
+      return d.getTime();
+    }
+    if (preset === 'tomorrow') {
+      d.setDate(d.getDate() + 1);
+      d.setHours(9, 0, 0, 0);
+      return d.getTime();
+    }
+    return Date.now() + 60 * 60 * 1000;
+  }
+
+  addTagItem(): TemplateItem | null {
+    let TagSystemUIBus: any = null;
+    try { TagSystemUIBus = require('../../tag-system/lib/tag-system-ui-bus').TagSystemUIBus; } catch (e) { /* #98 inactive */ }
+    const ids = this.threadIds;
+    if (!ids || ids.length === 0) return null;
+    return {
+      label: localized('Dodaj tag / Add tag') + ' (⌘L)',
+      click: () => {
+        if (!TagSystemUIBus) return;
+        TagSystemUIBus.openPicker(ids[0]);
+      },
+    };
+  }
+
+  timeIntentItem(): any {
+    let TimeIntentStore: any = null;
+    try {
+      const mod = require('../../time-intent-tags/lib/time-intent-store');
+      TimeIntentStore = mod.TimeIntentStore || mod.default;
+    } catch (e) { /* #96 inactive */ }
+    const ids = this.threadIds;
+    if (!ids || ids.length === 0) return null;
+    const setIntent = (intent: string) => {
+      if (!TimeIntentStore || typeof TimeIntentStore.set !== 'function') return;
+      for (const id of ids) {
+        try { TimeIntentStore.set(id, intent); } catch (e) { /* */ }
+      }
+    };
+    return {
+      label: localized('Intencja czasu / Time intent'),
+      submenu: [
+        { label: localized('Dzisiaj / Today'), click: () => setIntent('today') },
+        { label: localized('Nadchodzące / Upcoming'), click: () => setIntent('upcoming') },
+        { label: localized('Kiedykolwiek / Anytime'), click: () => setIntent('anytime') },
+      ],
     };
   }
 
