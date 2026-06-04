@@ -21,8 +21,19 @@ class SystemStartServiceBase {
 }
 
 class SystemStartServiceDarwin extends SystemStartServiceBase {
+  // True only for a packaged app bundle (e.g. /Applications/ActunaMail.app).
+  // In dev mode (electron ./app) the executable is node_modules/.../Electron.app;
+  // registering it as a login item relaunches a bare Electron at login — the
+  // default "welcome" window instead of ActunaMail. Kept as a method so specs
+  // can drive the packaged branch (see system-start-service-spec.ts).
+  _isPackaged(): boolean {
+    return require('@electron/remote').app.isPackaged;
+  }
+
   checkAvailability() {
-    return Promise.resolve(true);
+    // Hide the "Launch on system start" toggle entirely in dev mode so the
+    // bare dev Electron can never be registered as a login item.
+    return Promise.resolve(this._isPackaged());
   }
 
   doesLaunchOnSystemStart() {
@@ -32,6 +43,14 @@ class SystemStartServiceDarwin extends SystemStartServiceBase {
   }
 
   configureToLaunchOnSystemStart() {
+    if (!this._isPackaged()) {
+      // Defense in depth: never register the unpackaged dev Electron, even if
+      // called programmatically. See system-start-service-spec.ts.
+      console.warn(
+        '[system-start] Refusing to enable launch-on-login for an unpackaged (dev) Electron build.'
+      );
+      return;
+    }
     const app = require('@electron/remote').app;
     app.setLoginItemSettings({ openAtLogin: true });
     this._cleanupLegacyPlist();

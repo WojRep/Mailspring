@@ -90,8 +90,6 @@ interface LaunchSystemStartItemState {
 }
 
 class LaunchSystemStartItem extends React.Component {
-  _service = new SystemStartService();
-
   state: LaunchSystemStartItemState = { launchOnStart: 'unavailable' };
 
   _mounted: boolean;
