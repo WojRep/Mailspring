@@ -63,7 +63,7 @@ h1,
 #print-header .logo-wrapper {
   display: flex;
   align-items: center;
-  font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
+  font-family: 'ActunaMail-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
   line-height: 1.68em;
 }
 #print-header .account {
@@ -74,11 +74,11 @@ h1,
 .print-subject {
   margin-left: 15px;
   font-size: 1.5em !important;
-  font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
+  font-family: 'ActunaMail-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
 }
 .print-participants .participant {
   font-size: 0.7em;
-  font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
+  font-family: 'ActunaMail-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
 }
 
 /* Elements to hide */

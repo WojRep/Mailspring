@@ -45,7 +45,9 @@ function isMeaningfulColor(color: string, el: HTMLElement) {
   const meaningless = ['black', 'rgb(0,0,0)', 'rgba(0,0,0,1)', '#000', '#000000'];
   if (meaningless.includes(color.replace(/ /g, ''))) return false;
 
-  const isOwnHTML = (el.style.fontFamily || '').includes('Nylas-Pro');
+  // #123 pkt 6: dual-accept — nowa rodzina ActunaMail-Pro ORAZ legacy Nylas-Pro
+  // (inline font-family w JUŻ wysłanych/zapisanych mailach skomponowanych przed rename).
+  const isOwnHTML = /ActunaMail-Pro|Nylas-Pro/.test(el.style.fontFamily || '');
   if (isOwnHTML && color === AppEnv.themes.getEmailTextColor()) return false;
 
   return true;

@@ -88,6 +88,31 @@ describe('#57 — czystka odwołań mailspring/nylas/N1 (strażnik transz 1–3)
     expect(occurrences.length).toBe(2);
   });
 
+  it('T7 (#123 pkt 6): rodzina fontu ActunaMail-Pro; Nylas-Pro TYLKO jako legacy dual-accept', () => {
+    // Rename rodziny @font-face Nylas-Pro -> ActunaMail-Pro. Jedyne dozwolone
+    // wystąpienie 'Nylas-Pro' to detekcja isOwnHTML w base-mark-plugins.tsx —
+    // JUŻ wysłane/zapisane maile mają inline font-family z legacy rodziną.
+    const offenders: string[] = [];
+    for (const f of files) {
+      if (f.endsWith('base-mark-plugins.tsx')) continue;
+      if (fs.readFileSync(f, 'utf8').includes('Nylas-Pro')) {
+        offenders.push(path.relative(APP, f));
+      }
+    }
+    expect(offenders).toEqual([]);
+    const fontsLess = fs.readFileSync(
+      path.join(APP, 'internal_packages', 'custom-fonts', 'styles', 'fonts.less'),
+      'utf8'
+    );
+    expect(fontsLess.includes("'ActunaMail-Pro'")).toBe(true);
+    const markPlugins = fs.readFileSync(
+      path.join(APP, 'src', 'components', 'composer-editor', 'base-mark-plugins.tsx'),
+      'utf8'
+    );
+    expect(markPlugins.includes('ActunaMail-Pro')).toBe(true);
+    expect(markPlugins.includes('Nylas-Pro')).toBe(true);
+  });
+
   it('T4: compile-cache-ts.js i composer/package.json bez nylas', () => {
     const compileCache = fs.readFileSync(path.join(APP, 'src', 'compile-cache-ts.js'), 'utf8');
     expect(/nylas/i.test(compileCache)).toBe(false);
