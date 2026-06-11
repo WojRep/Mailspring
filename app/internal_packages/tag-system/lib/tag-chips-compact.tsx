@@ -111,6 +111,7 @@ export default class TagChipsCompact extends React.Component<Props, State> {
           <span
             key={tag.id}
             className={`tag-chip-compact${tag.systemManaged ? ' tag-chip-compact--system' : ''}`}
+            style={{ borderColor: tag.color }}
             role="listitem"
             title={tag.name}
             aria-label={localized('Tag {name} / Tag {name}').replace(/\{name\}/g, tag.name)}

@@ -87,6 +87,7 @@ export default class TagChips extends React.Component<Props, State> {
             <span
               key={tag.id}
               className={`tag-chip${tag.systemManaged ? ' tag-chip--system' : ''}`}
+              style={{ borderColor: tag.color }}
               role="listitem"
               aria-label={chipLabel}
               tabIndex={0}

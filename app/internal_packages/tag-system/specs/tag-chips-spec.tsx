@@ -79,6 +79,15 @@ describe('Tag chips — bilet MVP #98', () => {
     expect(TagStore.hasTag('t1', 'q3')).toBe(false);
   });
 
+  // QA #118: chip ma cienką obramówkę w kolorze kropki tagu (widoczność).
+  it('chip ma border w kolorze tagu (border = kolor kropki)', () => {
+    TagStore.register({ id: 'vis', name: 'Vis', color: 'rgb(255, 99, 71)', source: 'user' });
+    TagStore.apply('t1', 'vis');
+    const { container } = render(<TagChips thread={{ id: 't1' }} />);
+    const chip = container.querySelector('.tag-chip') as HTMLElement;
+    expect(chip.style.borderColor).toBe('rgb(255, 99, 71)');
+  });
+
   it('re-renders on TagStore changes', () => {
     const { container } = render(<TagChips thread={{ id: 't1' }} />);
     expect(container.querySelector('.tag-chips-row')).toBeNull();

@@ -108,6 +108,22 @@ describe('TagChipsCompact — bilet #118', () => {
     expect((TagChipsCompact as any).containerRequired).toBe(false);
   });
 
+  // QA #118: chip ma cienką obramówkę w kolorze kropki tagu (widoczność).
+  it('chip ma border w kolorze tagu (border = kolor kropki)', () => {
+    TagStore.register({ id: 'vis', name: 'Vis', color: 'rgb(255, 99, 71)', source: 'user' });
+    TagStore.apply('t1', 'vis');
+    const { container } = render(<TagChipsCompact thread={{ id: 't1' }} />);
+    const chip = container.querySelector('.tag-chip-compact') as HTMLElement;
+    expect(chip.style.borderColor).toBe('rgb(255, 99, 71)');
+  });
+
+  it('overflow chip "+N" BEZ kolorowej obramówki (neutralny)', () => {
+    for (const id of ['q3', 'urg', 'foo', 'bar', 'baz']) TagStore.apply('t1', id);
+    const { container } = render(<TagChipsCompact thread={{ id: 't1' }} />);
+    const overflow = container.querySelector('.tag-chip-compact-overflow') as HTMLElement;
+    expect(overflow.style.borderColor).toBe('');
+  });
+
   // Bilet #120: tag priorytetowy (preset Eisenhower/ABC) renderowany PIERWSZY.
   it('tag priorytetowy renderuje się przed tagami usera (rank first)', () => {
     const { PriorityPresetStore, PRESETS } =
