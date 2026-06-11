@@ -156,7 +156,7 @@ export function prepareTestConfigDir(): string {
 
   // Copy the golden database
   if (fs.existsSync(FIXTURE_DB)) {
-    fs.copyFileSync(FIXTURE_DB, path.join(dir, 'edgehill.db'));
+    fs.copyFileSync(FIXTURE_DB, path.join(dir, 'actunamail.db'));
   }
 
   return dir;
@@ -615,7 +615,7 @@ export async function closeComposerWindows(electronApp: ElectronApplication) {
 
 /** Open the test database (read-only) */
 export function openTestDB(configDir: string): Database.Database {
-  const dbPath = path.join(configDir, 'edgehill.db');
+  const dbPath = path.join(configDir, 'actunamail.db');
   return new Database(dbPath, { readonly: true });
 }
 

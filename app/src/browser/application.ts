@@ -706,7 +706,11 @@ export default class Application extends EventEmitter {
   };
 
   _deleteDatabase = (callback) => {
-    this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db'), callback);
+    this.deleteFileWithRetry(path.join(this.configDirPath, 'actunamail.db'), callback);
+    this.deleteFileWithRetry(path.join(this.configDirPath, 'actunamail.db-wal'));
+    this.deleteFileWithRetry(path.join(this.configDirPath, 'actunamail.db-shm'));
+    // #123: sprzątnij też bazę pod legacy nazwą (profil sprzed migracji)
+    this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db'));
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db-wal'));
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db-shm'));
   };

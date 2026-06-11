@@ -115,7 +115,7 @@ app.whenReady().then(() => {
     if (again !== dbKeyHex) throw new Error('key changed between calls');
   });
 
-  check('6. mailsync --mode migrate produces an ENCRYPTED edgehill.db', () => {
+  check('6. mailsync --mode migrate produces an ENCRYPTED actunamail.db', () => {
     if (!dbKeyHex) throw new Error('no key from check 3');
     const migrateDir = path.join(work, 'migrate');
     fs.mkdirSync(migrateDir, { recursive: true });
@@ -129,14 +129,14 @@ app.whenReady().then(() => {
       timeout: 30000,
       stdio: 'pipe',
     });
-    const dbPath = path.join(migrateDir, 'edgehill.db');
-    if (!fs.existsSync(dbPath)) throw new Error('edgehill.db not created');
+    const dbPath = path.join(migrateDir, 'actunamail.db');
+    if (!fs.existsSync(dbPath)) throw new Error('actunamail.db not created');
     const fd = fs.openSync(dbPath, 'r');
     const header = Buffer.alloc(16);
     fs.readSync(fd, header, 0, 16, 0);
     fs.closeSync(fd);
     if (header.toString('utf-8') === 'SQLite format 3\0') {
-      throw new Error('edgehill.db is PLAINTEXT (stock SQLite magic header present)');
+      throw new Error('actunamail.db is PLAINTEXT (stock SQLite magic header present)');
     }
   });
 

@@ -125,9 +125,9 @@ async function openDatabase(dbPath: string) {
 }
 
 function databasePath(configDirPath: string, specMode = false) {
-  let dbPath = path.join(configDirPath, 'edgehill.db');
+  let dbPath = path.join(configDirPath, 'actunamail.db');
   if (specMode) {
-    dbPath = path.join(configDirPath, 'edgehill.test.db');
+    dbPath = path.join(configDirPath, 'actunamail.test.db');
   }
   return dbPath;
 }

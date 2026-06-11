@@ -99,7 +99,7 @@ describe('first-launch-checks (ticket 45c)', function firstLaunchChecksSpec() {
 
     it('returns true when edgehill.db starts with stock SQLite magic', () => {
       // Fake a v0.2.x plaintext SQLite: write the 16-byte magic header.
-      const dbPath = path.join(tmpDir, 'edgehill.db');
+      const dbPath = path.join(tmpDir, 'actunamail.db');
       const header = Buffer.from('SQLite format 3\0', 'utf-8');
       fs.writeFileSync(dbPath, header);
       expect(detectV02Data(tmpDir)).toBe(true);
@@ -107,14 +107,14 @@ describe('first-launch-checks (ticket 45c)', function firstLaunchChecksSpec() {
 
     it('returns false when edgehill.db is opaque (SQLCipher-encrypted)', () => {
       // Fake an encrypted DB: random bytes, no magic header.
-      const dbPath = path.join(tmpDir, 'edgehill.db');
+      const dbPath = path.join(tmpDir, 'actunamail.db');
       const opaque = Buffer.alloc(16, 0xAB); // non-magic content
       fs.writeFileSync(dbPath, opaque);
       expect(detectV02Data(tmpDir)).toBe(false);
     });
 
     it('returns false when file is shorter than 16 bytes (corrupt)', () => {
-      const dbPath = path.join(tmpDir, 'edgehill.db');
+      const dbPath = path.join(tmpDir, 'actunamail.db');
       fs.writeFileSync(dbPath, Buffer.from('short', 'utf-8'));
       expect(detectV02Data(tmpDir)).toBe(false);
     });
@@ -127,7 +127,7 @@ describe('first-launch-checks (ticket 45c)', function firstLaunchChecksSpec() {
       tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'actuna-archive-test-'));
       configDir = path.join(tmpRoot, 'ActunaMail');
       fs.mkdirSync(configDir);
-      fs.writeFileSync(path.join(configDir, 'edgehill.db'), 'fake plaintext db');
+      fs.writeFileSync(path.join(configDir, 'actunamail.db'), 'fake plaintext db');
       fs.writeFileSync(path.join(configDir, 'mail_rules.json'), '{}');
     });
     afterEach(() => {
@@ -143,7 +143,7 @@ describe('first-launch-checks (ticket 45c)', function firstLaunchChecksSpec() {
       const archivePath = archiveV02Data(configDir, fixedTs);
       expect(archivePath).toBe(`${configDir}.v0.2-archive-2026-05-15-21-30-00`);
       expect(fs.existsSync(archivePath)).toBe(true);
-      expect(fs.existsSync(path.join(archivePath, 'edgehill.db'))).toBe(true);
+      expect(fs.existsSync(path.join(archivePath, 'actunamail.db'))).toBe(true);
       expect(fs.existsSync(path.join(archivePath, 'mail_rules.json'))).toBe(true);
     });
 

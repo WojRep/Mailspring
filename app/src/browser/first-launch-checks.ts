@@ -81,7 +81,7 @@ export function verifySafeStorageBackend(
 }
 
 /**
- * Returns true if `configDirPath` contains an `edgehill.db` that is NOT
+ * Returns true if `configDirPath` contains an `actunamail.db` that is NOT
  * SQLCipher-encrypted (i.e., a leftover v0.2.x plaintext database).
  *
  * Detection heuristic: stock SQLite databases begin with the 16-byte
@@ -91,7 +91,7 @@ export function verifySafeStorageBackend(
  * way we don't archive it).
  */
 export function detectV02Data(configDirPath: string): boolean {
-  const dbPath = path.join(configDirPath, 'edgehill.db');
+  const dbPath = path.join(configDirPath, 'actunamail.db');
   if (!fs.existsSync(dbPath)) {
     return false;
   }

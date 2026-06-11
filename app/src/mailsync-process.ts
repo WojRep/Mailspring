@@ -164,12 +164,12 @@ export class MailsyncProcess extends EventEmitter {
     // reads this env, validates as hex-32-byte, and PRAGMA-keys the
     // connection before any other statement. Identical key as the JS
     // side (DatabaseStore) so both processes read/write the same
-    // encrypted edgehill.db.
+    // encrypted actunamail.db.
     //
     // KeyManager.getDBKey() is synchronous (safeStorage is a sync
     // Electron API). Calling it directly here — not via a cache that
     // may be cold — guarantees mailsync always spawns WITH the key,
-    // so it never creates a plaintext edgehill.db that the renderer
+    // so it never creates a plaintext actunamail.db that the renderer
     // (with the key) would then fail to open.
     let mailsyncDbKeyHex = '';
     try {

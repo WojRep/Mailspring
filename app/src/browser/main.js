@@ -334,6 +334,18 @@ const start = () => {
   const configDirPath = setupConfigDir(options);
   options.configDirPath = configDirPath;
 
+  // #123: jednorazowy rename edgehill.db -> actunamail.db. Musi być PRZED
+  // startem Application (renderer) i mailsync — nikt nie trzyma uchwytu DB.
+  try {
+    const { migrateLegacyDatabaseName } = require('./database-name-migration');
+    const dbMigration = migrateLegacyDatabaseName(configDirPath);
+    if (dbMigration.migrated) {
+      console.log(`db-name-migration: renamed ${dbMigration.renamed.join(', ')}`);
+    }
+  } catch (err) {
+    console.error('db-name-migration failed:', err);
+  }
+
   // On macOS, setLoginItemSettings doesn't support passing custom args, so we
   // detect login-item launches via wasOpenedAtLogin and start in background.
   if (process.platform === 'darwin' && !options.background) {
