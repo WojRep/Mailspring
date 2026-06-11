@@ -1,13 +1,13 @@
 // # Phishing Detection
 //
-// This is a simple package to notify N1 users if an email is a potential
+// This is a simple package to notify ActunaMail users if an email is a potential
 // phishing scam.
 
 // You can access ActunaMail dependencies by requiring 'actunamail-exports'
 import React from 'react';
 import {
   PropTypes,
-  // The ComponentRegistry manages all React components in N1.
+  // The ComponentRegistry manages all React components in ActunaMail.
   ComponentRegistry,
   // A `Store` is a Flux component which contains all business logic and data
   // models to be consumed by React components to render markup.

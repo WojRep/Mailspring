@@ -83,7 +83,7 @@ export class QuickEventPopover extends React.Component<
     }
 
     return (
-      <div className="quick-event-popover nylas-date-input">
+      <div className="quick-event-popover actunamail-date-input">
         <input
           tabIndex={0}
           type="text"

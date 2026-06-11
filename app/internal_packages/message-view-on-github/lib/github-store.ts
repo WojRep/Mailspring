@@ -6,7 +6,7 @@ class GithubStore extends ActunaMailStore {
   _link: string = null;
   _lastItemIds: string[];
 
-  // It's very common practive for {ActunaMailStore}s to listen to other parts of N1.
+  // It's very common practive for {ActunaMailStore}s to listen to other parts of ActunaMail.
   // Since Stores are singletons and constructed once on `require`, there is no
   // teardown step to turn off listeners.
   constructor() {

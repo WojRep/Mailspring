@@ -530,7 +530,7 @@ class EditableList extends Component<EditableListProps, EditableListState> {
       <KeyCommandsRegion
         tabIndex={0}
         localHandlers={this._listKeymapHandlers()}
-        className={`nylas-editable-list ${this.props.className}`}
+        className={`actunamail-editable-list ${this.props.className}`}
       >
         <ScrollRegion
           className="items-wrapper"

@@ -306,9 +306,9 @@ const RegExpUtils = {
     return /[\\/:|?*><"#]/g;
   },
 
-  // Finds the start of a quoted text region as inserted by N1. This is not
+  // Finds the start of a quoted text region as inserted by ActunaMail. This is not
   // a general-purpose quote detection scheme and only works for
-  // N1-composed emails.
+  // ActunaMail-composed emails.
   nativeQuoteStartRegex() {
     return new RegExp(/<\w+[^>]*gmail_quote/i);
   },

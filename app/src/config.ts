@@ -27,7 +27,7 @@ if (process.type === 'renderer') {
   ({ errorLogger } = global);
 }
 
-// Essential: Used to access all of N1's configuration details.
+// Essential: Used to access all of ActunaMail's configuration details.
 //
 // An instance of this class is always available as the `AppEnv.config` global.
 //
@@ -430,7 +430,7 @@ export default class Config {
   //
   // * `keyPath` The {String} name of the key to retrieve.
   //
-  // Returns the value from N1's default settings, the user's configuration
+  // Returns the value from ActunaMail's default settings, the user's configuration
   // file in the type specified by the configuration schema.
   get(keyPath?: string) {
     return this.getRawValue(keyPath);
@@ -438,7 +438,7 @@ export default class Config {
 
   // Essential: Sets the value for a configuration setting.
   //
-  // This value is stored in N1's internal configuration file.
+  // This value is stored in ActunaMail's internal configuration file.
   //
   // ### Examples
   //

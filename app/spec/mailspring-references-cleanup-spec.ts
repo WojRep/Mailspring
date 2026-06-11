@@ -1,0 +1,91 @@
+/**
+ * #57 — strażnik czystki odwołań mailspring/nylas/N1 (transze 1–3).
+ *
+ * Mandat usera (2026-06-11): odwołania do Mailspring zostają WYŁĄCZNIE tam,
+ * gdzie wymaga tego GPL (atrybucja) lub zgodność wsteczna (KEEP-TECH).
+ * Inwentaryzacja: analysis/57-mailspring-references-inventory.md.
+ *
+ * Zakres strażnika (kod produkcyjny + style; specs/fixtures wyłączone —
+ * fixture'y odwzorowują realne maile świata zewnętrznego):
+ *  T1: brak klas CSS `nylas-*` w stylach i komponentach (pary .less↔.tsx),
+ *  T2: brak fontu 'Mailspring-Pro' (rodzina nie istnieje — silent fallback;
+ *      realna rodzina to 'Nylas-Pro', jej rename = transza 5 z dual-accept
+ *      w base-mark-plugins.tsx),
+ *  T3: brak odwołań do produktu „N1" w kodzie/komentarzach/docs pakietów,
+ *  T4: punktowe: compile-cache-ts.js (nylasHome), composer/package.json.
+ *
+ * Allowlist (celowe, poza zakresem transz 1–3):
+ *  - 'Nylas-Pro' (rodzina fontu — transza 5; usuwana z treści przed skanem T1),
+ *  - windows-updater.js komentarze o nylas.exe (layout Squirrel — weryfikacja
+ *    przy pracach Windows #52; nie łapie się w żaden wzorzec T1–T3).
+ */
+
+import * as fs from 'fs';
+import * as path from 'path';
+
+const APP = path.join(__dirname, '..');
+const CODE_EXT = ['.ts', '.tsx', '.js', '.jsx', '.less', '.css', '.md', '.json'];
+const EXCLUDED_DIRS = new Set(['node_modules', 'specs', 'spec', 'fixtures', 'dist']);
+
+function walk(dir: string, out: string[] = []): string[] {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (!EXCLUDED_DIRS.has(entry.name)) walk(path.join(dir, entry.name), out);
+    } else if (CODE_EXT.includes(path.extname(entry.name))) {
+      out.push(path.join(dir, entry.name));
+    }
+  }
+  return out;
+}
+
+function scanRoots(): string[] {
+  const roots = [path.join(APP, 'src'), path.join(APP, 'static', 'style')];
+  for (const pkg of fs.readdirSync(path.join(APP, 'internal_packages'))) {
+    const p = path.join(APP, 'internal_packages', pkg);
+    if (fs.statSync(p).isDirectory()) roots.push(p);
+  }
+  return roots.flatMap(r => (fs.existsSync(r) ? walk(r) : []));
+}
+
+describe('#57 — czystka odwołań mailspring/nylas/N1 (strażnik transz 1–3)', () => {
+  const files = scanRoots();
+
+  it('T1: brak klas CSS nylas-* w stylach i komponentach', () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      const content = fs.readFileSync(f, 'utf8').replace(/Nylas-Pro/g, '');
+      if (/nylas-/i.test(content)) offenders.push(path.relative(APP, f));
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("T2: brak fontu 'Mailspring-Pro' (nieistniejąca rodzina, silent fallback)", () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      if (fs.readFileSync(f, 'utf8').includes('Mailspring-Pro')) {
+        offenders.push(path.relative(APP, f));
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('T3: brak odwołań do produktu „N1" w kodzie/komentarzach/docs', () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      if (/\bN1\b/.test(fs.readFileSync(f, 'utf8'))) {
+        offenders.push(path.relative(APP, f));
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('T4: compile-cache-ts.js i composer/package.json bez nylas', () => {
+    const compileCache = fs.readFileSync(path.join(APP, 'src', 'compile-cache-ts.js'), 'utf8');
+    expect(/nylas/i.test(compileCache)).toBe(false);
+    const composerPkg = fs.readFileSync(
+      path.join(APP, 'internal_packages', 'composer', 'package.json'),
+      'utf8'
+    );
+    expect(/nylas/i.test(composerPkg)).toBe(false);
+  });
+});

@@ -7,4 +7,4 @@ a message's originating address is different from its return address. The warnin
 
 #### Who is this for?
 
-This package is our slimmest example package. It's annotated for developers who have no experience with React, Flux, Electron, or N1.
+This package is our slimmest example package. It's annotated for developers who have no experience with React, Flux, Electron, or ActunaMail.

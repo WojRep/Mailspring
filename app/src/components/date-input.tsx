@@ -82,7 +82,7 @@ class DateInput extends Component<DateInputProps, DateInputState> {
     const { className } = this.props;
     const { inputDate, inputValue } = this.state;
     const classes = classnames({
-      'nylas-date-input': true,
+      'actunamail-date-input': true,
       [className]: className != null,
     });
     const formatted = (

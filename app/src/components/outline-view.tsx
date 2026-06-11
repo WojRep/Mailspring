@@ -397,7 +397,7 @@ export class OutlineView extends Component<OutlineViewProps, OutlineViewState> {
     const allowCreate = this.props.onItemCreated != null && !collapsed;
 
     return (
-      <div className="outline-view nylas-outline-view">
+      <div className="outline-view actunamail-outline-view">
         {this._renderHeading(allowCreate, collapsed, collapsible)}
         {this._renderOutline(allowCreate, collapsed)}
       </div>

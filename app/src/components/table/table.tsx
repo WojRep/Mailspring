@@ -244,7 +244,7 @@ export default class Table extends Component<TableProps> {
     const { className, ...otherProps } = this.props;
 
     return (
-      <div className={`nylas-table ${className}`} {...pickHTMLProps(otherProps)}>
+      <div className={`actunamail-table ${className}`} {...pickHTMLProps(otherProps)}>
         <table>
           {this.renderHeader()}
           {this.renderBody()}

@@ -61,7 +61,7 @@ export default class ConfigPersistenceManager {
     let detail = error.message;
 
     if (error instanceof SyntaxError) {
-      detail += `\n\nThe file ${this.configFilePath} has incorrect JSON formatting or is empty. Fix the formatting to resolve this error, or reset your settings to continue using N1.`;
+      detail += `\n\nThe file ${this.configFilePath} has incorrect JSON formatting or is empty. Fix the formatting to resolve this error, or reset your settings to continue using ActunaMail.`;
     } else {
       detail += `\n\nWe were unable to read the file ${this.configFilePath}. Make sure you have permissions to access this file, and check that the file is not open or being edited and try again.`;
     }
