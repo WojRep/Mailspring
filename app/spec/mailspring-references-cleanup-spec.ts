@@ -79,6 +79,15 @@ describe('#57 — czystka odwołań mailspring/nylas/N1 (strażnik transz 1–3)
     expect(offenders).toEqual([]);
   });
 
+  it('T5: regexp-utils — getmailspring tylko w sekcji link-tracking (legacy unwrap)', () => {
+    // Transza 4 (#57): odpakowywanie starych linków link.getmailspring.com
+    // w istniejących mailach to FUNKCJA (KEEP-TECH) — komentarz + regex.
+    // Przykładowe domeny w docach innych regexów nie używają brandu upstream.
+    const src = fs.readFileSync(path.join(APP, 'src', 'regexp-utils.ts'), 'utf8');
+    const occurrences = src.match(/getmailspring/g) || [];
+    expect(occurrences.length).toBe(2);
+  });
+
   it('T4: compile-cache-ts.js i composer/package.json bez nylas', () => {
     const compileCache = fs.readFileSync(path.join(APP, 'src', 'compile-cache-ts.js'), 'utf8');
     expect(/nylas/i.test(compileCache)).toBe(false);

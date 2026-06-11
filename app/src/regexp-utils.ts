@@ -112,10 +112,10 @@ const RegExpUtils = {
       '(',
       // This OR block matches any TLD if the URL includes a scheme, and only
       // the top ten TLDs if the scheme is omitted.
-      // YES - https://getmailspring.ai
+      // YES - https://example.ai
       // YES - https://10.2.3.1
-      // YES - getmailspring.com
-      // NO  - getmailspring.ai
+      // YES - example.com
+      // NO  - example.ai
       '(',
       // scheme, ala https:// (mandatory)
       '([A-Za-z]{3,9}:(?:\\/\\/))',
