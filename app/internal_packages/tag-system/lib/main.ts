@@ -26,8 +26,103 @@ import PreferencesTags from './preferences-tags';
 let shortcutDisposable: { dispose(): void } | null = null;
 let preferencesTabRegistered = false;
 let dbUnlisten: (() => void) | null = null;
+let deltaWiringStatus: 'pending' | 'ok' | 'failed' = 'pending';
+let deltaWiringError: string | null = null;
+let deltaWiringRetry: ReturnType<typeof setTimeout> | null = null;
+// Liczniki diagnostyczne handlera delt (#117) — tanie, trwałe, czytane z
+// AppEnv.tagSystem.deltaStats (e2e + debugging w devtools).
+const deltaStats = {
+  threadDeltas: 0, threadsSeen: 0, withCk: 0, errors: 0,
+  lastError: null as string | null,
+  sweepThreads: -1, // -1 = sweep jeszcze nie wykonany
+  activatedAt: 0, // diagnostyka wyścigu bootu (#122)
+};
+// Diagnostyka podwójnego załadowania modułu (obserwacja z e2e 2026-06-11:
+// dwie żywe kopie tag-system w jednym oknie — patrz backlog #122).
+const moduleLoadIndex = typeof window !== 'undefined'
+  ? ((window as any).__tagSystemLoads = ((window as any).__tagSystemLoads || 0) + 1)
+  : 0;
+
+/**
+ * #117: inbound sync — delty Thread z silnika C++ niosą customKeywords
+ * (keywordy IMAP); reconcile przypisań per thread (serwer = źródło prawdy).
+ *
+ * Lekcja z realnego e2e (tags-sync-real, 2026-06-11): rejestracja przy
+ * wczesnym boot potrafi paść, a cichy catch ukrywał to całkowicie — sonda
+ * widziała delty z keywordami, registry zostawało puste. Dlatego: status +
+ * błąd eksponowane (AppEnv.tagSystem.deltaWiring/.deltaWiringError),
+ * console.warn zamiast ciszy, oraz retry z backoffem (boot-order resilience).
+ */
+function wireDeltaListener(attempt = 0): void {
+  if (dbUnlisten) return; // już podpięte
+  try {
+    const { DatabaseStore } = require('actunamail-exports');
+    if (!DatabaseStore || typeof DatabaseStore.listen !== 'function') {
+      throw new Error('DatabaseStore.listen unavailable at activate()');
+    }
+    dbUnlisten = DatabaseStore.listen((change: any) => {
+      if (!change || change.objectClass !== 'Thread' || !Array.isArray(change.objects)) return;
+      deltaStats.threadDeltas++;
+      for (const t of change.objects) {
+        deltaStats.threadsSeen++;
+        if (t && Array.isArray(t.customKeywords) && t.customKeywords.length) deltaStats.withCk++;
+        try {
+          TagStore.syncFromThread(t);
+        } catch (e) {
+          deltaStats.errors++;
+          deltaStats.lastError = String((e as any)?.message || e);
+          console.warn('[tag-system] syncFromThread failed for delta thread:', e);
+        }
+      }
+    });
+    deltaWiringStatus = 'ok';
+    deltaWiringError = null;
+  } catch (e) {
+    deltaWiringStatus = 'failed';
+    deltaWiringError = String((e as any)?.message || e);
+    console.warn(`[tag-system] delta wiring failed (attempt ${attempt}):`, e);
+    if (attempt < 5) {
+      deltaWiringRetry = setTimeout(() => wireDeltaListener(attempt + 1), 2000 * (attempt + 1));
+    }
+  }
+  const api = (window as any).AppEnv?.tagSystem;
+  if (api) {
+    api.deltaWiring = deltaWiringStatus;
+    api.deltaWiringError = deltaWiringError;
+  }
+}
+
+/**
+ * #117: początkowy sweep reconcile z DB. Delty są ULOTNE — wątki, które
+ * zsyncowały się ZANIM pakiet się aktywował (wyścig bootu, zaobserwowany
+ * w realnym e2e 2026-06-11: aktywacja pakietu nastąpiła PO initial sync
+ * konta), nie wyemitują już niczego. Trwały stan keywordów jest w DB —
+ * czytamy ostatnie wątki i reconcilujemy przypisania.
+ */
+function initialReconcileSweep(): void {
+  try {
+    const { DatabaseStore, Thread } = require('actunamail-exports');
+    if (!DatabaseStore || !Thread || typeof DatabaseStore.findAll !== 'function') return;
+    const q = DatabaseStore.findAll(Thread);
+    const limited = q && typeof q.limit === 'function' ? q.limit(5000) : q;
+    Promise.resolve(limited)
+      .then((threads: any[]) => {
+        if (!Array.isArray(threads)) return;
+        for (const t of threads) {
+          try {
+            TagStore.syncFromThread(t);
+          } catch (e) { /* pojedynczy wątek nie wywraca sweepa */ }
+        }
+        deltaStats.sweepThreads = threads.length;
+      })
+      .catch(() => { /* DB jeszcze niegotowa — delty pokryją resztę */ });
+  } catch (e) {
+    /* exports unavailable (test/node context) */
+  }
+}
 
 export function activate() {
+  deltaStats.activatedAt = Date.now();
   TagStore.init();
   registerSystemTags();
 
@@ -36,21 +131,8 @@ export function activate() {
     require('./priority-preset-store').PriorityPresetStore.init();
   } catch (e) { /* preset store unavailable */ }
 
-  // #117: inbound sync — delty Thread z silnika C++ niosą customKeywords
-  // (keywordy IMAP); reconcile przypisań per thread (serwer = źródło prawdy).
-  try {
-    const { DatabaseStore } = require('actunamail-exports');
-    if (DatabaseStore && typeof DatabaseStore.listen === 'function') {
-      dbUnlisten = DatabaseStore.listen((change: any) => {
-        if (!change || change.objectClass !== 'Thread' || !Array.isArray(change.objects)) return;
-        for (const t of change.objects) {
-          try { TagStore.syncFromThread(t); } catch (e) { /* pojedyncza delta nie wywraca reszty */ }
-        }
-      });
-    }
-  } catch (e) {
-    /* exports unavailable (test/node context) */
-  }
+  wireDeltaListener();
+  initialReconcileSweep();
 
   // Mount overlays.
   ComponentRegistry.register(TagPicker, { location: WorkspaceStore.Sheet.Global.Footer });
@@ -137,14 +219,24 @@ export function activate() {
   (window as any).AppEnv.tagSystem = {
     Store: TagStore,
     UIBus: TagSystemUIBus,
+    deltaWiring: deltaWiringStatus,
+    deltaWiringError,
+    deltaStats,
+    moduleLoadIndex,
   };
 }
 
 export function deactivate() {
+  if (deltaWiringRetry) {
+    clearTimeout(deltaWiringRetry);
+    deltaWiringRetry = null;
+  }
   if (dbUnlisten) {
     dbUnlisten();
     dbUnlisten = null;
   }
+  deltaWiringStatus = 'pending';
+  deltaWiringError = null;
   ComponentRegistry.unregister(TagPicker);
   ComponentRegistry.unregister(TagChips);
   ComponentRegistry.unregister(TagChipsCompact);
