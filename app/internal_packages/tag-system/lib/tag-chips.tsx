@@ -77,9 +77,12 @@ export default class TagChips extends React.Component<Props, State> {
     if (this.state.tags.length === 0) return null;
     return (
       <div className="tag-chips-row" role="list" aria-label={localized('Tagi wątku / Thread tags')}>
-        {this.state.tags.map(tag => {
+        {this.state.tags.map((tag) => {
           const chipLabel = localized('Tag {name} / Tag {name}').replace(/\{name\}/g, tag.name);
-          const removeLabel = localized('Usuń tag {name} / Remove tag {name}').replace(/\{name\}/g, tag.name);
+          const removeLabel = localized('Usuń tag {name} / Remove tag {name}').replace(
+            /\{name\}/g,
+            tag.name
+          );
           return (
             <span
               key={tag.id}
@@ -89,11 +92,7 @@ export default class TagChips extends React.Component<Props, State> {
               tabIndex={0}
               onKeyDown={(e) => this._onChipKeyDown(tag, e)}
             >
-              <span
-                className="tag-chip-dot"
-                style={{ background: tag.color }}
-                aria-hidden="true"
-              />
+              <span className="tag-chip-dot" style={{ background: tag.color }} aria-hidden="true" />
               <span className="tag-chip-name">{tag.name}</span>
               <button
                 type="button"

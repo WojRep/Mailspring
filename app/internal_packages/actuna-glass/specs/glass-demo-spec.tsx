@@ -11,7 +11,6 @@ import GlassDemo from '../lib/glass-demo';
 import { GlassDemoStore } from '../lib/glass-demo-store';
 
 describe('Glass demo — bilet MVP #92', () => {
-
   beforeEach(() => {
     GlassDemoStore._reset();
   });
@@ -25,7 +24,9 @@ describe('Glass demo — bilet MVP #92', () => {
 
   it('renders dialog overlay when GlassDemoStore.open()', () => {
     const { container } = render(<GlassDemo />);
-    act(() => { GlassDemoStore.open(); });
+    act(() => {
+      GlassDemoStore.open();
+    });
     const backdrop = container.querySelector('.glass-demo-backdrop');
     expect(backdrop).not.toBeNull();
     const dialog = container.querySelector('[role="dialog"]');
@@ -36,7 +37,9 @@ describe('Glass demo — bilet MVP #92', () => {
 
   it('renders 3 intensity tiles (subtle/medium/strong)', () => {
     const { container } = render(<GlassDemo />);
-    act(() => { GlassDemoStore.open(); });
+    act(() => {
+      GlassDemoStore.open();
+    });
     const tiles = container.querySelectorAll('.glass-demo-tile');
     expect(tiles.length).toBe(3);
     expect(container.querySelector('.glass-demo-tile--subtle')).not.toBeNull();
@@ -46,7 +49,9 @@ describe('Glass demo — bilet MVP #92', () => {
 
   it('Esc key closes overlay', () => {
     const { container } = render(<GlassDemo />);
-    act(() => { GlassDemoStore.open(); });
+    act(() => {
+      GlassDemoStore.open();
+    });
     const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
     act(() => {
       fireEvent.keyDown(dialog, { key: 'Escape' });
@@ -56,10 +61,14 @@ describe('Glass demo — bilet MVP #92', () => {
 
   it('close button calls GlassDemoStore.close()', () => {
     const { container } = render(<GlassDemo />);
-    act(() => { GlassDemoStore.open(); });
+    act(() => {
+      GlassDemoStore.open();
+    });
     const closeBtn = container.querySelector('.glass-demo-close') as HTMLElement;
     expect(closeBtn).not.toBeNull();
-    act(() => { fireEvent.click(closeBtn); });
+    act(() => {
+      fireEvent.click(closeBtn);
+    });
     expect(GlassDemoStore.isOpen()).toBe(false);
   });
 
@@ -69,15 +78,23 @@ describe('Glass demo — bilet MVP #92', () => {
     const configBackup = (window as any).AppEnv.config;
     (window as any).AppEnv.config = {
       get: () => false,
-      set: (key: string, value: boolean) => { lastFlag = value; },
+      set: (key: string, value: boolean) => {
+        lastFlag = value;
+      },
       onDidChange: () => () => {},
       setSchema: () => {},
     };
     const { container } = render(<GlassDemo />);
-    act(() => { GlassDemoStore.open(); });
-    const checkbox = container.querySelector('.glass-demo-toggle input[type="checkbox"]') as HTMLInputElement;
+    act(() => {
+      GlassDemoStore.open();
+    });
+    const checkbox = container.querySelector(
+      '.glass-demo-toggle input[type="checkbox"]'
+    ) as HTMLInputElement;
     expect(checkbox).not.toBeNull();
-    act(() => { fireEvent.click(checkbox); });
+    act(() => {
+      fireEvent.click(checkbox);
+    });
     expect(lastFlag).toBe(true);
     (window as any).AppEnv.config = configBackup;
   });

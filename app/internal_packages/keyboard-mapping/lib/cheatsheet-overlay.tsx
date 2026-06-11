@@ -40,12 +40,16 @@ export default class CheatSheetOverlay extends React.Component<{}, State> {
     if (open) {
       try {
         groups = KeyboardMappingStore.groupedByCategory();
-      } catch (e) { /* */ }
+      } catch (e) {
+        /* */
+      }
     }
     this.setState({ open, groups });
   };
 
-  private _close = (): void => { CheatSheetUIBus.close(); };
+  private _close = (): void => {
+    CheatSheetUIBus.close();
+  };
 
   private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     if (e.key === 'Escape') {
@@ -75,10 +79,12 @@ export default class CheatSheetOverlay extends React.Component<{}, State> {
             className="cheatsheet-close"
             aria-label={closeLabel}
             onClick={this._close}
-          >×</button>
+          >
+            ×
+          </button>
         </header>
         <div className="cheatsheet-body">
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <div key={cat} className="cheatsheet-section">
               <h3 className="cheatsheet-section-title">{cat}</h3>
               <ul className="cheatsheet-bindings">
@@ -92,9 +98,7 @@ export default class CheatSheetOverlay extends React.Component<{}, State> {
             </div>
           ))}
           {categories.length === 0 && (
-            <p className="cheatsheet-empty">
-              {localized('Brak skrótów / No shortcuts')}
-            </p>
+            <p className="cheatsheet-empty">{localized('Brak skrótów / No shortcuts')}</p>
           )}
         </div>
       </div>

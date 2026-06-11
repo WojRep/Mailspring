@@ -59,7 +59,11 @@ export default class ContactCardOverlay extends React.Component<{}, State> {
     if (!this.state.open && prev.open && prev.previousActiveElement) {
       const el = prev.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* */
+        }
       }
     }
   }
@@ -67,10 +71,9 @@ export default class ContactCardOverlay extends React.Component<{}, State> {
   private _sync = (): void => {
     const open = ContactCardUIBus.isOpen();
     const email = ContactCardUIBus.getEmail();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
-    const contact = email ? (ContactCardStore.get(email) || null) : null;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
+    const contact = email ? ContactCardStore.get(email) || null : null;
     this.setState({ open, email, contact, previousActiveElement });
   };
 
@@ -97,7 +100,9 @@ export default class ContactCardOverlay extends React.Component<{}, State> {
     const contact = this.state.contact;
     const ariaLabel = localized('Karta kontaktu / Contact card');
     const closeLabel = localized('Zamknij / Close');
-    const noContactLabel = localized('Kontakt nieznany — utwórz aby zobaczyć szczegóły. / Unknown contact — create to see details.');
+    const noContactLabel = localized(
+      'Kontakt nieznany — utwórz aby zobaczyć szczegóły. / Unknown contact — create to see details.'
+    );
 
     return (
       <div className="contact-card-backdrop" onClick={this._onBackdropClick}>
@@ -111,9 +116,7 @@ export default class ContactCardOverlay extends React.Component<{}, State> {
           onKeyDown={this._onKeyDown}
         >
           <header className="contact-card-header">
-            <h2 className="contact-card-title">
-              {contact?.name || email || ariaLabel}
-            </h2>
+            <h2 className="contact-card-title">{contact?.name || email || ariaLabel}</h2>
             <button
               type="button"
               className="contact-card-close"
@@ -128,37 +131,43 @@ export default class ContactCardOverlay extends React.Component<{}, State> {
             {email && (
               <div className="contact-card-email-row">
                 <span className="contact-card-label">{localized('Email')}:</span>
-                <a className="contact-card-email" href={`mailto:${email}`}>{email}</a>
+                <a className="contact-card-email" href={`mailto:${email}`}>
+                  {email}
+                </a>
               </div>
             )}
             {contact && (
               <>
                 {contact.organization && (
                   <div className="contact-card-org-row">
-                    <span className="contact-card-label">{localized('Organizacja / Organization')}:</span>
+                    <span className="contact-card-label">
+                      {localized('Organizacja / Organization')}:
+                    </span>
                     <span>{contact.organization}</span>
                   </div>
                 )}
                 {contact.relationshipTags.length > 0 && (
                   <div className="contact-card-tags">
-                    {contact.relationshipTags.map(tag => (
-                      <span key={tag} className="contact-card-tag-chip">{tag}</span>
+                    {contact.relationshipTags.map((tag) => (
+                      <span key={tag} className="contact-card-tag-chip">
+                        {tag}
+                      </span>
                     ))}
                   </div>
                 )}
                 {contact.dealStatus && contact.dealStatus !== 'none' && (
                   <div className="contact-card-deal-row">
                     <span className="contact-card-label">{localized('Status')}:</span>
-                    <span className={`contact-card-deal-status contact-card-deal-${contact.dealStatus}`}>
+                    <span
+                      className={`contact-card-deal-status contact-card-deal-${contact.dealStatus}`}
+                    >
                       {contact.dealStatus}
                     </span>
                   </div>
                 )}
               </>
             )}
-            {!contact && email && (
-              <p className="contact-card-empty">{noContactLabel}</p>
-            )}
+            {!contact && email && <p className="contact-card-empty">{noContactLabel}</p>}
           </div>
         </div>
       </div>

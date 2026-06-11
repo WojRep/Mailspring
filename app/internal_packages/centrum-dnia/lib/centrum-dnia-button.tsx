@@ -33,7 +33,9 @@ export default class CentrumDniaButton extends React.Component {
         aria-label={label}
         onClick={this._onClick}
       >
-        <span aria-hidden="true" style={{ fontSize: '14px' }}>🎯</span>
+        <span aria-hidden="true" style={{ fontSize: '14px' }}>
+          🎯
+        </span>
       </button>
     );
   }

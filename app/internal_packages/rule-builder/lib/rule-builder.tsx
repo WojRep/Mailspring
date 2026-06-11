@@ -44,40 +44,48 @@ const { localized } = require('actunamail-exports');
 // === Catalogs share z #99 SmartFolderWizard ===
 
 const CONDITION_FIELD_OPTIONS: { value: RuleField; label: string }[] = [
-  { value: 'from',           label: 'Od / From' },
-  { value: 'to',             label: 'Do / To' },
-  { value: 'cc',             label: 'CC' },
-  { value: 'subject',        label: 'Temat / Subject' },
-  { value: 'body',           label: 'Treść / Body' },
-  { value: 'tag',            label: 'Tag' },
-  { value: 'folder',         label: 'Folder' },
-  { value: 'account',        label: 'Konto / Account' },
+  { value: 'from', label: 'Od / From' },
+  { value: 'to', label: 'Do / To' },
+  { value: 'cc', label: 'CC' },
+  { value: 'subject', label: 'Temat / Subject' },
+  { value: 'body', label: 'Treść / Body' },
+  { value: 'tag', label: 'Tag' },
+  { value: 'folder', label: 'Folder' },
+  { value: 'account', label: 'Konto / Account' },
   { value: 'has_attachment', label: 'Załącznik / Attachment' },
-  { value: 'starred',        label: 'Oznaczony / Starred' },
-  { value: 'pinned',         label: 'Przypięty / Pinned' },
-  { value: 'unread',         label: 'Nieprzeczytany / Unread' },
-  { value: 'importance',     label: 'Ważność / Importance' },
-  { value: 'sender_domain',  label: 'Domena nadawcy / Sender domain' },
-  { value: 'date',           label: 'Data / Date' },
+  { value: 'starred', label: 'Oznaczony / Starred' },
+  { value: 'pinned', label: 'Przypięty / Pinned' },
+  { value: 'unread', label: 'Nieprzeczytany / Unread' },
+  { value: 'importance', label: 'Ważność / Importance' },
+  { value: 'sender_domain', label: 'Domena nadawcy / Sender domain' },
+  { value: 'date', label: 'Data / Date' },
 ];
 
-const TEXT_OPS: RuleOperator[] = ['contains', 'does_not_contain', 'is', 'is_not', 'starts_with', 'ends_with', 'matches_regex'];
+const TEXT_OPS: RuleOperator[] = [
+  'contains',
+  'does_not_contain',
+  'is',
+  'is_not',
+  'starts_with',
+  'ends_with',
+  'matches_regex',
+];
 const BOOL_OPS: RuleOperator[] = ['is'];
 const DATE_OPS: RuleOperator[] = ['before', 'after', 'within_last_days'];
 const ENUM_OPS: RuleOperator[] = ['is', 'is_not'];
 
 const OPERATOR_LABELS: Record<RuleOperator, string> = {
-  is:                'jest / is',
-  is_not:            'nie jest / is not',
-  contains:          'zawiera / contains',
-  does_not_contain:  'nie zawiera / does not contain',
-  starts_with:       'zaczyna się / starts with',
-  ends_with:         'kończy się / ends with',
-  matches_regex:     'regex',
-  before:            'przed / before',
-  after:             'po / after',
-  within_last_days:  'w ostatnich N dni / within last N days',
-  in_group:          'w grupie / in group',
+  is: 'jest / is',
+  is_not: 'nie jest / is not',
+  contains: 'zawiera / contains',
+  does_not_contain: 'nie zawiera / does not contain',
+  starts_with: 'zaczyna się / starts with',
+  ends_with: 'kończy się / ends with',
+  matches_regex: 'regex',
+  before: 'przed / before',
+  after: 'po / after',
+  within_last_days: 'w ostatnich N dni / within last N days',
+  in_group: 'w grupie / in group',
 };
 
 function operatorsForField(field: RuleField): RuleOperator[] {
@@ -113,15 +121,29 @@ function defaultValueForField(field: RuleField): any {
 }
 
 const ACTION_TYPES: ActionType[] = [
-  'move', 'copy', 'tag', 'remove_tag',
-  'mark_read', 'mark_important', 'pin', 'snooze',
-  'delete', 'forward', 'auto_reply', 'notify', 'stop_processing',
+  'move',
+  'copy',
+  'tag',
+  'remove_tag',
+  'mark_read',
+  'mark_important',
+  'pin',
+  'snooze',
+  'delete',
+  'forward',
+  'auto_reply',
+  'notify',
+  'stop_processing',
 ];
 
 const TRIGGER_TYPES: TriggerType[] = ['message_arrives', 'message_sent', 'scheduled', 'manual'];
 
-interface ConditionRow extends Rule { _key: string; }
-interface ActionRow extends Action { _key: string; }
+interface ConditionRow extends Rule {
+  _key: string;
+}
+interface ActionRow extends Action {
+  _key: string;
+}
 
 interface State {
   open: boolean;
@@ -199,7 +221,11 @@ export default class RuleBuilder extends React.Component<{}, State> {
     if (!this.state.open && prev.open && prev.previousActiveElement) {
       const el = prev.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* el out of DOM */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* el out of DOM */
+        }
       }
     }
   }
@@ -207,9 +233,8 @@ export default class RuleBuilder extends React.Component<{}, State> {
   private _syncFromBus = (): void => {
     const open = RuleBuilderUIBus.isBuilderOpen();
     const editingRuleId = RuleBuilderUIBus.getEditingRuleId();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
     if (open && editingRuleId) {
       const existing = RuleStore.get(editingRuleId);
       if (existing) {
@@ -254,37 +279,49 @@ export default class RuleBuilder extends React.Component<{}, State> {
 
   // === Condition + Exception row handlers (share semantics) ===
 
-  private _updateConditionRow = (which: 'conditions' | 'exceptions', index: number, patch: Partial<Rule>): void => {
-    const list = this.state[which].map((r, i) => i === index ? { ...r, ...patch } : r);
+  private _updateConditionRow = (
+    which: 'conditions' | 'exceptions',
+    index: number,
+    patch: Partial<Rule>
+  ): void => {
+    const list = this.state[which].map((r, i) => (i === index ? { ...r, ...patch } : r));
     this.setState({ [which]: list } as any);
   };
 
-  private _onConditionFieldChange = (which: 'conditions' | 'exceptions', index: number) => (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    const newField = e.target.value as RuleField;
-    const validOps = operatorsForField(newField);
-    const currentOp = this.state[which][index].op;
-    const op = validOps.includes(currentOp) ? currentOp : validOps[0];
-    this._updateConditionRow(which, index, { field: newField, op, value: defaultValueForField(newField) });
-  };
+  private _onConditionFieldChange =
+    (which: 'conditions' | 'exceptions', index: number) =>
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      const newField = e.target.value as RuleField;
+      const validOps = operatorsForField(newField);
+      const currentOp = this.state[which][index].op;
+      const op = validOps.includes(currentOp) ? currentOp : validOps[0];
+      this._updateConditionRow(which, index, {
+        field: newField,
+        op,
+        value: defaultValueForField(newField),
+      });
+    };
 
-  private _onConditionOpChange = (which: 'conditions' | 'exceptions', index: number) => (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    this._updateConditionRow(which, index, { op: e.target.value as RuleOperator });
-  };
+  private _onConditionOpChange =
+    (which: 'conditions' | 'exceptions', index: number) =>
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      this._updateConditionRow(which, index, { op: e.target.value as RuleOperator });
+    };
 
-  private _onConditionValueChange = (which: 'conditions' | 'exceptions', index: number) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ): void => {
-    const rule = this.state[which][index];
-    let value: any = e.target.value;
-    if (['has_attachment', 'starred', 'pinned', 'unread'].includes(rule.field)) {
-      value = value === 'true';
-    }
-    if (rule.op === 'within_last_days') {
-      const n = parseInt(value, 10);
-      value = Number.isFinite(n) ? n : 0;
-    }
-    this._updateConditionRow(which, index, { value });
-  };
+  private _onConditionValueChange =
+    (which: 'conditions' | 'exceptions', index: number) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
+      const rule = this.state[which][index];
+      let value: any = e.target.value;
+      if (['has_attachment', 'starred', 'pinned', 'unread'].includes(rule.field)) {
+        value = value === 'true';
+      }
+      if (rule.op === 'within_last_days') {
+        const n = parseInt(value, 10);
+        value = Number.isFinite(n) ? n : 0;
+      }
+      this._updateConditionRow(which, index, { value });
+    };
 
   private _addRow = (which: 'conditions' | 'exceptions'): void => {
     this.setState({ [which]: [...this.state[which], emptyCondition()] } as any);
@@ -303,28 +340,30 @@ export default class RuleBuilder extends React.Component<{}, State> {
 
   private _updateActionRow = (index: number, patch: Partial<Action>): void => {
     this.setState({
-      actions: this.state.actions.map((a, i) => i === index ? { ...a, ...patch } : a),
+      actions: this.state.actions.map((a, i) => (i === index ? { ...a, ...patch } : a)),
     });
   };
 
-  private _onActionTypeChange = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    const newType = e.target.value as ActionType;
-    let defaultValue: any = '';
-    if (['mark_read', 'mark_important', 'pin'].includes(newType)) defaultValue = true;
-    if (['delete', 'stop_processing'].includes(newType)) defaultValue = undefined;
-    this._updateActionRow(index, { type: newType, value: defaultValue });
-  };
+  private _onActionTypeChange =
+    (index: number) =>
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      const newType = e.target.value as ActionType;
+      let defaultValue: any = '';
+      if (['mark_read', 'mark_important', 'pin'].includes(newType)) defaultValue = true;
+      if (['delete', 'stop_processing'].includes(newType)) defaultValue = undefined;
+      this._updateActionRow(index, { type: newType, value: defaultValue });
+    };
 
-  private _onActionValueChange = (index: number) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ): void => {
-    const action = this.state.actions[index];
-    let value: any = e.target.value;
-    if (['mark_read', 'mark_important', 'pin'].includes(action.type)) {
-      value = value === 'true';
-    }
-    this._updateActionRow(index, { value });
-  };
+  private _onActionValueChange =
+    (index: number) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
+      const action = this.state.actions[index];
+      let value: any = e.target.value;
+      if (['mark_read', 'mark_important', 'pin'].includes(action.type)) {
+        value = value === 'true';
+      }
+      this._updateActionRow(index, { value });
+    };
 
   private _addAction = (): void => {
     this.setState({ actions: [...this.state.actions, emptyAction()] });
@@ -377,9 +416,9 @@ export default class RuleBuilder extends React.Component<{}, State> {
 
   private _onSave = (): void => {
     if (!this._isValid()) return;
-    const conditions = this.state.conditions.map(r => this._stripCondKey(r));
-    const actions = this.state.actions.map(a => this._stripActionKey(a));
-    const exceptions = this.state.exceptions.map(r => this._stripCondKey(r));
+    const conditions = this.state.conditions.map((r) => this._stripCondKey(r));
+    const actions = this.state.actions.map((a) => this._stripActionKey(a));
+    const exceptions = this.state.exceptions.map((r) => this._stripCondKey(r));
     if (this.state.editingRuleId) {
       RuleStore.update(this.state.editingRuleId, {
         name: this.state.name.trim(),
@@ -519,7 +558,7 @@ export default class RuleBuilder extends React.Component<{}, State> {
                 onChange={this._onTriggerChange}
                 aria-label={whenLabel}
               >
-                {TRIGGER_TYPES.map(t => (
+                {TRIGGER_TYPES.map((t) => (
                   <option key={t} value={t}>
                     {TRIGGER_LABELS_PL[t]} / {TRIGGER_LABELS_EN[t]}
                   </option>
@@ -560,14 +599,8 @@ export default class RuleBuilder extends React.Component<{}, State> {
                 <span className="rule-builder-keyword">{thenLabel}</span>
                 <span className="rule-builder-section-tail">{actionsHeader}</span>
               </div>
-              {this.state.actions.map((action, idx) =>
-                renderActionRow(action, idx, this)
-              )}
-              <button
-                type="button"
-                className="rule-builder-add-row"
-                onClick={this._addAction}
-              >
+              {this.state.actions.map((action, idx) => renderActionRow(action, idx, this))}
+              <button type="button" className="rule-builder-add-row" onClick={this._addAction}>
                 {addActionLabel}
               </button>
             </div>
@@ -593,20 +626,12 @@ export default class RuleBuilder extends React.Component<{}, State> {
 
           <footer className="rule-builder-footer">
             {this.state.editingRuleId && (
-              <button
-                type="button"
-                className="rule-builder-delete"
-                onClick={this._onDelete}
-              >
+              <button type="button" className="rule-builder-delete" onClick={this._onDelete}>
                 {deleteLabel}
               </button>
             )}
             <div className="rule-builder-footer-spacer" />
-            <button
-              type="button"
-              className="rule-builder-cancel"
-              onClick={this._onCancel}
-            >
+            <button type="button" className="rule-builder-cancel" onClick={this._onCancel}>
               {cancelLabel}
             </button>
             <button
@@ -663,7 +688,8 @@ function renderConditionRow(
     valueInput = (
       <input
         type="number"
-        min="1" max="365"
+        min="1"
+        max="365"
         className="rule-builder-row-value"
         value={String(rule.value || '')}
         onChange={(self as any)._onConditionValueChange(which, idx)}
@@ -696,7 +722,8 @@ function renderConditionRow(
     );
   }
 
-  const rowClass = which === 'conditions' ? 'rule-builder-condition-row' : 'rule-builder-exception-row';
+  const rowClass =
+    which === 'conditions' ? 'rule-builder-condition-row' : 'rule-builder-exception-row';
   return (
     <div key={rule._key} className={rowClass}>
       <select
@@ -705,8 +732,10 @@ function renderConditionRow(
         onChange={(self as any)._onConditionFieldChange(which, idx)}
         aria-label={localized('Pole / Field')}
       >
-        {CONDITION_FIELD_OPTIONS.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+        {CONDITION_FIELD_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
         ))}
       </select>
       <select
@@ -715,8 +744,10 @@ function renderConditionRow(
         onChange={(self as any)._onConditionOpChange(which, idx)}
         aria-label={localized('Operator / Operator')}
       >
-        {operatorsForField(rule.field).map(op => (
-          <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
+        {operatorsForField(rule.field).map((op) => (
+          <option key={op} value={op}>
+            {OPERATOR_LABELS[op]}
+          </option>
         ))}
       </select>
       {valueInput}
@@ -732,11 +763,7 @@ function renderConditionRow(
   );
 }
 
-function renderActionRow(
-  action: ActionRow,
-  idx: number,
-  self: RuleBuilder
-): React.ReactElement {
+function renderActionRow(action: ActionRow, idx: number, self: RuleBuilder): React.ReactElement {
   const isBool = ['mark_read', 'mark_important', 'pin'].includes(action.type);
   const hasNoValue = ['delete', 'stop_processing'].includes(action.type);
 
@@ -762,11 +789,15 @@ function renderActionRow(
         onChange={(self as any)._onActionValueChange(idx)}
         aria-label={localized('Wartość / Value')}
         placeholder={
-          action.type === 'forward' ? 'email@...' :
-          action.type === 'notify' ? localized('wiadomość / message') :
-          action.type === 'snooze' ? localized('preset lub data / preset or date') :
-          action.type === 'auto_reply' ? localized('templateId') :
-          localized('id lub nazwa / id or name')
+          action.type === 'forward'
+            ? 'email@...'
+            : action.type === 'notify'
+              ? localized('wiadomość / message')
+              : action.type === 'snooze'
+                ? localized('preset lub data / preset or date')
+                : action.type === 'auto_reply'
+                  ? localized('templateId')
+                  : localized('id lub nazwa / id or name')
         }
       />
     );
@@ -782,7 +813,7 @@ function renderActionRow(
         onChange={(self as any)._onActionTypeChange(idx)}
         aria-label={localized('Akcja / Action')}
       >
-        {ACTION_TYPES.map(t => (
+        {ACTION_TYPES.map((t) => (
           <option key={t} value={t}>
             {ACTION_LABELS_PL[t]} / {ACTION_LABELS_EN[t]}
           </option>

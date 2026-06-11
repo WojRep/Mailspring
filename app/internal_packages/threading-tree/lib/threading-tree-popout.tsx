@@ -18,7 +18,7 @@ function renderNode(node: ThreadTreeNode, depth: number): React.ReactNode {
       <span className="threading-tree-subject">{node.subject || '(no subject)'}</span>
       {node.children && node.children.length > 0 && (
         <ul className="threading-tree-children">
-          {node.children.map(c => renderNode(c, depth + 1))}
+          {node.children.map((c) => renderNode(c, depth + 1))}
         </ul>
       )}
     </li>
@@ -38,9 +38,7 @@ export default class ThreadingTreePopout extends React.Component<Props> {
         role="region"
         aria-label={localized('Drzewo wątku / Thread tree')}
       >
-        <ul className="threading-tree-roots">
-          {tree.roots.map(r => renderNode(r, 0))}
-        </ul>
+        <ul className="threading-tree-roots">{tree.roots.map((r) => renderNode(r, 0))}</ul>
       </div>
     );
   }

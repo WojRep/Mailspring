@@ -64,12 +64,10 @@ export default class BulkUnsubscribeBanner extends React.Component<Props, State>
     const fromLabel = localized('Newsletter od / Newsletter from');
 
     return (
-      <div
-        className="bulk-unsubscribe-banner"
-        role="region"
-        aria-label={ariaLabel}
-      >
-        <span className="bulk-unsubscribe-icon" aria-hidden="true">📬</span>
+      <div className="bulk-unsubscribe-banner" role="region" aria-label={ariaLabel}>
+        <span className="bulk-unsubscribe-icon" aria-hidden="true">
+          📬
+        </span>
         <span className="bulk-unsubscribe-text">
           {fromLabel} <strong>{sender}</strong>
         </span>

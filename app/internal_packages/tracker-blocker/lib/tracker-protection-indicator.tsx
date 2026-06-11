@@ -37,19 +37,16 @@ export default class TrackerProtectionIndicator extends React.Component<Props> {
       : 'tracker-protection-indicator tracker-protection-indicator--blocked';
     const ariaLabel = clean
       ? localized('Brak śledzących pikseli / No tracking pixels detected')
-      : localized('Zablokowano {N} trackerów / Blocked {N} trackers').replace(/\{N\}/g, String(trackersBlocked));
+      : localized('Zablokowano {N} trackerów / Blocked {N} trackers').replace(
+          /\{N\}/g,
+          String(trackersBlocked)
+        );
     return (
-      <span
-        className={cls}
-        role="button"
-        aria-label={ariaLabel}
-        title={ariaLabel}
-        tabIndex={0}
-      >
-        <span className="tracker-protection-icon" aria-hidden="true">🛡</span>
-        <span className="tracker-protection-count">
-          {clean ? '✓' : String(trackersBlocked)}
+      <span className={cls} role="button" aria-label={ariaLabel} title={ariaLabel} tabIndex={0}>
+        <span className="tracker-protection-icon" aria-hidden="true">
+          🛡
         </span>
+        <span className="tracker-protection-count">{clean ? '✓' : String(trackersBlocked)}</span>
       </span>
     );
   }

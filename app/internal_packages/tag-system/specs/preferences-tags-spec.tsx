@@ -10,11 +10,16 @@ import { TagStore } from '../lib/tag-store';
 function seedTags() {
   TagStore.register({ id: 'q3', name: 'Q3', color: '#f00', source: 'user' });
   TagStore.register({ id: 'inv', name: 'Invoices', color: '#0f0', source: 'user' });
-  TagStore.register({ id: '__system_today', name: 'Today', color: '#00f', source: 'system', systemManaged: true });
+  TagStore.register({
+    id: '__system_today',
+    name: 'Today',
+    color: '#00f',
+    source: 'system',
+    systemManaged: true,
+  });
 }
 
 describe('Preferences Tag Manager — bilet MVP #98', () => {
-
   beforeEach(() => {
     TagStore._reset();
     TagStore.init();
@@ -42,9 +47,13 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
   it('add new user tag z input + Enter', () => {
     const { container } = render(<PreferencesTags />);
     const input = container.querySelector('.preferences-tags-add-input') as HTMLInputElement;
-    act(() => { fireEvent.change(input, { target: { value: 'NewTag' } }); });
-    act(() => { fireEvent.keyDown(input, { key: 'Enter' }); });
-    const created = TagStore.list().filter(t => t.name === 'NewTag');
+    act(() => {
+      fireEvent.change(input, { target: { value: 'NewTag' } });
+    });
+    act(() => {
+      fireEvent.keyDown(input, { key: 'Enter' });
+    });
+    const created = TagStore.list().filter((t) => t.name === 'NewTag');
     expect(created.length).toBe(1);
     expect(created[0].source).toBe('user');
   });
@@ -54,7 +63,9 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     const btn = container.querySelector('.preferences-tags-add-btn') as HTMLButtonElement;
     expect(btn.disabled).toBe(true);
     const input = container.querySelector('.preferences-tags-add-input') as HTMLInputElement;
-    act(() => { fireEvent.change(input, { target: { value: 'X' } }); });
+    act(() => {
+      fireEvent.change(input, { target: { value: 'X' } });
+    });
     expect(btn.disabled).toBe(false);
   });
 
@@ -62,7 +73,9 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     seedTags();
     const { container } = render(<PreferencesTags />);
     const items = container.querySelectorAll('.preferences-tags-list-item:not(.system)');
-    act(() => { fireEvent.click(items[0]); });
+    act(() => {
+      fireEvent.click(items[0]);
+    });
     const renameInput = container.querySelector('#tag-rename') as HTMLInputElement;
     expect(renameInput).not.toBeNull();
     expect(renameInput.disabled).toBe(false);
@@ -72,7 +85,9 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     seedTags();
     const { container } = render(<PreferencesTags />);
     const sysItem = container.querySelector('.preferences-tags-list-item.system') as HTMLElement;
-    act(() => { fireEvent.click(sysItem); });
+    act(() => {
+      fireEvent.click(sysItem);
+    });
     const renameInput = container.querySelector('#tag-rename') as HTMLInputElement;
     expect(renameInput.disabled).toBe(true);
     expect(container.querySelector('.preferences-tags-detail-note')).not.toBeNull();
@@ -82,10 +97,16 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     seedTags();
     const { container } = render(<PreferencesTags />);
     const userItems = container.querySelectorAll('.preferences-tags-list-item:not(.system)');
-    act(() => { fireEvent.click(userItems[0]); }); // Invoices (alpha first)
+    act(() => {
+      fireEvent.click(userItems[0]);
+    }); // Invoices (alpha first)
     const renameInput = container.querySelector('#tag-rename') as HTMLInputElement;
-    act(() => { fireEvent.change(renameInput, { target: { value: 'Invoices renamed' } }); });
-    act(() => { fireEvent.blur(renameInput); });
+    act(() => {
+      fireEvent.change(renameInput, { target: { value: 'Invoices renamed' } });
+    });
+    act(() => {
+      fireEvent.blur(renameInput);
+    });
     expect(TagStore.get('inv')?.name).toBe('Invoices renamed');
   });
 
@@ -93,10 +114,16 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     seedTags();
     const { container } = render(<PreferencesTags />);
     const userItems = container.querySelectorAll('.preferences-tags-list-item:not(.system)');
-    act(() => { fireEvent.click(userItems[0]); });
-    const colorSwatches = container.querySelectorAll('.preferences-tags-color-grid .preferences-tags-color-swatch');
+    act(() => {
+      fireEvent.click(userItems[0]);
+    });
+    const colorSwatches = container.querySelectorAll(
+      '.preferences-tags-color-grid .preferences-tags-color-swatch'
+    );
     expect(colorSwatches.length).toBeGreaterThan(1);
-    act(() => { fireEvent.click(colorSwatches[1]); });
+    act(() => {
+      fireEvent.click(colorSwatches[1]);
+    });
     const updated = TagStore.get('inv');
     // Color must be different than original '#0f0' z DEFAULT_COLORS palette
     expect(updated?.color).toMatch(/^var\(/);
@@ -106,7 +133,9 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     seedTags();
     const { container } = render(<PreferencesTags />);
     const userItems = container.querySelectorAll('.preferences-tags-list-item:not(.system)');
-    act(() => { fireEvent.click(userItems[0]); }); // Invoices
+    act(() => {
+      fireEvent.click(userItems[0]);
+    }); // Invoices
     const mergeSelect = container.querySelector('#tag-merge') as HTMLSelectElement;
     const options = mergeSelect.querySelectorAll('option');
     // 1 placeholder + 1 inny user tag (Q3) — system pominięte
@@ -118,11 +147,19 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     TagStore.apply('thread-1', 'inv');
     const { container } = render(<PreferencesTags />);
     const userItems = container.querySelectorAll('.preferences-tags-list-item:not(.system)');
-    act(() => { fireEvent.click(userItems[0]); }); // Invoices
+    act(() => {
+      fireEvent.click(userItems[0]);
+    }); // Invoices
     const mergeSelect = container.querySelector('#tag-merge') as HTMLSelectElement;
-    act(() => { fireEvent.change(mergeSelect, { target: { value: 'q3' } }); });
-    const mergeBtn = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('Połącz') || b.textContent?.includes('Merge')) as HTMLButtonElement;
-    act(() => { fireEvent.click(mergeBtn); });
+    act(() => {
+      fireEvent.change(mergeSelect, { target: { value: 'q3' } });
+    });
+    const mergeBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('Połącz') || b.textContent?.includes('Merge')
+    ) as HTMLButtonElement;
+    act(() => {
+      fireEvent.click(mergeBtn);
+    });
     expect(TagStore.get('inv')).toBeUndefined();
     expect(TagStore.hasTag('thread-1', 'q3')).toBe(true);
   });
@@ -131,15 +168,21 @@ describe('Preferences Tag Manager — bilet MVP #98', () => {
     seedTags();
     const { container } = render(<PreferencesTags />);
     const userItems = container.querySelectorAll('.preferences-tags-list-item:not(.system)');
-    act(() => { fireEvent.click(userItems[0]); });
+    act(() => {
+      fireEvent.click(userItems[0]);
+    });
     const delBtn = container.querySelector('.preferences-tags-delete') as HTMLButtonElement;
     expect(delBtn.classList.contains('confirm')).toBe(false);
-    act(() => { fireEvent.click(delBtn); });
+    act(() => {
+      fireEvent.click(delBtn);
+    });
     // Re-find po re-render
     const delBtn2 = container.querySelector('.preferences-tags-delete') as HTMLButtonElement;
     expect(delBtn2.classList.contains('confirm')).toBe(true);
     expect(TagStore.get('inv')).not.toBeUndefined();
-    act(() => { fireEvent.click(delBtn2); });
+    act(() => {
+      fireEvent.click(delBtn2);
+    });
     expect(TagStore.get('inv')).toBeUndefined();
   });
 

@@ -52,7 +52,9 @@ export default class TagToolbarButton extends React.Component<Props> {
         aria-label={label}
         onClick={this._onClick}
       >
-        <span aria-hidden="true" style={{ fontSize: '14px' }}>🏷️</span>
+        <span aria-hidden="true" style={{ fontSize: '14px' }}>
+          🏷️
+        </span>
       </button>
     );
   }

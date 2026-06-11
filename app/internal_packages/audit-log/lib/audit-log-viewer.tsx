@@ -7,7 +7,9 @@ import { AuditLogStore, AuditEntry } from './audit-log-store';
 
 const { localized } = require('actunamail-exports');
 
-interface State { entries: AuditEntry[]; }
+interface State {
+  entries: AuditEntry[];
+}
 
 export default class AuditLogViewer extends React.Component<{}, State> {
   static displayName = 'AuditLogViewer';
@@ -24,7 +26,9 @@ export default class AuditLogViewer extends React.Component<{}, State> {
     }
   }
 
-  componentWillUnmount() { if (this._unsubscribe) this._unsubscribe(); }
+  componentWillUnmount() {
+    if (this._unsubscribe) this._unsubscribe();
+  }
 
   private _sync = (): void => {
     const entries = AuditLogStore.list ? AuditLogStore.list().slice(0, 200) : [];
@@ -34,11 +38,7 @@ export default class AuditLogViewer extends React.Component<{}, State> {
   render() {
     const ariaLabel = localized('Dziennik audytu / Audit log');
     return (
-      <div
-        className="audit-log-viewer"
-        role="region"
-        aria-label={ariaLabel}
-      >
+      <div className="audit-log-viewer" role="region" aria-label={ariaLabel}>
         <header className="audit-log-header">
           <h3 className="audit-log-title">{ariaLabel}</h3>
         </header>

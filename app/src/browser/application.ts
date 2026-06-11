@@ -143,7 +143,10 @@ export default class Application extends EventEmitter {
             `ActunaMail could not find the mailsync process. If you're building ActunaMail from source, make sure mailsync.tar.gz has been downloaded and unpacked in your working copy.`
           );
         } else if (err.toString().includes('spawn')) {
-          message = localized(`ActunaMail could not spawn the mailsync process. %@`, err.toString());
+          message = localized(
+            `ActunaMail could not spawn the mailsync process. %@`,
+            err.toString()
+          );
         } else {
           message = localized(
             `We encountered a problem with your local email database. %@\n\nCheck that no other copies of ActunaMail are running and click Rebuild to reset your local cache.`,

@@ -52,9 +52,8 @@ export default class GlassDemo extends React.Component<{}, State> {
   componentDidMount() {
     this._unsubscribeStore = GlassDemoStore.listen(() => this._sync());
     if ((window as any).AppEnv?.config?.onDidChange) {
-      this._unsubscribeConfig = (window as any).AppEnv.config.onDidChange(
-        FLAG_KEY,
-        () => this._sync(),
+      this._unsubscribeConfig = (window as any).AppEnv.config.onDidChange(FLAG_KEY, () =>
+        this._sync()
       );
     }
     this._sync();
@@ -72,16 +71,19 @@ export default class GlassDemo extends React.Component<{}, State> {
     if (!this.state.open && prev.open && prev.previousActiveElement) {
       const el = prev.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* el out of DOM */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* el out of DOM */
+        }
       }
     }
   }
 
   private _sync = (): void => {
     const open = GlassDemoStore.isOpen();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
     const flagOn = !!(window as any).AppEnv?.config?.get?.(FLAG_KEY);
     this.setState({ open, flagOn, previousActiveElement });
   };
@@ -112,7 +114,12 @@ export default class GlassDemo extends React.Component<{}, State> {
       ? `glass-demo-tile glass-demo-tile--${intensity} actuna-glass actuna-glass--${intensity}`
       : `glass-demo-tile glass-demo-tile--${intensity} actuna-glass-fallback actuna-glass-fallback--${intensity}`;
     return (
-      <div key={intensity} className={className} role="group" aria-label={`${labelPl} / ${labelEn}`}>
+      <div
+        key={intensity}
+        className={className}
+        role="group"
+        aria-label={`${labelPl} / ${labelEn}`}
+      >
         <div className="glass-demo-tile-title">{labelPl}</div>
         <div className="glass-demo-tile-subtitle">{labelEn}</div>
         <code className="glass-demo-tile-code">actuna-glass--{intensity}</code>
@@ -150,15 +157,13 @@ export default class GlassDemo extends React.Component<{}, State> {
 
           <div className="glass-demo-toggle">
             <label>
-              <input
-                type="checkbox"
-                checked={this.state.flagOn}
-                onChange={this._onToggleFlag}
-              />
+              <input type="checkbox" checked={this.state.flagOn} onChange={this._onToggleFlag} />
               <span>{toggleLabel}</span>
             </label>
             <p className="glass-demo-toggle-note">
-              {localized('Respektuje prefers-reduced-transparency + prefers-contrast. / Honors system Reduce Transparency + Increase Contrast preferences.')}
+              {localized(
+                'Respektuje prefers-reduced-transparency + prefers-contrast. / Honors system Reduce Transparency + Increase Contrast preferences.'
+              )}
             </p>
           </div>
 

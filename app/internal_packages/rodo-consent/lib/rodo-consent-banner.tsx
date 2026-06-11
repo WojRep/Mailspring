@@ -26,7 +26,9 @@ export default class RodoConsentBanner extends React.Component<Props, State> {
 
   state: State = { withoutConsent: [], revoked: [], dismissed: false };
 
-  componentDidMount() { this._sync(); }
+  componentDidMount() {
+    this._sync();
+  }
   componentDidUpdate(prev: Props) {
     if (JSON.stringify(prev.recipients || []) !== JSON.stringify(this.props.recipients || [])) {
       this._sync();
@@ -59,16 +61,14 @@ export default class RodoConsentBanner extends React.Component<Props, State> {
     const warningLabel = localized('Brak zgody marketingowej dla / Missing marketing consent for');
     const grantLabel = localized('Wyraź zgodę / Grant consent');
     return (
-      <div
-        className="rodo-consent-banner"
-        role="region"
-        aria-label={ariaLabel}
-      >
-        <div className="rodo-consent-icon" aria-hidden="true">⚖️</div>
+      <div className="rodo-consent-banner" role="region" aria-label={ariaLabel}>
+        <div className="rodo-consent-icon" aria-hidden="true">
+          ⚖️
+        </div>
         <div className="rodo-consent-body">
           <div className="rodo-consent-title">{warningLabel}:</div>
           <ul className="rodo-consent-list">
-            {this.state.withoutConsent.map(email => (
+            {this.state.withoutConsent.map((email) => (
               <li key={email} className="rodo-consent-item">
                 <span className="rodo-consent-email">{email}</span>
                 <button
@@ -76,13 +76,17 @@ export default class RodoConsentBanner extends React.Component<Props, State> {
                   className="rodo-grant-btn"
                   aria-label={`${grantLabel} ${email}`}
                   onClick={() => this._onGrant(email)}
-                >{grantLabel}</button>
+                >
+                  {grantLabel}
+                </button>
               </li>
             ))}
-            {this.state.revoked.map(email => (
+            {this.state.revoked.map((email) => (
               <li key={email} className="rodo-consent-item rodo-consent-item--revoked">
                 <span className="rodo-consent-email">{email}</span>
-                <span className="rodo-revoked-marker">{localized('zgoda cofnięta / consent revoked')}</span>
+                <span className="rodo-revoked-marker">
+                  {localized('zgoda cofnięta / consent revoked')}
+                </span>
               </li>
             ))}
           </ul>

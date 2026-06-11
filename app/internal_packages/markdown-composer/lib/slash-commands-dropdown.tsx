@@ -46,11 +46,11 @@ export default class SlashCommandsDropdown extends React.Component<{}, State> {
     const all = SlashCommandRegistry.list();
     const q = (query || '').toLowerCase();
     const matches = q
-      ? all.filter(c => {
+      ? all.filter((c) => {
           return (
             c.label.toLowerCase().includes(q) ||
             c.slug.toLowerCase().includes(q) ||
-            (c.keywords || []).some(k => k.toLowerCase().includes(q))
+            (c.keywords || []).some((k) => k.toLowerCase().includes(q))
           );
         })
       : all;
@@ -60,7 +60,9 @@ export default class SlashCommandsDropdown extends React.Component<{}, State> {
   private _onItemClick = (cmd: SlashCommand): void => {
     try {
       cmd.handler();
-    } catch (e) { /* swallow */ }
+    } catch (e) {
+      /* swallow */
+    }
     SlashUIBus.close();
   };
 
@@ -68,17 +70,11 @@ export default class SlashCommandsDropdown extends React.Component<{}, State> {
     if (!this.state.open) return null;
     const ariaLabel = localized('Slash commands / Komendy slash');
     return (
-      <div
-        className="slash-commands-dropdown"
-        role="listbox"
-        aria-label={ariaLabel}
-      >
+      <div className="slash-commands-dropdown" role="listbox" aria-label={ariaLabel}>
         {this.state.matches.length === 0 && (
-          <div className="slash-commands-empty">
-            {localized('Brak dopasowań / No matches')}
-          </div>
+          <div className="slash-commands-empty">{localized('Brak dopasowań / No matches')}</div>
         )}
-        {this.state.matches.map(cmd => (
+        {this.state.matches.map((cmd) => (
           <div
             key={cmd.slug}
             className="slash-command-item"
@@ -88,9 +84,7 @@ export default class SlashCommandsDropdown extends React.Component<{}, State> {
           >
             <span className="slash-command-slug">/{cmd.slug}</span>
             <span className="slash-command-label">{cmd.label}</span>
-            {cmd.description && (
-              <span className="slash-command-desc">{cmd.description}</span>
-            )}
+            {cmd.description && <span className="slash-command-desc">{cmd.description}</span>}
           </div>
         ))}
       </div>

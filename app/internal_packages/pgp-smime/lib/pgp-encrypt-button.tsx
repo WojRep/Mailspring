@@ -25,7 +25,9 @@ export default class PgpEncryptButton extends React.Component<Props, State> {
 
   state: State = { enabled: false, active: false };
 
-  componentDidMount() { this._sync(); }
+  componentDidMount() {
+    this._sync();
+  }
   componentDidUpdate(prev: Props) {
     if (JSON.stringify(prev.recipients || []) !== JSON.stringify(this.props.recipients || [])) {
       this._sync();
@@ -42,7 +44,9 @@ export default class PgpEncryptButton extends React.Component<Props, State> {
     try {
       const check = PgpKeyStore.canEncryptToAll(recipients);
       enabled = !!(check && check.ok);
-    } catch (e) { enabled = false; }
+    } catch (e) {
+      enabled = false;
+    }
     this.setState({ enabled });
   };
 
@@ -56,7 +60,9 @@ export default class PgpEncryptButton extends React.Component<Props, State> {
     if (recipients.length === 0) return null;
     const ariaLabel = this.state.enabled
       ? localized('Szyfruj wiadomość PGP / Encrypt message with PGP')
-      : localized('Szyfrowanie niedostępne — brak klucza publicznego / Encryption unavailable — no public key');
+      : localized(
+          'Szyfrowanie niedostępne — brak klucza publicznego / Encryption unavailable — no public key'
+        );
     return (
       <button
         type="button"
@@ -68,10 +74,10 @@ export default class PgpEncryptButton extends React.Component<Props, State> {
         disabled={!this.state.enabled}
         onClick={this._onClick}
       >
-        <span className="pgp-encrypt-icon" aria-hidden="true">🔒</span>
-        <span className="pgp-encrypt-label">
-          {localized('Szyfruj / Encrypt')}
+        <span className="pgp-encrypt-icon" aria-hidden="true">
+          🔒
         </span>
+        <span className="pgp-encrypt-label">{localized('Szyfruj / Encrypt')}</span>
       </button>
     );
   }

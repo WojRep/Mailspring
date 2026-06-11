@@ -157,7 +157,7 @@ export default class TimeControlPicker extends React.Component<Props, State> {
 
   private _getVisibleQuickOptions(): QuickOption[] {
     const mode = this.props.mode || 'snooze';
-    return QUICK_OPTIONS.filter(q => q.showInModes.includes(mode));
+    return QUICK_OPTIONS.filter((q) => q.showInModes.includes(mode));
   }
 
   private _onNlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +173,7 @@ export default class TimeControlPicker extends React.Component<Props, State> {
   private _onPickCustom = () => {
     const { customDate, customTime } = this.state;
     if (!customDate) return;
-    const [h, m] = customTime.split(':').map(n => parseInt(n, 10));
+    const [h, m] = customTime.split(':').map((n) => parseInt(n, 10));
     const d = new Date(`${customDate}T00:00:00`);
     d.setHours(h || 9, m || 0, 0, 0);
     this.props.onPick(d);
@@ -192,7 +192,9 @@ export default class TimeControlPicker extends React.Component<Props, State> {
         break;
       case 'ArrowDown':
         e.preventDefault();
-        this.setState({ selectedIndex: Math.min(visible.length - 1, this.state.selectedIndex + 1) });
+        this.setState({
+          selectedIndex: Math.min(visible.length - 1, this.state.selectedIndex + 1),
+        });
         break;
       case 'ArrowUp':
         e.preventDefault();
@@ -211,7 +213,7 @@ export default class TimeControlPicker extends React.Component<Props, State> {
         // Quick pick by number
         const num = parseInt(e.key, 10);
         if (!isNaN(num) && num >= 1 && num <= visible.length) {
-          const target = visible.find(q => q.shortcut === String(num));
+          const target = visible.find((q) => q.shortcut === String(num));
           if (target) {
             e.preventDefault();
             this._onPickQuick(target);
@@ -223,9 +225,9 @@ export default class TimeControlPicker extends React.Component<Props, State> {
   render() {
     const visible = this._getVisibleQuickOptions();
     const modeLabels: Record<TimeControlMode, string> = {
-      'snooze': localized('Odłóż do…'),
+      snooze: localized('Odłóż do…'),
       'send-later': localized('Wyślij później…'),
-      'reminder': localized('Przypomnij…'),
+      reminder: localized('Przypomnij…'),
     };
 
     return (
@@ -237,7 +239,9 @@ export default class TimeControlPicker extends React.Component<Props, State> {
         onKeyDown={this._onKeyDown}
       >
         <div className="tcp-header">
-          <span className="tcp-icon" aria-hidden="true">⏰</span>
+          <span className="tcp-icon" aria-hidden="true">
+            ⏰
+          </span>
           <h3 className="tcp-title">{modeLabels[this.props.mode || 'snooze']}</h3>
         </div>
 
@@ -254,7 +258,11 @@ export default class TimeControlPicker extends React.Component<Props, State> {
               >
                 <span className="tcp-quick-label">{q.label}</span>
                 <span className="tcp-quick-when">{describe(q.computeDate())}</span>
-                {q.shortcut && <span className="tcp-quick-key"><kbd>{q.shortcut}</kbd></span>}
+                {q.shortcut && (
+                  <span className="tcp-quick-key">
+                    <kbd>{q.shortcut}</kbd>
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -277,8 +285,11 @@ export default class TimeControlPicker extends React.Component<Props, State> {
           />
           {this.state.nlParsed && (
             <div className="tcp-nl-preview" aria-live="polite">
-              <span aria-hidden="true">✓</span> {localized('Sparsowane:')} <strong>{this.state.nlParsed.description}</strong>
-              <button className="tcp-nl-confirm" onClick={this._onPickNl}>{localized('Wybierz')}</button>
+              <span aria-hidden="true">✓</span> {localized('Sparsowane:')}{' '}
+              <strong>{this.state.nlParsed.description}</strong>
+              <button className="tcp-nl-confirm" onClick={this._onPickNl}>
+                {localized('Wybierz')}
+              </button>
             </div>
           )}
         </div>
@@ -290,14 +301,14 @@ export default class TimeControlPicker extends React.Component<Props, State> {
               className="tcp-date"
               type="date"
               value={this.state.customDate}
-              onChange={e => this.setState({ customDate: e.target.value })}
+              onChange={(e) => this.setState({ customDate: e.target.value })}
               aria-label={localized('Data')}
             />
             <input
               className="tcp-time"
               type="time"
               value={this.state.customTime}
-              onChange={e => this.setState({ customTime: e.target.value })}
+              onChange={(e) => this.setState({ customTime: e.target.value })}
               aria-label={localized('Godzina')}
             />
             <button className="tcp-custom-confirm" onClick={this._onPickCustom}>
@@ -308,9 +319,8 @@ export default class TimeControlPicker extends React.Component<Props, State> {
 
         <div className="tcp-footer">
           <span className="tcp-footer-hint">
-            <kbd>1</kbd>–<kbd>{visible.length}</kbd> {localized('quick pick')} ·
-            <kbd>↵</kbd> {localized('wybierz')} ·
-            <kbd>esc</kbd> {localized('anuluj')}
+            <kbd>1</kbd>–<kbd>{visible.length}</kbd> {localized('quick pick')} ·<kbd>↵</kbd>{' '}
+            {localized('wybierz')} ·<kbd>esc</kbd> {localized('anuluj')}
           </span>
           <button className="tcp-cancel" onClick={this.props.onCancel}>
             {localized('Anuluj / Cancel')}
@@ -324,8 +334,11 @@ export default class TimeControlPicker extends React.Component<Props, State> {
 function describe(d: Date): string {
   try {
     return new Intl.DateTimeFormat(undefined, {
-      weekday: 'short', day: 'numeric', month: 'short',
-      hour: '2-digit', minute: '2-digit',
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(d);
   } catch (e) {
     return d.toLocaleString();

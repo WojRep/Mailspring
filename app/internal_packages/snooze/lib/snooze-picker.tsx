@@ -97,7 +97,11 @@ export default class SnoozePicker extends React.Component<{}, State> {
     if (!this.state.open && prev.open && prev.previousActiveElement) {
       const el = prev.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* el out of DOM */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* el out of DOM */
+        }
       }
     }
   }
@@ -105,9 +109,8 @@ export default class SnoozePicker extends React.Component<{}, State> {
   private _syncFromBus = (): void => {
     const open = SnoozeUIBus.isPickerOpen();
     const threadId = SnoozeUIBus.getPickerThreadId();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
     const existing = threadId ? SnoozeStore.get(threadId) || null : null;
     this.setState({
       open,
@@ -215,17 +218,23 @@ export default class SnoozePicker extends React.Component<{}, State> {
 
           {existing && (
             <div className="snooze-picker-existing" role="status">
-              {localized('Aktualnie zaplanowany powrót / Currently scheduled wake')}:
-              {' '}<strong>{formatWake(existing.wakeAt)}</strong>
+              {localized('Aktualnie zaplanowany powrót / Currently scheduled wake')}:{' '}
+              <strong>{formatWake(existing.wakeAt)}</strong>
               {existing.serverSupport === 'local_only' && (
                 <div className="snooze-picker-warning" role="note">
-                  {localized('Snooze działa tylko gdy aplikacja jest uruchomiona. / Snooze only works while the app is running.')}
+                  {localized(
+                    'Snooze działa tylko gdy aplikacja jest uruchomiona. / Snooze only works while the app is running.'
+                  )}
                 </div>
               )}
             </div>
           )}
 
-          <div className="snooze-picker-presets" role="group" aria-label={localized('Szybkie wybory / Quick presets')}>
+          <div
+            className="snooze-picker-presets"
+            role="group"
+            aria-label={localized('Szybkie wybory / Quick presets')}
+          >
             {PRESETS.map((preset) => {
               const wakeAt = resolvePreset(preset, new Date());
               return (
@@ -278,11 +287,7 @@ export default class SnoozePicker extends React.Component<{}, State> {
 
           {existing && (
             <footer className="snooze-picker-footer">
-              <button
-                type="button"
-                className="snooze-picker-unsnooze"
-                onClick={this._onUnsnooze}
-              >
+              <button type="button" className="snooze-picker-unsnooze" onClick={this._onUnsnooze}>
                 {unsnoozeLabel}
               </button>
             </footer>

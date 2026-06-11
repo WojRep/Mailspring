@@ -53,16 +53,14 @@ export default class FollowUpWaitingPanel extends React.Component<{}, State> {
 
   render() {
     const ariaLabel = localized('Oczekuje na odpowiedź / Waiting for reply');
-    const emptyLabel = localized('Brak wiadomości oczekujących na odpowiedź. / No threads waiting for reply.');
+    const emptyLabel = localized(
+      'Brak wiadomości oczekujących na odpowiedź. / No threads waiting for reply.'
+    );
     const dismissLabel = localized('Odrzuć / Dismiss');
     const resolvedLabel = localized('Załatwione / Resolved');
     const daysLabel = localized('dni temu / days ago');
     return (
-      <div
-        className="follow-up-waiting-panel"
-        role="region"
-        aria-label={ariaLabel}
-      >
+      <div className="follow-up-waiting-panel" role="region" aria-label={ariaLabel}>
         <header className="follow-up-waiting-header">
           <h3 className="follow-up-waiting-title">{ariaLabel}</h3>
         </header>
@@ -70,7 +68,7 @@ export default class FollowUpWaitingPanel extends React.Component<{}, State> {
           <p className="follow-up-waiting-empty">{emptyLabel}</p>
         ) : (
           <ul className="follow-up-waiting-list">
-            {this.state.entries.map(e => (
+            {this.state.entries.map((e) => (
               <li key={e.threadId} className="follow-up-waiting-item">
                 <div className="follow-up-waiting-meta">
                   <span className="follow-up-waiting-recipient">{e.recipient || '?'}</span>
@@ -85,13 +83,17 @@ export default class FollowUpWaitingPanel extends React.Component<{}, State> {
                     className="follow-up-dismiss-btn"
                     aria-label={dismissLabel}
                     onClick={() => this._onDismiss(e)}
-                  >{dismissLabel}</button>
+                  >
+                    {dismissLabel}
+                  </button>
                   <button
                     type="button"
                     className="follow-up-resolved-btn"
                     aria-label={resolvedLabel}
                     onClick={() => this._onResolved(e)}
-                  >{resolvedLabel}</button>
+                  >
+                    {resolvedLabel}
+                  </button>
                 </div>
               </li>
             ))}

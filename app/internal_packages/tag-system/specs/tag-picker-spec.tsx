@@ -11,11 +11,16 @@ import { TagSystemUIBus } from '../lib/tag-system-ui-bus';
 function seedTags() {
   TagStore.register({ id: 'q3', name: 'Q3', color: '#f00', source: 'user' });
   TagStore.register({ id: 'invoices', name: 'Invoices', color: '#0f0', source: 'user' });
-  TagStore.register({ id: '__system_today', name: 'Today', color: '#00f', source: 'system', systemManaged: true });
+  TagStore.register({
+    id: '__system_today',
+    name: 'Today',
+    color: '#00f',
+    source: 'system',
+    systemManaged: true,
+  });
 }
 
 describe('Tag picker — bilet MVP #98', () => {
-
   beforeEach(() => {
     TagStore._reset();
     TagSystemUIBus._reset();
@@ -32,7 +37,9 @@ describe('Tag picker — bilet MVP #98', () => {
   it('renders dialog when TagSystemUIBus.openPicker(threadId)', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const dialog = container.querySelector('[role="dialog"]');
     expect(dialog).not.toBeNull();
     expect(dialog?.getAttribute('aria-modal')).toBe('true');
@@ -42,7 +49,9 @@ describe('Tag picker — bilet MVP #98', () => {
   it('lists all tags z store', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const rows = container.querySelectorAll('.tag-picker-row');
     expect(rows.length).toBe(3);
   });
@@ -50,7 +59,9 @@ describe('Tag picker — bilet MVP #98', () => {
   it('system tag ma badge + system class', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const systemRows = container.querySelectorAll('.tag-picker-row.system');
     expect(systemRows.length).toBe(1);
     expect(systemRows[0].querySelector('.tag-picker-system-badge')).not.toBeNull();
@@ -59,9 +70,13 @@ describe('Tag picker — bilet MVP #98', () => {
   it('input filtering case-insensitive', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const input = container.querySelector('.tag-picker-input') as HTMLInputElement;
-    act(() => { fireEvent.change(input, { target: { value: 'inv' } }); });
+    act(() => {
+      fireEvent.change(input, { target: { value: 'inv' } });
+    });
     const rows = container.querySelectorAll('.tag-picker-row');
     expect(rows.length).toBe(1);
     expect(rows[0].textContent).toContain('Invoices');
@@ -70,13 +85,19 @@ describe('Tag picker — bilet MVP #98', () => {
   it('click on row toggles assignment', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     expect(TagStore.hasTag('thread-1', 'q3')).toBe(false);
     const rows = container.querySelectorAll('.tag-picker-row');
-    const q3row = Array.from(rows).find(r => r.textContent?.includes('Q3')) as HTMLElement;
-    act(() => { fireEvent.click(q3row); });
+    const q3row = Array.from(rows).find((r) => r.textContent?.includes('Q3')) as HTMLElement;
+    act(() => {
+      fireEvent.click(q3row);
+    });
     expect(TagStore.hasTag('thread-1', 'q3')).toBe(true);
-    act(() => { fireEvent.click(q3row); });
+    act(() => {
+      fireEvent.click(q3row);
+    });
     expect(TagStore.hasTag('thread-1', 'q3')).toBe(false);
   });
 
@@ -84,49 +105,71 @@ describe('Tag picker — bilet MVP #98', () => {
     seedTags();
     TagStore.apply('thread-1', 'q3');
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const checkboxes = container.querySelectorAll('.tag-picker-checkbox');
-    const checkedNodes = Array.from(checkboxes).filter(c => c.getAttribute('data-checked') === 'true');
+    const checkedNodes = Array.from(checkboxes).filter(
+      (c) => c.getAttribute('data-checked') === 'true'
+    );
     expect(checkedNodes.length).toBe(1);
   });
 
   it('Esc closes picker', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
-    act(() => { fireEvent.keyDown(dialog, { key: 'Escape' }); });
+    act(() => {
+      fireEvent.keyDown(dialog, { key: 'Escape' });
+    });
     expect(TagSystemUIBus.isPickerOpen()).toBe(false);
   });
 
   it('backdrop click closes', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const backdrop = container.querySelector('.tag-picker-backdrop') as HTMLElement;
-    act(() => { fireEvent.click(backdrop); });
+    act(() => {
+      fireEvent.click(backdrop);
+    });
     expect(TagSystemUIBus.isPickerOpen()).toBe(false);
   });
 
   it('Enter z empty filter (no match) tworzy nowy user tag z query name', () => {
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const input = container.querySelector('.tag-picker-input') as HTMLInputElement;
-    act(() => { fireEvent.change(input, { target: { value: 'newtag' } }); });
+    act(() => {
+      fireEvent.change(input, { target: { value: 'newtag' } });
+    });
     const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
-    act(() => { fireEvent.keyDown(dialog, { key: 'Enter' }); });
-    const tags = TagStore.list().filter(t => t.name === 'newtag');
+    act(() => {
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+    });
+    const tags = TagStore.list().filter((t) => t.name === 'newtag');
     expect(tags.length).toBe(1);
     // Auto-applied do current thread
-    expect(TagStore.getTags('thread-1').some(t => t.name === 'newtag')).toBe(true);
+    expect(TagStore.getTags('thread-1').some((t) => t.name === 'newtag')).toBe(true);
   });
 
   it('Enter z focused row toggles tag (no create)', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
-    act(() => { fireEvent.keyDown(dialog, { key: 'Enter' }); });
+    act(() => {
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+    });
     // focusIndex=0 = first row (Invoices alfabetic before Q3)
     const first = TagStore.list()[0];
     expect(TagStore.hasTag('thread-1', first.id)).toBe(true);
@@ -135,9 +178,13 @@ describe('Tag picker — bilet MVP #98', () => {
   it('ArrowDown / ArrowUp moves focusIndex', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
-    act(() => { fireEvent.keyDown(dialog, { key: 'ArrowDown' }); });
+    act(() => {
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+    });
     // After ArrowDown focusIndex=1 → second row.focused
     const focused = container.querySelector('.tag-picker-row.focused');
     expect(focused).not.toBeNull();
@@ -147,7 +194,9 @@ describe('Tag picker — bilet MVP #98', () => {
   it('listbox + option ARIA roles obecne', () => {
     seedTags();
     const { container } = render(<TagPicker />);
-    act(() => { TagSystemUIBus.openPicker('thread-1'); });
+    act(() => {
+      TagSystemUIBus.openPicker('thread-1');
+    });
     expect(container.querySelector('[role="listbox"]')).not.toBeNull();
     expect(container.querySelectorAll('[role="option"]').length).toBe(3);
   });
@@ -155,7 +204,9 @@ describe('Tag picker — bilet MVP #98', () => {
   it('unsubscribes on unmount', () => {
     const { unmount } = render(<TagPicker />);
     unmount();
-    expect(() => { TagSystemUIBus.openPicker('t1'); }).not.toThrow();
+    expect(() => {
+      TagSystemUIBus.openPicker('t1');
+    }).not.toThrow();
   });
 
   describe('TagSystemUIBus', () => {

@@ -62,7 +62,11 @@ export default class CommandPalette extends React.Component<{}, State> {
     if (!this.state.open && prevState.open && prevState.previousActiveElement) {
       const el = prevState.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* element no longer in DOM */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* element no longer in DOM */
+        }
       }
     }
     // Scroll selected item into view
@@ -73,9 +77,8 @@ export default class CommandPalette extends React.Component<{}, State> {
 
   private _syncFromStore() {
     const open = CommandPaletteStore.isOpen();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
     this.setState({
       open,
       query: CommandPaletteStore.getQuery(),
@@ -169,11 +172,7 @@ export default class CommandPalette extends React.Component<{}, State> {
     let globalIdx = 0;
 
     return (
-      <div
-        className="command-palette-backdrop"
-        onClick={this._onBackdropClick}
-        role="presentation"
-      >
+      <div className="command-palette-backdrop" onClick={this._onBackdropClick} role="presentation">
         <div
           className="command-palette actuna-glass"
           role="dialog"
@@ -182,7 +181,9 @@ export default class CommandPalette extends React.Component<{}, State> {
           onKeyDown={this._onKeyDown}
         >
           <div className="command-palette-search">
-            <span className="command-palette-icon" aria-hidden="true">⌘</span>
+            <span className="command-palette-icon" aria-hidden="true">
+              ⌘
+            </span>
             <input
               ref={this._inputRef}
               className="command-palette-input"
@@ -214,9 +215,11 @@ export default class CommandPalette extends React.Component<{}, State> {
                 {localized('Brak dopasowań / No matches for')} <strong>"{this.state.query}"</strong>
               </div>
             )}
-            {sectionNames.map(sec => (
+            {sectionNames.map((sec) => (
               <div key={sec} className="command-palette-section-group">
-                <div className="command-palette-section" role="presentation">{sec}</div>
+                <div className="command-palette-section" role="presentation">
+                  {sec}
+                </div>
                 {sections[sec].map(({ item }) => {
                   const isSelected = globalIdx === this.state.selectedIndex;
                   const currentIdx = globalIdx;
@@ -242,7 +245,9 @@ export default class CommandPalette extends React.Component<{}, State> {
                       </div>
                       {item.shortcut && (
                         <div className="command-palette-item-keys" aria-hidden="true">
-                          {item.shortcut.map((k, i) => <kbd key={i}>{k}</kbd>)}
+                          {item.shortcut.map((k, i) => (
+                            <kbd key={i}>{k}</kbd>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -254,7 +259,8 @@ export default class CommandPalette extends React.Component<{}, State> {
 
           <div className="command-palette-footer">
             <span className="command-palette-footer-keys">
-              <kbd>↑</kbd><kbd>↓</kbd> {localized('nawigacja')}
+              <kbd>↑</kbd>
+              <kbd>↓</kbd> {localized('nawigacja')}
             </span>
             <span className="command-palette-footer-keys">
               <kbd>↵</kbd> {localized('wykonaj')}

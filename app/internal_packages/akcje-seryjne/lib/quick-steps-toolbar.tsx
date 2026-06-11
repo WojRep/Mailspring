@@ -40,7 +40,7 @@ export default class QuickStepsToolbar extends React.Component<{}, State> {
   }
 
   private _sync = (): void => {
-    const all = CompoundActionStore.list().filter(a => a.showInToolbar);
+    const all = CompoundActionStore.list().filter((a) => a.showInToolbar);
     all.sort((a, b) => (a.toolbarOrder || 0) - (b.toolbarOrder || 0));
     this.setState({ toolbarActions: all });
   };
@@ -55,8 +55,12 @@ export default class QuickStepsToolbar extends React.Component<{}, State> {
   render() {
     const { toolbarActions } = this.state;
     return (
-      <div className="quick-steps-toolbar" role="toolbar" aria-label={localized('Quick steps / Akcje seryjne')}>
-        {toolbarActions.map(a => (
+      <div
+        className="quick-steps-toolbar"
+        role="toolbar"
+        aria-label={localized('Quick steps / Akcje seryjne')}
+      >
+        {toolbarActions.map((a) => (
           <button
             key={a.id}
             type="button"
@@ -69,7 +73,9 @@ export default class QuickStepsToolbar extends React.Component<{}, State> {
           >
             <span className="quick-step-name">{a.name}</span>
             {a.shortcut && (
-              <span className="quick-step-shortcut" aria-hidden="true">{a.shortcut}</span>
+              <span className="quick-step-shortcut" aria-hidden="true">
+                {a.shortcut}
+              </span>
             )}
           </button>
         ))}

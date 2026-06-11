@@ -25,21 +25,19 @@ export default class CleaningSuggestionsPanel extends React.Component<Props> {
     const dismissLabel = localized('Odrzuć / Dismiss');
     const actLabel = localized('Wykonaj / Apply');
     return (
-      <div
-        className="cleaning-suggestions-panel"
-        role="region"
-        aria-label={ariaLabel}
-      >
+      <div className="cleaning-suggestions-panel" role="region" aria-label={ariaLabel}>
         <h3 className="cleaning-suggestions-title">{ariaLabel}</h3>
         {suggestions.length === 0 ? (
           <p className="cleaning-suggestions-empty">{emptyLabel}</p>
         ) : (
           <ul className="cleaning-suggestions-list">
-            {suggestions.map(s => (
+            {suggestions.map((s) => (
               <li key={s.id} className="cleaning-suggestion-item">
                 <div className="cleaning-suggestion-meta">
                   <span className="cleaning-suggestion-scope">
-                    {s.scope === 'sender' ? localized('Nadawca / Sender') : localized('Domena / Domain')}
+                    {s.scope === 'sender'
+                      ? localized('Nadawca / Sender')
+                      : localized('Domena / Domain')}
                     {': '}
                     <strong>{s.scopeValue}</strong>
                   </span>
@@ -54,13 +52,17 @@ export default class CleaningSuggestionsPanel extends React.Component<Props> {
                     className="cleaning-dismiss-btn"
                     aria-label={dismissLabel}
                     onClick={() => this.props.onDismiss?.(s)}
-                  >{dismissLabel}</button>
+                  >
+                    {dismissLabel}
+                  </button>
                   <button
                     type="button"
                     className="cleaning-act-btn"
                     aria-label={actLabel}
                     onClick={() => this.props.onAct?.(s)}
-                  >{actLabel}</button>
+                  >
+                    {actLabel}
+                  </button>
                 </div>
               </li>
             ))}

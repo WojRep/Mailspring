@@ -38,14 +38,16 @@ export default class MentionDropdown extends React.Component<{}, State> {
   private _sync = (): void => {
     const open = MentionUIBus.isOpen();
     const query = MentionUIBus.getQuery();
-    const matches = open ? (searchMentionsWithFallback(query, 8) || []) : [];
+    const matches = open ? searchMentionsWithFallback(query, 8) || [] : [];
     this.setState({ open, query, matches });
   };
 
   private _onItemClick = (match: MentionMatch): void => {
     try {
       buildMentionInsertion(match, 'to');
-    } catch (e) { /* swallow */ }
+    } catch (e) {
+      /* swallow */
+    }
     MentionUIBus.close();
   };
 
@@ -68,9 +70,7 @@ export default class MentionDropdown extends React.Component<{}, State> {
         onKeyDown={this._onKeyDown}
       >
         {this.state.matches.length === 0 && (
-          <div className="mention-empty">
-            {localized('Brak dopasowań / No matches')}
-          </div>
+          <div className="mention-empty">{localized('Brak dopasowań / No matches')}</div>
         )}
         {this.state.matches.map((m, idx) => (
           <div

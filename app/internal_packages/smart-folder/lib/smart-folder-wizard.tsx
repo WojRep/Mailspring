@@ -25,40 +25,48 @@ const { localized } = require('actunamail-exports');
 // === Field / Operator catalogs (PL+EN combined labels) ===
 
 const FIELD_OPTIONS: { value: RuleField; label: string }[] = [
-  { value: 'from',           label: 'Od / From' },
-  { value: 'to',             label: 'Do / To' },
-  { value: 'cc',             label: 'CC' },
-  { value: 'subject',        label: 'Temat / Subject' },
-  { value: 'body',           label: 'Treść / Body' },
-  { value: 'tag',            label: 'Tag' },
-  { value: 'folder',         label: 'Folder' },
-  { value: 'account',        label: 'Konto / Account' },
+  { value: 'from', label: 'Od / From' },
+  { value: 'to', label: 'Do / To' },
+  { value: 'cc', label: 'CC' },
+  { value: 'subject', label: 'Temat / Subject' },
+  { value: 'body', label: 'Treść / Body' },
+  { value: 'tag', label: 'Tag' },
+  { value: 'folder', label: 'Folder' },
+  { value: 'account', label: 'Konto / Account' },
   { value: 'has_attachment', label: 'Załącznik / Attachment' },
-  { value: 'starred',        label: 'Oznaczony / Starred' },
-  { value: 'pinned',         label: 'Przypięty / Pinned' },
-  { value: 'unread',         label: 'Nieprzeczytany / Unread' },
-  { value: 'importance',     label: 'Ważność / Importance' },
-  { value: 'sender_domain',  label: 'Domena nadawcy / Sender domain' },
-  { value: 'date',           label: 'Data / Date' },
+  { value: 'starred', label: 'Oznaczony / Starred' },
+  { value: 'pinned', label: 'Przypięty / Pinned' },
+  { value: 'unread', label: 'Nieprzeczytany / Unread' },
+  { value: 'importance', label: 'Ważność / Importance' },
+  { value: 'sender_domain', label: 'Domena nadawcy / Sender domain' },
+  { value: 'date', label: 'Data / Date' },
 ];
 
-const TEXT_OPS: RuleOperator[] = ['contains', 'does_not_contain', 'is', 'is_not', 'starts_with', 'ends_with', 'matches_regex'];
+const TEXT_OPS: RuleOperator[] = [
+  'contains',
+  'does_not_contain',
+  'is',
+  'is_not',
+  'starts_with',
+  'ends_with',
+  'matches_regex',
+];
 const BOOL_OPS: RuleOperator[] = ['is'];
 const DATE_OPS: RuleOperator[] = ['before', 'after', 'within_last_days'];
 const ENUM_OPS: RuleOperator[] = ['is', 'is_not'];
 
 const OPERATOR_LABELS: Record<RuleOperator, string> = {
-  is:                'jest / is',
-  is_not:            'nie jest / is not',
-  contains:          'zawiera / contains',
-  does_not_contain:  'nie zawiera / does not contain',
-  starts_with:       'zaczyna się / starts with',
-  ends_with:         'kończy się / ends with',
-  matches_regex:     'regex',
-  before:            'przed / before',
-  after:             'po / after',
-  within_last_days:  'w ostatnich N dni / within last N days',
-  in_group:          'w grupie / in group',
+  is: 'jest / is',
+  is_not: 'nie jest / is not',
+  contains: 'zawiera / contains',
+  does_not_contain: 'nie zawiera / does not contain',
+  starts_with: 'zaczyna się / starts with',
+  ends_with: 'kończy się / ends with',
+  matches_regex: 'regex',
+  before: 'przed / before',
+  after: 'po / after',
+  within_last_days: 'w ostatnich N dni / within last N days',
+  in_group: 'w grupie / in group',
 };
 
 function operatorsForField(field: RuleField): RuleOperator[] {
@@ -154,7 +162,11 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
     if (!this.state.open && prev.open && prev.previousActiveElement) {
       const el = prev.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* el out of DOM */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* el out of DOM */
+        }
       }
     }
   }
@@ -162,9 +174,8 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
   private _syncFromBus = (): void => {
     const open = SmartFolderUIBus.isWizardOpen();
     const editingFolderId = SmartFolderUIBus.getEditingFolderId();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
     if (open && editingFolderId) {
       const existing = SmartFolderStore.get(editingFolderId);
       if (existing) {
@@ -173,9 +184,7 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
           editingFolderId,
           name: existing.name,
           match: existing.match,
-          rules: existing.rules.length
-            ? existing.rules.map(ruleRowFromRule)
-            : [emptyRule()],
+          rules: existing.rules.length ? existing.rules.map(ruleRowFromRule) : [emptyRule()],
           sort: existing.sort || 'date_desc',
           previousActiveElement,
         });
@@ -213,41 +222,45 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
 
   private _updateRule = (index: number, patch: Partial<Rule>): void => {
     this.setState({
-      rules: this.state.rules.map((r, i) => i === index ? { ...r, ...patch } : r),
+      rules: this.state.rules.map((r, i) => (i === index ? { ...r, ...patch } : r)),
     });
   };
 
-  private _onFieldChange = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    const newField = e.target.value as RuleField;
-    const validOps = operatorsForField(newField);
-    const currentOp = this.state.rules[index].op;
-    const op = validOps.includes(currentOp) ? currentOp : validOps[0];
-    this._updateRule(index, {
-      field: newField,
-      op,
-      value: defaultValueForField(newField),
-    });
-  };
+  private _onFieldChange =
+    (index: number) =>
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      const newField = e.target.value as RuleField;
+      const validOps = operatorsForField(newField);
+      const currentOp = this.state.rules[index].op;
+      const op = validOps.includes(currentOp) ? currentOp : validOps[0];
+      this._updateRule(index, {
+        field: newField,
+        op,
+        value: defaultValueForField(newField),
+      });
+    };
 
-  private _onOpChange = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    this._updateRule(index, { op: e.target.value as RuleOperator });
-  };
+  private _onOpChange =
+    (index: number) =>
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      this._updateRule(index, { op: e.target.value as RuleOperator });
+    };
 
-  private _onValueChange = (index: number) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ): void => {
-    const rule = this.state.rules[index];
-    let value: any = e.target.value;
-    // Boolean coerce dla bool fields
-    if (['has_attachment', 'starred', 'pinned', 'unread'].includes(rule.field)) {
-      value = value === 'true';
-    }
-    if (rule.op === 'within_last_days') {
-      const n = parseInt(value, 10);
-      value = Number.isFinite(n) ? n : 0;
-    }
-    this._updateRule(index, { value });
-  };
+  private _onValueChange =
+    (index: number) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
+      const rule = this.state.rules[index];
+      let value: any = e.target.value;
+      // Boolean coerce dla bool fields
+      if (['has_attachment', 'starred', 'pinned', 'unread'].includes(rule.field)) {
+        value = value === 'true';
+      }
+      if (rule.op === 'within_last_days') {
+        const n = parseInt(value, 10);
+        value = Number.isFinite(n) ? n : 0;
+      }
+      this._updateRule(index, { value });
+    };
 
   private _addRule = (): void => {
     this.setState({ rules: [...this.state.rules, emptyRule()] });
@@ -272,7 +285,7 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
 
   private _onSave = (): void => {
     if (!this._isValid()) return;
-    const cleanRules = this.state.rules.map(r => this._stripKey(r));
+    const cleanRules = this.state.rules.map((r) => this._stripKey(r));
     if (this.state.editingFolderId) {
       SmartFolderStore.update(this.state.editingFolderId, {
         name: this.state.name.trim(),
@@ -331,7 +344,10 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
     const removeRuleLabel = localized('Usuń regułę / Remove rule');
     const sortLabel = localized('Sortuj / Sort');
     const previewLabel = localized('Podgląd / Preview');
-    const previewHint = localized('{N} reguł / {N} rules').replace(/\{N\}/g, String(this.state.rules.length));
+    const previewHint = localized('{N} reguł / {N} rules').replace(
+      /\{N\}/g,
+      String(this.state.rules.length)
+    );
     const cancelLabel = localized('Anuluj / Cancel');
     const saveLabel = this.state.editingFolderId
       ? localized('Zapisz zmiany / Save changes')
@@ -340,7 +356,7 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
 
     const sortOptions: { value: SmartFolderDefinition['sort']; label: string }[] = [
       { value: 'date_desc', label: localized('Data malejąco / Date newest') },
-      { value: 'date_asc',  label: localized('Data rosnąco / Date oldest') },
+      { value: 'date_asc', label: localized('Data rosnąco / Date oldest') },
       { value: 'sender_asc', label: localized('Nadawca A–Z / Sender A–Z') },
       { value: 'subject_asc', label: localized('Temat A–Z / Subject A–Z') },
     ];
@@ -406,8 +422,10 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
                     onChange={this._onFieldChange(idx)}
                     aria-label={localized('Pole / Field')}
                   >
-                    {FIELD_OPTIONS.map(o => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
+                    {FIELD_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
                     ))}
                   </select>
                   <select
@@ -416,8 +434,10 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
                     onChange={this._onOpChange(idx)}
                     aria-label={localized('Operator / Operator')}
                   >
-                    {operatorsForField(rule.field).map(op => (
-                      <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
+                    {operatorsForField(rule.field).map((op) => (
+                      <option key={op} value={op}>
+                        {OPERATOR_LABELS[op]}
+                      </option>
                     ))}
                   </select>
                   {renderValueInput(rule, idx, this._onValueChange(idx))}
@@ -447,8 +467,10 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
                 value={this.state.sort}
                 onChange={this._onSortChange}
               >
-                {sortOptions.map(o => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                {sortOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -460,20 +482,12 @@ export default class SmartFolderWizard extends React.Component<{}, State> {
 
           <footer className="smart-folder-wizard-footer">
             {this.state.editingFolderId && (
-              <button
-                type="button"
-                className="smart-folder-wizard-delete"
-                onClick={this._onDelete}
-              >
+              <button type="button" className="smart-folder-wizard-delete" onClick={this._onDelete}>
                 {deleteLabel}
               </button>
             )}
             <div className="smart-folder-wizard-footer-spacer" />
-            <button
-              type="button"
-              className="smart-folder-wizard-cancel"
-              onClick={this._onCancel}
-            >
+            <button type="button" className="smart-folder-wizard-cancel" onClick={this._onCancel}>
               {cancelLabel}
             </button>
             <button

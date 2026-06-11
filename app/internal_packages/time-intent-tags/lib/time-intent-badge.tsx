@@ -35,7 +35,9 @@ export default class TimeIntentBadge extends React.Component<Props, State> {
       this._unsubscribe = (TimeIntentStore as any).listen(() => this._sync());
     }
   }
-  componentWillUnmount() { if (this._unsubscribe) this._unsubscribe(); }
+  componentWillUnmount() {
+    if (this._unsubscribe) this._unsubscribe();
+  }
   componentDidUpdate(prev: Props) {
     if (prev.threadId !== this.props.threadId) this._sync();
   }
