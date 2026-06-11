@@ -154,6 +154,13 @@ class ToolbarWindowControls extends React.Component<Record<string, unknown>, { a
     // titleBarStyle='hiddenInset' (window-launcher.ts:51, fix 2026-05-30).
     // Custom render dawniej był workaroundem dla frame:false. Obecnie
     // duplikował native chrome → podwójna ikona (bug user-visible 2026-05-30).
+    // Pusty spacer (72px z klasy bazowej) rezerwuje lewy róg toolbara — bez
+    // niego native przyciski nakładają się na pierwszy item sheeta, np.
+    // item-back "Inbox" w Preferencjach (bug QA 2026-06-11). Ukrywany
+    // w fullscreen przez workspace.less (native chrome znika).
+    if (process.platform === 'darwin') {
+      return <div className="toolbar-window-controls toolbar-window-controls--native-spacer" />;
+    }
     const enabled =
       (process.platform === 'linux' &&
         AppEnv.config.get('core.workspace.menubarStyle') === 'hamburger');

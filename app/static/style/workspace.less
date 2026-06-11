@@ -110,6 +110,19 @@ actunamail-workspace {
   }
 }
 
+// macOS: pusty spacer pod natywne traffic lights (titleBarStyle hiddenInset) —
+// rezerwuje lewy róg toolbara (72px z klasy bazowej), żeby native przyciski nie
+// nakładały się na pierwszy item sheeta (bug QA 2026-06-11: item-back w Preferencjach).
+.toolbar-window-controls--native-spacer {
+  -webkit-app-region: drag;
+}
+// W fullscreen native przyciski znikają → spacer ukryty (bez martwego gapu).
+body.fullscreen {
+  .toolbar-window-controls--native-spacer {
+    display: none;
+  }
+}
+
 @media (-webkit-min-device-pixel-ratio: 2) {
   .toolbar-window-controls {
     .close {
