@@ -264,6 +264,21 @@
   cursor: default;
 }
 
+// Czytelność chipów na zaznaczonym/fokusowanym wierszu (#118 QA 2026-06-11):
+// .focused odwraca kolory wiersza (.inverseContent) — chip dostaje solidne tło,
+// żeby nazwa i kolorowa obramówka nie zlewały się z niebieskim podświetleniem.
+.thread-list .list-item.focused,
+.thread-list .list-item.selected {
+  .tag-chip-compact {
+    background: var(--surface-base);
+    color: var(--text-primary);
+  }
+  .tag-chip-compact-overflow {
+    background: var(--surface-base);
+    color: var(--text-muted);
+  }
+}
+
 // === Tag sync status (Preferences → Tagi, #117) ===
 
 .tag-sync-status {

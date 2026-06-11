@@ -55,6 +55,9 @@
   --surface-inverse: var(--neutral-95);
 
   --text-primary: var(--neutral-80);
+  // Alias: pakiety (tag-system, actuna-glass) używają --text-default; bez definicji
+  // var() jest invalid i kolor spada do inherit (białe napisy na focused wierszu listy).
+  --text-default: var(--neutral-80);
   --text-secondary: var(--neutral-60);
   --text-muted: var(--neutral-40);
   --text-emphasis: var(--neutral-95);
