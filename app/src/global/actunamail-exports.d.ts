@@ -75,6 +75,8 @@ export * from '../flux/tasks/change-unread-task';
 export * from '../flux/tasks/destroy-model-task';
 export * from '../flux/tasks/syncback-draft-task';
 export * from '../flux/tasks/change-starred-task';
+export * from '../flux/tasks/change-pinned-task';
+export * from '../flux/tasks/change-keywords-task';
 export * from '../flux/tasks/syncback-event-task';
 export * from '../flux/tasks/destroy-category-task';
 export * from '../flux/tasks/syncback-category-task';

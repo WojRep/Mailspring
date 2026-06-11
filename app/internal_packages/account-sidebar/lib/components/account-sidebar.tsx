@@ -13,6 +13,7 @@ interface AccountSidebarState {
   attentionLayersSection: ISidebarSection;
   smartFoldersSection: ISidebarSection;
   tagsSection: ISidebarSection;
+  prioritySection: ISidebarSection;
 }
 
 export default class AccountSidebar extends React.Component<
@@ -67,6 +68,9 @@ export default class AccountSidebar extends React.Component<
       tagsSection: (SidebarStore as any).tagsSection
         ? (SidebarStore as any).tagsSection()
         : { title: 'Tags', items: [] },
+      prioritySection: (SidebarStore as any).prioritySection
+        ? (SidebarStore as any).prioritySection()
+        : { title: 'Priorytety / Priority', items: [] },
     };
   };
 
@@ -83,6 +87,7 @@ export default class AccountSidebar extends React.Component<
       attentionLayersSection,
       smartFoldersSection,
       tagsSection,
+      prioritySection,
     } = this.state;
 
     return (
@@ -94,6 +99,10 @@ export default class AccountSidebar extends React.Component<
                 Attention-First manifesto). Always rendered (3 stałe items:
                 Focused/Pinned/Snoozed) even gdy empty z 0 counts. */}
             <OutlineView {...attentionLayersSection} />
+
+            {/* Priorytety (#120): ćwiartki Eisenhowera / A-B-C — render gdy
+                preset aktywny (items > 0). */}
+            {prioritySection.items.length > 0 && <OutlineView {...prioritySection} />}
 
             <OutlineView {...standardSection} />
 

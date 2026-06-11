@@ -13,8 +13,15 @@
  *   - localStorage `actuna.tags.registry` — { id, name, color, source }[]
  *   - localStorage `actuna.tags.assignments` — Map<threadId, Set<tagId>>
  *
- * IMAP X-Keywords sync: czeka na bilet #114 audit log + mailsync-bridge
- * extension; w MVP local-only z warning UI gdy account bez X-Keywords support.
+ * Sync cross-device (bilet #117): localStorage to INSTANT LOCAL CACHE (szybkie
+ * odczyty/UI). Źródłem prawdy między urządzeniami jest serwer konta — apply/
+ * remove delegują transport do adaptera per konto (sync-adapters/): keywordy
+ * IMAP (jak Thunderbird), etykiety Gmail `Tag/...`, kategorie Outlooka przez
+ * Exchange. Inbound: TagStore.syncFromThread(delta Thread.customKeywords).
+ *
+ * Tagi `__system_*` (priority/other override #93, time-intent #96) NIE są
+ * syncowane — to lokalne nakładki behawioralne (rollover o północy
+ * churnowałby serwer).
  *
  * Mockup: design/mockups/04-tag-picker.html.
  */
@@ -35,6 +42,25 @@ export interface Tag {
 
 const STORAGE_REGISTRY = 'actuna.tags.registry';
 const STORAGE_ASSIGNMENTS = 'actuna.tags.assignments';
+// One-time guard (bilet #117, wzorzec MIGRATED_KEY z PinStore/decyzji #46):
+// lokalne przypisania sprzed syncu wypchnięte na serwer przy pierwszym starcie.
+const MIGRATED_KEY = 'actuna.tags.migrated-v117';
+
+// Keywordy IMAP innych mechanizmów / klientów — nigdy nie stają się tagami.
+const IGNORED_KEYWORDS = new Set([
+  '$Pinned', // pin cross-device #93/#46 — osobny mechanizm
+  '$Forwarded', '$MDNSent', '$Junk', '$NotJunk', 'Junk', 'NonJunk', '$Phishing',
+  '$HasAttachment', '$HasNoAttachment',
+]);
+
+// Wbudowane tagi Thunderbirda (interop): keyword → nazwa wyświetlana.
+const THUNDERBIRD_LABELS: Record<string, string> = {
+  $label1: 'Important',
+  $label2: 'Work',
+  $label3: 'Personal',
+  $label4: 'ToDo',
+  $label5: 'Later',
+};
 
 // Default color palette (WCAG-safe vs surfaces, design tokens recommended)
 export const DEFAULT_COLORS = [
@@ -59,6 +85,31 @@ class TagStoreImpl {
     if (this._loaded) return;
     this._load();
     this._loaded = true;
+    this._migrateLocalAssignmentsToServer();
+  }
+
+  /**
+   * Jednorazowa migracja (bilet #117): przypisania tagów utworzone na lokalnej
+   * wersji (#98 MVP) nigdy nie trafiły na serwer. Przy pierwszym uruchomieniu
+   * po update wypychamy je adapterem konta (keyword/etykieta), żeby stały się
+   * cross-device. Idempotentne (flaga w localStorage) — wzorzec PinStore #46.
+   */
+  private _migrateLocalAssignmentsToServer(): void {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      if (localStorage.getItem(MIGRATED_KEY)) return;
+      for (const [threadId, tagIds] of this._assignments) {
+        for (const tagId of tagIds) {
+          const tag = this._registry.get(tagId);
+          if (tag && !tagId.startsWith('__system_')) {
+            this._queueSync(threadId, tag, true);
+          }
+        }
+      }
+      localStorage.setItem(MIGRATED_KEY, '1');
+    } catch (e) {
+      /* storage error — retry next launch */
+    }
   }
 
   // === Registry CRUD ===
@@ -174,8 +225,44 @@ class TagStoreImpl {
     return this._assignments.get(threadId)?.has(tagId) ?? false;
   }
 
-  /** Apply tag to thread (idempotent). */
+  /**
+   * Reverse lookup (bilet #119): wątki z danym tagiem — zasila perspektywy
+   * sidebara (ThreadIdListPerspective) i liczniki. O(wątki z tagami).
+   */
+  threadIdsWithTag(tagId: string): string[] {
+    const out: string[] = [];
+    if (!tagId) return out;
+    for (const [threadId, tagIds] of this._assignments) {
+      if (tagIds.has(tagId)) out.push(threadId);
+    }
+    return out;
+  }
+
+  /**
+   * Apply tag to thread (idempotent). Lokalny cache natychmiast (instant UI),
+   * dodatkowo fire-and-forget sync na serwer konta przez adapter (#117).
+   */
   apply(threadId: string, tagId: string): boolean {
+    const changed = this._applyLocal(threadId, tagId);
+    if (changed) {
+      const tag = this._registry.get(tagId);
+      if (tag) this._queueSync(threadId, tag, true);
+    }
+    return changed;
+  }
+
+  /** Remove tag from thread. Lokalnie + sync przez adapter (#117). */
+  remove(threadId: string, tagId: string): boolean {
+    const tag = this._registry.get(tagId);
+    const changed = this._removeLocal(threadId, tagId);
+    if (changed && tag) {
+      this._queueSync(threadId, tag, false);
+    }
+    return changed;
+  }
+
+  /** Lokalna mutacja bez dyspozycji syncu — używane przez inbound reconcile. */
+  private _applyLocal(threadId: string, tagId: string): boolean {
     if (!threadId || !tagId) return false;
     if (!this._registry.has(tagId)) return false;
     let set = this._assignments.get(threadId);
@@ -190,8 +277,7 @@ class TagStoreImpl {
     return true;
   }
 
-  /** Remove tag from thread. */
-  remove(threadId: string, tagId: string): boolean {
+  private _removeLocal(threadId: string, tagId: string): boolean {
     const set = this._assignments.get(threadId);
     if (!set || !set.has(tagId)) return false;
     set.delete(tagId);
@@ -199,6 +285,104 @@ class TagStoreImpl {
     this._save();
     this._emit();
     return true;
+  }
+
+  /**
+   * Inbound reconcile (bilet #117): delta Thread z silnika C++ niesie unię
+   * keywordów IMAP wiadomości wątku. Serwer = źródło prawdy:
+   *  - keyword znanego tagu → przypisanie dodane,
+   *  - keyword nieznany → auto-rejestracja tagu (source 'imap'; mapowanie
+   *    wbudowanych tagów Thunderbirda $label1..$label5),
+   *  - keyword zniknął → przypisanie usunięte (tylko tagi sync-eligible).
+   * Konta bez transportu keywordowego (gmail/local) NIE są reconcile'owane —
+   * pusta lista keywordów nie może wycinać lokalnych przypisań.
+   */
+  syncFromThread(thread: { id: string; accountId?: string; customKeywords?: string[] }): void {
+    if (!thread || !thread.id || !Array.isArray(thread.customKeywords)) return;
+    const adapter = this._adapterForAccountId(thread.accountId);
+    if (!adapter || (adapter.kind !== 'imap-keyword' && adapter.kind !== 'exchange-category')) {
+      return;
+    }
+    let keywordForTagName: (n: string) => string;
+    try {
+      ({ keywordForTagName } = require('./sync-adapters/tag-sync-adapters'));
+    } catch (e) {
+      return;
+    }
+
+    const presentTagIds = new Set<string>();
+    for (const kw of thread.customKeywords) {
+      if (!kw || IGNORED_KEYWORDS.has(kw)) continue;
+      const displayName = THUNDERBIRD_LABELS[kw] || kw;
+      const wanted = keywordForTagName(displayName);
+      let tag = Array.from(this._registry.values()).find(
+        t => keywordForTagName(t.name) === wanted
+      );
+      if (!tag) {
+        tag = this.register({
+          id: `imap_${wanted}`,
+          name: displayName,
+          color: DEFAULT_COLORS[0],
+          source: 'imap',
+        });
+      }
+      presentTagIds.add(tag.id);
+      this._applyLocal(thread.id, tag.id);
+    }
+
+    for (const tagId of this.getTagIds(thread.id)) {
+      if (presentTagIds.has(tagId)) continue;
+      if (tagId.startsWith('__system_')) continue; // lokalne nakładki — nie z serwera
+      this._removeLocal(thread.id, tagId);
+    }
+  }
+
+  private _adapterForAccountId(accountId?: string) {
+    try {
+      const { AccountStore } = require('actunamail-exports');
+      const { adapterForAccount } = require('./sync-adapters/tag-sync-adapters');
+      const account =
+        accountId && AccountStore && AccountStore.accountForId
+          ? AccountStore.accountForId(accountId)
+          : null;
+      if (!account) return null;
+      return adapterForAccount(account);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Cross-device dispatch (bilet #117, wzorzec PinStore._queueSyncTask #46):
+   * rozwiąż Thread z DB, wybierz adapter konta, wyślij apply/remove.
+   * Fire-and-forget; brak exports/threadu/konta = no-op (cache lokalny zostaje).
+   * Tagi `__system_*` nigdy nie wychodzą na serwer.
+   */
+  private _queueSync(threadId: string, tag: Tag, add: boolean): void {
+    if (!tag || tag.id.startsWith('__system_')) return;
+    try {
+      const exp = require('actunamail-exports');
+      const { DatabaseStore, Thread, AccountStore } = exp;
+      if (!DatabaseStore || !Thread) return;
+      Promise.resolve(DatabaseStore.find(Thread, threadId))
+        .then((thread: any) => {
+          if (!thread) return;
+          const account =
+            AccountStore && AccountStore.accountForId
+              ? AccountStore.accountForId(thread.accountId)
+              : null;
+          if (!account) return;
+          const { adapterForAccount } = require('./sync-adapters/tag-sync-adapters');
+          const adapter = adapterForAccount(account);
+          if (add) adapter.applyTag(thread, tag);
+          else adapter.removeTag(thread, tag);
+        })
+        .catch(() => {
+          /* offline / not found — lokalny cache nadal odzwierciedla tag */
+        });
+    } catch (e) {
+      /* actunamail-exports unavailable (node-only context) */
+    }
   }
 
   /** Toggle assignment. */
@@ -250,6 +434,7 @@ class TagStoreImpl {
     try {
       localStorage.removeItem(STORAGE_REGISTRY);
       localStorage.removeItem(STORAGE_ASSIGNMENTS);
+      localStorage.removeItem(MIGRATED_KEY);
     } catch (e) { /* node env */ }
   }
 

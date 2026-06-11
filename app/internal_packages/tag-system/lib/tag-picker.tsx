@@ -69,7 +69,11 @@ export default class TagPicker extends React.Component<{}, State> {
     if (!this.state.open && prev.open && prev.previousActiveElement) {
       const el = prev.previousActiveElement as HTMLElement;
       if (el && typeof el.focus === 'function') {
-        try { el.focus(); } catch (e) { /* el out of DOM */ }
+        try {
+          el.focus();
+        } catch (e) {
+          /* el out of DOM */
+        }
       }
     }
   }
@@ -77,12 +81,19 @@ export default class TagPicker extends React.Component<{}, State> {
   private _sync = (): void => {
     const open = TagSystemUIBus.isPickerOpen();
     const threadId = TagSystemUIBus.getPickerThreadId();
-    const previousActiveElement = open && !this.state.open
-      ? document.activeElement
-      : this.state.previousActiveElement;
+    const previousActiveElement =
+      open && !this.state.open ? document.activeElement : this.state.previousActiveElement;
     const allTags = TagStore.list();
     const assigned = new Set(threadId ? TagStore.getTagIds(threadId) : []);
-    this.setState({ open, threadId, allTags, assigned, query: open && !this.state.open ? '' : this.state.query, focusIndex: 0, previousActiveElement });
+    this.setState({
+      open,
+      threadId,
+      allTags,
+      assigned,
+      query: open && !this.state.open ? '' : this.state.query,
+      focusIndex: 0,
+      previousActiveElement,
+    });
   };
 
   private _syncStore = (): void => {
@@ -95,7 +106,7 @@ export default class TagPicker extends React.Component<{}, State> {
   private _filtered(): Tag[] {
     const q = this.state.query.toLowerCase().trim();
     if (!q) return this.state.allTags;
-    return this.state.allTags.filter(t => t.name.toLowerCase().includes(q));
+    return this.state.allTags.filter((t) => t.name.toLowerCase().includes(q));
   }
 
   private _onQueryChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -105,6 +116,21 @@ export default class TagPicker extends React.Component<{}, State> {
   private _onToggleTag = (tag: Tag, e?: React.SyntheticEvent): void => {
     if (e) e.stopPropagation();
     if (!this.state.threadId) return;
+    // #120: wybór tagu priorytetowego routowany przez setPriority —
+    // ekskluzywność grupy (Q2 zdejmuje Q1) także z pickera.
+    try {
+      const { PriorityPresetStore } = require('./priority-preset-store');
+      if (PriorityPresetStore.rankForTagId(tag.id) != null) {
+        if (TagStore.hasTag(this.state.threadId, tag.id)) {
+          PriorityPresetStore.clearPriority(this.state.threadId);
+        } else {
+          PriorityPresetStore.setPriority(this.state.threadId, tag.id);
+        }
+        return;
+      }
+    } catch (err) {
+      /* preset store unavailable */
+    }
     TagStore.toggle(this.state.threadId, tag.id);
   };
 
@@ -113,7 +139,7 @@ export default class TagPicker extends React.Component<{}, State> {
     if (!name) return;
     // Slug from name + timestamp to avoid collision.
     const id = `user_${name.toLowerCase().replace(/[^a-z0-9]+/gi, '-')}_${Date.now().toString(36)}`;
-    const colorIdx = TagStore.list().filter(t => !t.systemManaged).length % DEFAULT_COLORS.length;
+    const colorIdx = TagStore.list().filter((t) => !t.systemManaged).length % DEFAULT_COLORS.length;
     TagStore.register({
       id,
       name,
@@ -142,7 +168,9 @@ export default class TagPicker extends React.Component<{}, State> {
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (filtered.length === 0) return;
-      this.setState({ focusIndex: (this.state.focusIndex - 1 + filtered.length) % filtered.length });
+      this.setState({
+        focusIndex: (this.state.focusIndex - 1 + filtered.length) % filtered.length,
+      });
       return;
     }
     if (e.key === 'Enter') {
@@ -175,9 +203,13 @@ export default class TagPicker extends React.Component<{}, State> {
     if (!this.state.open) return null;
     const filtered = this._filtered();
     const ariaLabel = localized('Wybierz tagi do wątku / Pick tags for thread');
-    const placeholder = localized('Szukaj tagów lub wpisz nazwę nowego… / Search tags or type new name…');
+    const placeholder = localized(
+      'Szukaj tagów lub wpisz nazwę nowego… / Search tags or type new name…'
+    );
     const createHint = localized('Enter aby utworzyć nowy tag / Enter to create new tag');
-    const emptyHint = localized('Brak tagów. Wpisz nazwę i naciśnij Enter. / No tags. Type a name and press Enter.');
+    const emptyHint = localized(
+      'Brak tagów. Wpisz nazwę i naciśnij Enter. / No tags. Type a name and press Enter.'
+    );
     return (
       <div className="tag-picker-backdrop" onClick={this._onBackdropClick}>
         <div
@@ -236,7 +268,10 @@ export default class TagPicker extends React.Component<{}, State> {
                     />
                     <span className="tag-picker-name">{tag.name}</span>
                     {tag.systemManaged && (
-                      <span className="tag-picker-system-badge" aria-label={localized('Tag systemowy / System tag')}>
+                      <span
+                        className="tag-picker-system-badge"
+                        aria-label={localized('Tag systemowy / System tag')}
+                      >
                         {localized('system')}
                       </span>
                     )}

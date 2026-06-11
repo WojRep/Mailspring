@@ -1,6 +1,11 @@
 {
   "body": {
-    "mod-l": "tag-system:open-picker"
+    "mod-l": "tag-system:open-picker",
+    "mod-1": "priority-tags:set-1",
+    "mod-2": "priority-tags:set-2",
+    "mod-3": "priority-tags:set-3",
+    "mod-4": "priority-tags:set-4",
+    "mod-0": "priority-tags:clear"
   },
   ".tag-picker": {
     "escape": "tag-system:close-picker",

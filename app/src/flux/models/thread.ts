@@ -66,6 +66,13 @@ export class Thread extends ModelWithMetadata {
       modelKey: 'pinned',
     }),
 
+    // Tag sync cross-device (bilet #117): unia niestandardowych keywordów IMAP
+    // wiadomości wątku (rollup w silniku C++, kalka pinned). Źródło prawdy dla
+    // TagStore.syncFromThread — przypisania tagów między urządzeniami.
+    customKeywords: Attributes.Obj({
+      modelKey: 'customKeywords',
+    }),
+
     version: Attributes.Number({
       queryable: true,
       jsonKey: 'v',
@@ -150,6 +157,7 @@ export class Thread extends ModelWithMetadata {
   public unread: boolean;
   public starred: boolean;
   public pinned: boolean;
+  public customKeywords: string[];
   public version: number;
   public folders: Folder[];
   public labels: Label[];

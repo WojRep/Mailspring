@@ -70,30 +70,104 @@ class SidebarStore extends ActunaMailStore {
    * Lazy require — bootstrap order safe.
    */
   tagsSection(): ISidebarSection {
-    let tags: Array<{ id: string; name: string; color?: string; systemManaged?: boolean }> = [];
+    // Bilet #119: każda pozycja tagu = klikalna perspektywa filtrowana
+    // (ThreadIdListPerspective po przypisaniach TagStore — wzorzec Snoozed).
+    // Filtr w JS (TagStore reverse lookup), zapytanie SQLite po liście id.
+    let items: ISidebarSection['items'] = [];
     try {
       const mod = require('../../tag-system/lib/tag-store');
       const TagStore = mod.TagStore;
       if (TagStore && typeof TagStore.list === 'function') {
-        tags = TagStore.list().filter((t: any) => !t.systemManaged);
+        const accountIds = AccountStore.accountIds();
+        items = TagStore.list()
+          .filter((t: any) => !t.systemManaged)
+          .map((t: any) => {
+            const threadIds: string[] =
+              typeof TagStore.threadIdsWithTag === 'function'
+                ? TagStore.threadIdsWithTag(t.id)
+                : [];
+            const perspective = MailboxPerspective.forThreadIds(threadIds, accountIds, t.name);
+            // Marker do odświeżenia po zmianie przypisań (staleness) — patrz
+            // _refocusTagPerspectiveIfStale(). Nie serializowany (snapshot po
+            // restarcie odświeża się przy następnym kliku).
+            (perspective as any)._tagPerspectiveId = t.id;
+            return SidebarItem.forPerspective(`tag-${t.id}`, perspective, {
+              name: t.name,
+              iconName: 'tag.png',
+              count: threadIds.length,
+            });
+          });
       }
     } catch (e) {
       /* tag-system not active */
     }
     return {
       title: 'Tags',
-      items: tags.map(
-        (t) =>
-          ({
-            id: `tag-${t.id}`,
-            name: t.name,
-            iconName: 'tag.png',
-            accountIds: [],
-            children: [],
-            collapsed: false,
-            unreadCount: 0,
-          }) as any
-      ),
+      items,
+    };
+  }
+
+  /**
+   * Bilet #119: ThreadIdListPerspective jest snapshotem listy id. Gdy user
+   * patrzy na widok tagu, a przypisania się zmienią (picker / sync z serwera),
+   * re-dispatch świeżej perspektywy tego samego tagu.
+   */
+  _refocusTagPerspectiveIfStale = () => {
+    try {
+      const current: any = FocusedPerspectiveStore.current();
+      const tagId = current && current._tagPerspectiveId;
+      if (!tagId) return;
+      const mod = require('../../tag-system/lib/tag-store');
+      const TagStore = mod.TagStore;
+      const tag = TagStore && TagStore.get ? TagStore.get(tagId) : null;
+      if (!tag) return;
+      const threadIds: string[] = TagStore.threadIdsWithTag(tagId);
+      const existing: string[] = (current.toJSON && current.toJSON().threadIds) || [];
+      if (threadIds.slice().sort().join('\n') === existing.slice().sort().join('\n')) return;
+      const fresh = MailboxPerspective.forThreadIds(threadIds, AccountStore.accountIds(), tag.name);
+      (fresh as any)._tagPerspectiveId = tagId;
+      Actions.focusMailboxPerspective(fresh);
+    } catch (e) {
+      /* tag-system not active */
+    }
+  };
+
+  /**
+   * Priorytety (bilet #120): ćwiartki Eisenhowera / poziomy A-B-C jako
+   * klikalne widoki wg rank (grupowanie zamiast sortowania SQL) — pozycja
+   * per element aktywnego presetu, perspektywa #119-mechanizmem.
+   */
+  prioritySection(): ISidebarSection {
+    let items: ISidebarSection['items'] = [];
+    try {
+      const tagMod = require('../../tag-system/lib/tag-store');
+      const presetMod = require('../../tag-system/lib/priority-preset-store');
+      const TagStore = tagMod.TagStore;
+      const PriorityPresetStore = presetMod.PriorityPresetStore;
+      const PRESETS = presetMod.PRESETS;
+      const active = PriorityPresetStore && PriorityPresetStore.activePreset();
+      if (active && PRESETS[active]) {
+        const accountIds = AccountStore.accountIds();
+        items = PRESETS[active].members
+          .slice()
+          .sort((a: any, b: any) => a.rank - b.rank)
+          .map((m: any) => {
+            const threadIds: string[] = TagStore.threadIdsWithTag(m.id);
+            const perspective = MailboxPerspective.forThreadIds(threadIds, accountIds, m.name);
+            (perspective as any)._tagPerspectiveId = m.id;
+            return SidebarItem.forPerspective(`priority-${m.id}`, perspective, {
+              name: m.name,
+              iconName: 'tag.png',
+              count: threadIds.length,
+            });
+          });
+      }
+    } catch (e) {
+      /* tag-system not active */
+    }
+    return {
+      title: 'Priorytety / Priority',
+      items,
     };
   }
 
@@ -206,6 +280,20 @@ class SidebarStore extends ActunaMailStore {
     this.listenTo(OutboxStore, this._updateSections);
     this.listenTo(ThreadCountsStore, this._updateSections);
     this.listenTo(CategoryStore, this._updateSections);
+
+    // Bilet #119: CRUD/przypisania tagów odświeżają sekcję + liczniki;
+    // aktywna perspektywa tagu dostaje świeżą listę id (staleness).
+    try {
+      const tagMod = require('../../tag-system/lib/tag-store');
+      if (tagMod.TagStore && typeof tagMod.TagStore.listen === 'function') {
+        tagMod.TagStore.listen(() => {
+          this._updateSections();
+          this._refocusTagPerspectiveIfStale();
+        });
+      }
+    } catch (e) {
+      /* tag-system not active */
+    }
 
     this.configSubscription = AppEnv.config.onDidChange(
       'core.workspace.showUnreadForAllCategories',

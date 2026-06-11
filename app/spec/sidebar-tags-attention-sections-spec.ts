@@ -57,6 +57,107 @@ describe('SidebarStore — Tags + Attention Layers sections (plan v1.0)', () => 
     });
   });
 
+  // Bilet #119: pozycje tagów były inertne (bez perspektywy, bez onSelect) —
+  // klik nic nie robił. Każda pozycja = ThreadIdListPerspective po przypisaniach
+  // TagStore (wzorzec Snoozed), z licznikiem i dispatch'em focusMailboxPerspective.
+  describe('tagsSection() — clickable filtered views (bilet #119)', () => {
+    let TagStore: any;
+
+    beforeEach(() => {
+      const tagMod = require('../internal_packages/tag-system/lib/tag-store');
+      TagStore = tagMod.TagStore;
+      TagStore._reset();
+      TagStore.init();
+      TagStore.register({ id: 'utag-x', name: 'ProjektX', color: '#f00', source: 'user' });
+      TagStore.register({ id: 'utag-empty', name: 'Pusty', color: '#0f0', source: 'user' });
+    });
+
+    afterEach(() => {
+      TagStore._reset();
+    });
+
+    it('TagStore.threadIdsWithTag zwraca reverse lookup przypisań', () => {
+      TagStore.apply('t1', 'utag-x');
+      TagStore.apply('t2', 'utag-x');
+      expect(typeof TagStore.threadIdsWithTag).toBe('function');
+      expect(TagStore.threadIdsWithTag('utag-x').slice().sort()).toEqual(['t1', 't2']);
+      expect(TagStore.threadIdsWithTag('utag-empty')).toEqual([]);
+    });
+
+    it('pozycja tagu niesie ThreadIdListPerspective z przypisanymi threadIds + count', () => {
+      TagStore.apply('t1', 'utag-x');
+      TagStore.apply('t2', 'utag-x');
+      const section = (SidebarStore as any).tagsSection();
+      const item = section.items.find((i: any) => i.id === 'tag-utag-x');
+      expect(item).toBeDefined();
+      expect(item.perspective.constructor.name).toBe('ThreadIdListPerspective');
+      expect(item.perspective.toJSON().threadIds.slice().sort()).toEqual(['t1', 't2']);
+      expect(item.count).toBe(2);
+    });
+
+    it('klik pozycji dispatchuje focusMailboxPerspective z jej perspektywą', () => {
+      TagStore.apply('t1', 'utag-x');
+      const { Actions } = require('actunamail-exports');
+      spyOn(Actions, 'focusMailboxPerspective');
+      const section = (SidebarStore as any).tagsSection();
+      const item = section.items.find((i: any) => i.id === 'tag-utag-x');
+      expect(typeof item.onSelect).toBe('function');
+      item.onSelect(item);
+      expect(Actions.focusMailboxPerspective).toHaveBeenCalledWith(item.perspective);
+    });
+
+    it('pusty tag → perspektywa bez threadIds, count 0, bez crasha', () => {
+      const section = (SidebarStore as any).tagsSection();
+      const item = section.items.find((i: any) => i.id === 'tag-utag-empty');
+      expect(item).toBeDefined();
+      expect(item.perspective.constructor.name).toBe('ThreadIdListPerspective');
+      expect(item.count).toBe(0);
+    });
+  });
+
+  // Bilet #120: ćwiartki Eisenhowera / poziomy A-B-C jako klikalne widoki
+  // (grupowanie zamiast sortowania SQL) — pozycja per element presetu wg rank.
+  describe('prioritySection() — bilet #120', () => {
+    let TagStore: any;
+    let PriorityPresetStore: any;
+    let PRESETS: any;
+
+    beforeEach(() => {
+      const tagMod = require('../internal_packages/tag-system/lib/tag-store');
+      const presetMod = require('../internal_packages/tag-system/lib/priority-preset-store');
+      TagStore = tagMod.TagStore;
+      PriorityPresetStore = presetMod.PriorityPresetStore;
+      PRESETS = presetMod.PRESETS;
+      TagStore._reset();
+      TagStore.init();
+      PriorityPresetStore._reset();
+    });
+
+    afterEach(() => {
+      PriorityPresetStore._reset();
+      TagStore._reset();
+    });
+
+    it('bez aktywnego presetu → sekcja z 0 items', () => {
+      const section = (SidebarStore as any).prioritySection();
+      expect(Array.isArray(section.items)).toBe(true);
+      expect(section.items.length).toBe(0);
+    });
+
+    it('aktywny eisenhower → 4 pozycje wg rank, każda z perspektywą i count', () => {
+      PriorityPresetStore.activatePreset('eisenhower');
+      const q1 = PRESETS.eisenhower.members[0].id;
+      PriorityPresetStore.setPriority('t1', q1);
+      PriorityPresetStore.setPriority('t2', q1);
+      const section = (SidebarStore as any).prioritySection();
+      expect(section.items.length).toBe(4);
+      expect(section.items[0].name).toBe(PRESETS.eisenhower.members[0].name);
+      expect(section.items[0].count).toBe(2);
+      expect(section.items[0].perspective.constructor.name).toBe('ThreadIdListPerspective');
+      expect(typeof section.items[0].onSelect).toBe('function');
+    });
+  });
+
   describe('attentionLayersSection() — #93 + #104 integration', () => {
     it('exposes attentionLayersSection() method', () => {
       expect(typeof (SidebarStore as any).attentionLayersSection).toBe('function');

@@ -17,6 +17,8 @@
 
 import React from 'react';
 import { TagStore, Tag, DEFAULT_COLORS } from './tag-store';
+import TagSyncStatus from './tag-sync-status';
+import { PriorityPresetStore, PRESETS } from './priority-preset-store';
 
 const { localized } = require('actunamail-exports');
 
@@ -50,6 +52,21 @@ export default class PreferencesTags extends React.Component<{}, State> {
   componentWillUnmount() {
     if (this._unsubscribe) this._unsubscribe();
   }
+
+  private _onPresetChange = (presetId: string | null): void => {
+    const current = PriorityPresetStore.activePreset();
+    if (presetId === current) return;
+    if (current) {
+      const ok = window.confirm(
+        localized(
+          'Zmiana presetu wyczyści przypisane priorytety. Kontynuować? / Changing the preset clears assigned priorities. Continue?'
+        )
+      );
+      if (!ok) return;
+    }
+    PriorityPresetStore.activatePreset(presetId);
+    this.forceUpdate();
+  };
 
   private _selectTag = (id: string): void => {
     const tag = TagStore.get(id);
@@ -88,7 +105,11 @@ export default class PreferencesTags extends React.Component<{}, State> {
   private _mergeInto = (): void => {
     if (!this.state.selectedId || !this.state.mergeTargetId) return;
     if (TagStore.merge(this.state.selectedId, this.state.mergeTargetId)) {
-      this.setState({ selectedId: this.state.mergeTargetId, mergeTargetId: '', confirmDelete: false });
+      this.setState({
+        selectedId: this.state.mergeTargetId,
+        mergeTargetId: '',
+        confirmDelete: false,
+      });
     }
   };
 
@@ -104,8 +125,8 @@ export default class PreferencesTags extends React.Component<{}, State> {
 
   render() {
     const all = TagStore.list();
-    const userTags = all.filter(t => !t.systemManaged);
-    const systemTags = all.filter(t => t.systemManaged);
+    const userTags = all.filter((t) => !t.systemManaged);
+    const systemTags = all.filter((t) => t.systemManaged);
     const selected = this.state.selectedId ? TagStore.get(this.state.selectedId) : null;
     const isSystem = !!selected?.systemManaged;
     const sysReadOnly = localized('Tag systemowy — niedostępny do edycji / System tag — read-only');
@@ -114,6 +135,29 @@ export default class PreferencesTags extends React.Component<{}, State> {
       <div className="preferences-tags-pane">
         <h2 className="preferences-tags-title">{localized('Zarządzaj tagami / Manage Tags')}</h2>
 
+        <TagSyncStatus />
+
+        {/* #120: preset priorytetów — Eisenhower (Q1–Q4) / A-B-C / brak.
+            Jeden aktywny naraz; zmiana czyści przypisania po confirm. */}
+        <div className="preferences-tags-preset">
+          <div className="preferences-tags-preset-title">
+            {localized('Preset priorytetów / Priority preset')}
+          </div>
+          <select
+            className="preferences-tags-preset-select"
+            aria-label={localized('Preset priorytetów / Priority preset')}
+            value={PriorityPresetStore.activePreset() || ''}
+            onChange={(e) => this._onPresetChange(e.target.value || null)}
+          >
+            <option value="">{localized('Brak / None')}</option>
+            {Object.values(PRESETS).map((p) => (
+              <option key={p.id} value={p.id}>
+                {localized(p.label)}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="preferences-tags-add">
           <input
             type="text"
@@ -121,9 +165,15 @@ export default class PreferencesTags extends React.Component<{}, State> {
             placeholder={localized('Nazwa nowego tagu / New tag name')}
             value={this.state.newName}
             onChange={(e) => this.setState({ newName: e.target.value })}
-            onKeyDown={(e) => { if (e.key === 'Enter') this._addTag(); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') this._addTag();
+            }}
           />
-          <div className="preferences-tags-add-colors" role="radiogroup" aria-label={localized('Kolor tagu / Tag color')}>
+          <div
+            className="preferences-tags-add-colors"
+            role="radiogroup"
+            aria-label={localized('Kolor tagu / Tag color')}
+          >
             {DEFAULT_COLORS.map((color, idx) => (
               <button
                 key={idx}
@@ -148,13 +198,19 @@ export default class PreferencesTags extends React.Component<{}, State> {
         </div>
 
         <div className="preferences-tags-grid">
-          <div className="preferences-tags-list" role="listbox" aria-label={localized('Lista tagów / Tag list')}>
+          <div
+            className="preferences-tags-list"
+            role="listbox"
+            aria-label={localized('Lista tagów / Tag list')}
+          >
             <div className="preferences-tags-list-section">
-              <div className="preferences-tags-list-heading">{localized('Twoje tagi / Your tags')}</div>
+              <div className="preferences-tags-list-heading">
+                {localized('Twoje tagi / Your tags')}
+              </div>
               {userTags.length === 0 ? (
                 <div className="preferences-tags-list-empty">{localized('Brak / None')}</div>
               ) : (
-                userTags.map(tag => (
+                userTags.map((tag) => (
                   <button
                     key={tag.id}
                     type="button"
@@ -163,18 +219,24 @@ export default class PreferencesTags extends React.Component<{}, State> {
                     className={`preferences-tags-list-item${this.state.selectedId === tag.id ? ' selected' : ''}`}
                     onClick={() => this._selectTag(tag.id)}
                   >
-                    <span className="preferences-tags-list-dot" style={{ background: tag.color }} aria-hidden="true" />
+                    <span
+                      className="preferences-tags-list-dot"
+                      style={{ background: tag.color }}
+                      aria-hidden="true"
+                    />
                     <span className="preferences-tags-list-name">{tag.name}</span>
                   </button>
                 ))
               )}
             </div>
             <div className="preferences-tags-list-section">
-              <div className="preferences-tags-list-heading">{localized('Tagi systemowe / System tags')}</div>
+              <div className="preferences-tags-list-heading">
+                {localized('Tagi systemowe / System tags')}
+              </div>
               {systemTags.length === 0 ? (
                 <div className="preferences-tags-list-empty">{localized('Brak / None')}</div>
               ) : (
-                systemTags.map(tag => (
+                systemTags.map((tag) => (
                   <button
                     key={tag.id}
                     type="button"
@@ -185,7 +247,11 @@ export default class PreferencesTags extends React.Component<{}, State> {
                     onClick={() => this._selectTag(tag.id)}
                     title={sysReadOnly}
                   >
-                    <span className="preferences-tags-list-dot" style={{ background: tag.color }} aria-hidden="true" />
+                    <span
+                      className="preferences-tags-list-dot"
+                      style={{ background: tag.color }}
+                      aria-hidden="true"
+                    />
                     <span className="preferences-tags-list-name">{tag.name}</span>
                   </button>
                 ))
@@ -195,7 +261,9 @@ export default class PreferencesTags extends React.Component<{}, State> {
 
           <div className="preferences-tags-detail">
             {!selected ? (
-              <div className="preferences-tags-detail-empty">{localized('Wybierz tag aby edytować / Select a tag to edit')}</div>
+              <div className="preferences-tags-detail-empty">
+                {localized('Wybierz tag aby edytować / Select a tag to edit')}
+              </div>
             ) : (
               <>
                 <div className="preferences-tags-detail-field">
@@ -207,7 +275,9 @@ export default class PreferencesTags extends React.Component<{}, State> {
                     disabled={isSystem}
                     onChange={(e) => this.setState({ renameDraft: e.target.value })}
                     onBlur={this._commitRename}
-                    onKeyDown={(e) => { if (e.key === 'Enter') this._commitRename(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') this._commitRename();
+                    }}
                   />
                   {isSystem && <div className="preferences-tags-detail-note">{sysReadOnly}</div>}
                 </div>
@@ -240,10 +310,16 @@ export default class PreferencesTags extends React.Component<{}, State> {
                         value={this.state.mergeTargetId}
                         onChange={(e) => this.setState({ mergeTargetId: e.target.value })}
                       >
-                        <option value="">{localized('— wybierz docelowy tag / pick target tag —')}</option>
-                        {userTags.filter(t => t.id !== selected.id).map(t => (
-                          <option key={t.id} value={t.id}>{t.name}</option>
-                        ))}
+                        <option value="">
+                          {localized('— wybierz docelowy tag / pick target tag —')}
+                        </option>
+                        {userTags
+                          .filter((t) => t.id !== selected.id)
+                          .map((t) => (
+                            <option key={t.id} value={t.id}>
+                              {t.name}
+                            </option>
+                          ))}
                       </select>
                       <button
                         type="button"

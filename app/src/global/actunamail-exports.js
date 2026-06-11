@@ -111,6 +111,7 @@ lazyLoadAndRegisterTask(`DestroyModelTask`, 'destroy-model-task');
 lazyLoadAndRegisterTask(`SyncbackDraftTask`, 'syncback-draft-task');
 lazyLoadAndRegisterTask(`ChangeStarredTask`, 'change-starred-task');
 lazyLoadAndRegisterTask(`ChangePinnedTask`, 'change-pinned-task');
+lazyLoadAndRegisterTask(`ChangeKeywordsTask`, 'change-keywords-task');
 lazyLoadAndRegisterTask(`SyncbackEventTask`, 'syncback-event-task');
 lazyLoadAndRegisterTask(`DestroyEventTask`, 'destroy-event-task');
 lazyLoadAndRegisterTask(`DestroyCategoryTask`, 'destroy-category-task');

@@ -128,6 +128,12 @@ export class Message extends ModelWithMetadata {
       modelKey: 'pinned',
     }),
 
+    // Tag sync cross-device (bilet #117): niestandardowe keywordy IMAP wiadomości
+    // (parsowane z FETCH FLAGS w silniku C++; bez flag systemowych i $Pinned).
+    customKeywords: Attributes.Obj({
+      modelKey: 'customKeywords',
+    }),
+
     snippet: Attributes.String({
       modelKey: 'snippet',
     }),
@@ -209,6 +215,7 @@ export class Message extends ModelWithMetadata {
   public snippet: string;
   public starred: boolean;
   public pinned: boolean;
+  public customKeywords: string[];
   public unread: boolean;
   public pristine: boolean;
   public draft: boolean;
