@@ -113,6 +113,30 @@ describe('#57 — czystka odwołań mailspring/nylas/N1 (strażnik transz 1–3)
     expect(markPlugins.includes('Nylas-Pro')).toBe(true);
   });
 
+  it('T8 (#123 pkt 1): edgehill TYLKO w kodzie świadomym migracji', () => {
+    // Baza nazywa się actunamail.db (migracja rename-on-start, v0.5.14).
+    // 'edgehill' wolno wymieniać wyłącznie kodowi, który celowo obsługuje
+    // legacy profil:
+    //  - database-name-migration.ts (moduł migracji, LEGACY_DB_FILENAME),
+    //  - main.js (komentarz przy wywołaniu migracji),
+    //  - application.ts (_deleteDatabase sprząta TAKŻE bazę pod legacy nazwą),
+    //  - action-bridge.ts (historyczny URL sentry upstream — ślad audytowy,
+    //    werdykt transzy 4 #57).
+    const ALLOWED = new Set([
+      path.join('src', 'browser', 'database-name-migration.ts'),
+      path.join('src', 'browser', 'main.js'),
+      path.join('src', 'browser', 'application.ts'),
+      path.join('src', 'flux', 'action-bridge.ts'),
+    ]);
+    const offenders: string[] = [];
+    for (const f of files) {
+      const rel = path.relative(APP, f);
+      if (ALLOWED.has(rel)) continue;
+      if (/edgehill/i.test(fs.readFileSync(f, 'utf8'))) offenders.push(rel);
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it('T4: compile-cache-ts.js i composer/package.json bez nylas', () => {
     const compileCache = fs.readFileSync(path.join(APP, 'src', 'compile-cache-ts.js'), 'utf8');
     expect(/nylas/i.test(compileCache)).toBe(false);

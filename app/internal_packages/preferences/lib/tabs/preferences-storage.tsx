@@ -156,7 +156,7 @@ export default class PreferencesStorage extends React.Component<{}, PreferencesS
 
   render() {
     const { archivePath, archiveSizeMB, archiveCreatedISO, busy } = this.state;
-    const currentDbPath = path.join(AppEnv.getConfigDirPath(), 'edgehill.db');
+    const currentDbPath = path.join(AppEnv.getConfigDirPath(), 'actunamail.db');
 
     return (
       <div className="container-storage" style={{ padding: '0 30px' }}>

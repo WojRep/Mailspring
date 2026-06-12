@@ -13,7 +13,7 @@ import { IpcMain } from 'electron';
  * any path the user has write access to) and rm -rf's the folder.
  *
  * Per design memo §5 + user decision 2026-05-15 (*"Cały folder
- * archiwum"*) — the whole archive folder, not just edgehill.db.
+ * archiwum"*) — the whole archive folder, not just the database file.
  */
 
 const ARCHIVE_NAME_PATTERN = /\.v0\.2-archive-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$/;
