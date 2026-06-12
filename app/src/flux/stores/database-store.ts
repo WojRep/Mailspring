@@ -12,6 +12,7 @@ import { Model } from '../models/model';
 import ActunaMailStore from '../../global/actunamail-store';
 import * as Utils from '../models/utils';
 import Query from '../models/query';
+import { DatabaseChangeRecord } from './database-change-record';
 import KeyManager from '../../key-manager';
 import { createLogger } from '../../logger';
 
@@ -500,6 +501,45 @@ class DatabaseStore extends ActunaMailStore {
       throw new Error(`DatabaseStore::findAll - You must provide a class`);
     }
     return new Query<T[]>(klass, this).where(predicates);
+  }
+
+  // Public: #122 — level-triggered reconciliation. Delty z silnika są ulotne
+  // (fire-and-forget na emitterze), więc konsument budujący stan z delt musi
+  // odczytać initial state z DB bez luki względem rejestracji listenera.
+  // Wyniki initial query przychodzą jako syntetyczny 'persist'
+  // DatabaseChangeRecord do tego samego callbacku; callback musi być
+  // idempotentny (delta może nadejść przed wynikami initial query).
+  listenWithInitialQuery<T extends Model>(
+    query: Query<T[]>,
+    callback: (change: DatabaseChangeRecord<T>) => void,
+    bindContext?: any
+  ): () => void {
+    let unsubscribed = false;
+    const unlisten = this.listen(callback, bindContext);
+
+    this.run<T[]>(query).then(
+      (results) => {
+        if (unsubscribed) return;
+        callback.call(
+          bindContext,
+          new DatabaseChangeRecord<T>({
+            type: 'persist',
+            objectClass: query.objectClass(),
+            objects: results || [],
+            objectsRawJSON: [],
+          })
+        );
+      },
+      () => {
+        // DB jeszcze niegotowa przy bootcie — listener zostaje, stan
+        // dosynchronizują delty / ponowny sweep konsumenta.
+      }
+    );
+
+    return () => {
+      unsubscribed = true;
+      unlisten();
+    };
   }
 
   // Public: Creates a new Model Query that returns the {Number} of models matching

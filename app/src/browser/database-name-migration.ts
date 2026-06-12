@@ -24,9 +24,10 @@ export const LEGACY_DB_FILENAME = 'edgehill.db';
 
 const SUFFIXES = ['', '-wal', '-shm'];
 
-export function migrateLegacyDatabaseName(
-  configDirPath: string
-): { migrated: boolean; renamed: string[] } {
+export function migrateLegacyDatabaseName(configDirPath: string): {
+  migrated: boolean;
+  renamed: string[];
+} {
   const renamed: string[] = [];
 
   if (fs.existsSync(path.join(configDirPath, DB_FILENAME))) {

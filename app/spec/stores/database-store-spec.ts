@@ -3,6 +3,7 @@ import { Thread } from '../../src/flux/models/thread';
 import TestModel from '../fixtures/db-test-model';
 import ModelQuery from '../../src/flux/models/query';
 import DatabaseStore from '../../src/flux/stores/database-store';
+import { DatabaseChangeRecord } from '../../src/flux/stores/database-change-record';
 
 const testMatchers = { id: 'b' };
 
@@ -138,6 +139,109 @@ describe('DatabaseStore', function DatabaseStoreSpecs() {
       expect(q.sql()).toBe(
         "SELECT `TestModel`.`data` FROM `TestModel`  WHERE `TestModel`.`id` = 'b'  "
       );
+    });
+  });
+
+  // #122: level-triggered reconciliation — delty są ulotne (fire-and-forget),
+  // więc konsument budujący stan z delt musi dostać initial state z DB bez luki
+  // między rejestracją listenera a odczytem. Kolejność: listener NAJPIERW,
+  // potem query; wyniki initial przychodzą jako syntetyczny 'persist'
+  // DatabaseChangeRecord do TEGO SAMEGO callbacku (konsument idempotentny).
+  describe('listenWithInitialQuery', () => {
+    beforeEach(() => {
+      this.received = [];
+      this.callback = (change) => this.received.push(change);
+      // Dwa ticki mikrotasków — dostawa initial idzie przez łańcuch promise.
+      this.flushMicrotasks = () =>
+        Promise.resolve()
+          .then(() => {})
+          .then(() => {});
+    });
+
+    it('registers the delta listener BEFORE running the initial query', () => {
+      const order = [];
+      spyOn(DatabaseStore, 'listen').andCallFake(() => {
+        order.push('listen');
+        return () => {};
+      });
+      spyOn(DatabaseStore, 'run').andCallFake(() => {
+        order.push('run');
+        return Promise.resolve([]);
+      });
+      DatabaseStore.listenWithInitialQuery(DatabaseStore.findAll<TestModel>(TestModel), this.callback);
+      expect(order).toEqual(['listen', 'run']);
+    });
+
+    it('delivers initial query results as a persist DatabaseChangeRecord', () => {
+      const models = [new TestModel({ id: 'init-a' }), new TestModel({ id: 'init-b' })];
+      spyOn(DatabaseStore, 'run').andCallFake(() => Promise.resolve(models));
+      const unsub = DatabaseStore.listenWithInitialQuery(
+        DatabaseStore.findAll<TestModel>(TestModel),
+        this.callback
+      );
+      return waitsForPromise(() => {
+        return this.flushMicrotasks().then(() => {
+          expect(this.received.length).toBe(1);
+          expect(this.received[0].type).toBe('persist');
+          expect(this.received[0].objectClass).toBe('TestModel');
+          expect(this.received[0].objects).toEqual(models);
+          unsub();
+        });
+      });
+    });
+
+    it('forwards delta change records arriving after subscribe to the same callback', () => {
+      spyOn(DatabaseStore, 'run').andCallFake(() => Promise.resolve([]));
+      const unsub = DatabaseStore.listenWithInitialQuery(
+        DatabaseStore.findAll<TestModel>(TestModel),
+        this.callback
+      );
+      const delta = new DatabaseChangeRecord({
+        type: 'persist',
+        objectClass: 'TestModel',
+        objects: [new TestModel({ id: 'delta-c' })],
+        objectsRawJSON: [],
+      });
+      DatabaseStore.trigger(delta);
+      expect(this.received).toContain(delta);
+      unsub();
+    });
+
+    it('does not deliver initial results after unsubscribe', () => {
+      let resolveRun;
+      spyOn(DatabaseStore, 'run').andCallFake(() => new Promise((resolve) => (resolveRun = resolve)));
+      const unsub = DatabaseStore.listenWithInitialQuery(
+        DatabaseStore.findAll<TestModel>(TestModel),
+        this.callback
+      );
+      unsub();
+      resolveRun([new TestModel({ id: 'late-d' })]);
+      return waitsForPromise(() => {
+        return this.flushMicrotasks().then(() => {
+          expect(this.received.length).toBe(0);
+        });
+      });
+    });
+
+    it('keeps the delta listener alive when the initial query rejects', () => {
+      spyOn(DatabaseStore, 'run').andCallFake(() => Promise.reject(new Error('db not ready')));
+      const unsub = DatabaseStore.listenWithInitialQuery(
+        DatabaseStore.findAll<TestModel>(TestModel),
+        this.callback
+      );
+      const delta = new DatabaseChangeRecord({
+        type: 'persist',
+        objectClass: 'TestModel',
+        objects: [new TestModel({ id: 'delta-e' })],
+        objectsRawJSON: [],
+      });
+      return waitsForPromise(() => {
+        return this.flushMicrotasks().then(() => {
+          DatabaseStore.trigger(delta);
+          expect(this.received).toEqual([delta]);
+          unsub();
+        });
+      });
     });
   });
 });

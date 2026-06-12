@@ -188,6 +188,35 @@ Adapts QuerySubscription for virtualized list components (MultiselectList), supp
 - Selection state management
 - Automatic updates from database changes
 
+**CONVENTION — deltas are invalidation signals, NOT a data transport (#122):**
+
+Deltas are **ephemeral** (fire-and-forget on a synchronous EventEmitter, no buffering
+or replay). Packages without `syncInit: true` activate ~2.5 s after window start
+(`package-manager.ts` `setTimeout`), while the sync engine starts streaming deltas on
+the next tick — so every consumer registered at activate() misses the boot window.
+This is level-triggered reconciliation territory: the database is the source of truth,
+deltas only tell you *when* to look.
+
+Rules for consuming database changes:
+
+1. **Prefer `QuerySubscription` / `Rx.Observable.fromQuery`** — they run an initial
+   query and re-query on deltas; immune to the boot race by construction.
+2. **Raw `DatabaseStore.listen()` is allowed ONLY paired with an initial query** at
+   registration time. Use the helper, which encodes the correct ordering
+   (listener first, then query — no gap):
+
+   ```typescript
+   this.unsubscribe = DatabaseStore.listenWithInitialQuery(
+     DatabaseStore.findAll(Thread).limit(5000),
+     this._onThreadsChanged // receives initial results AND deltas as DatabaseChangeRecord
+   );
+   ```
+
+3. **Callbacks must be idempotent** — a delta may arrive before the initial query
+   resolves, and the same object may be delivered twice (initial + delta).
+4. Never build durable state from deltas alone — a missed delta must never leave
+   permanently wrong state (full analysis: repo root `analysis/122-package-activation-race.md`).
+
 ### Data Flow Summary
 
 ```
