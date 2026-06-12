@@ -43,4 +43,16 @@ describe('ThreadIdListPerspective', () => {
     const p = MailboxPerspective.forThreadIds(['t1'], ['acc-1']);
     expect(p.canReceiveThreadsFromAccountIds()).toBe(false);
   });
+
+  // #124: widoki na listach id (tagi #119, ćwiartki priorytetów #120, Snoozed,
+  // listy AI) muszą wykluczać wątki przeniesione w całości do Kosza/Spamu —
+  // inaczej „Usuń" zostawia wątek na liście (id wciąż spełnia kryterium widoku).
+  // Zgłoszenie usera 2026-06-12: „Po wybraniu usuniecia wiaodmości, wiadomość
+  // cały czas jest widoczna na liście" + „Pozycja Tags, Priority, wszyekie tam
+  // gdzie filtrujemy"; „z widoku normalnej skrzynki prawidłowo usuwa".
+  it('threads() query excludes threads moved entirely to Trash/Spam (inAllMail filter, #124)', () => {
+    const p: any = MailboxPerspective.forThreadIds(['t1', 't2'], ['acc-1']);
+    const sql = (p.threads()._query.sql() || '').toLowerCase();
+    expect(sql).toContain('inallmail');
+  });
 });
