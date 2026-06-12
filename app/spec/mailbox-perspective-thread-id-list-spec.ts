@@ -44,15 +44,16 @@ describe('ThreadIdListPerspective', () => {
     expect(p.canReceiveThreadsFromAccountIds()).toBe(false);
   });
 
-  // #124: widoki na listach id (tagi #119, ćwiartki priorytetów #120, Snoozed,
-  // listy AI) muszą wykluczać wątki przeniesione w całości do Kosza/Spamu —
-  // inaczej „Usuń" zostawia wątek na liście (id wciąż spełnia kryterium widoku).
-  // Zgłoszenie usera 2026-06-12: „Po wybraniu usuniecia wiaodmości, wiadomość
-  // cały czas jest widoczna na liście" + „Pozycja Tags, Priority, wszyekie tam
-  // gdzie filtrujemy"; „z widoku normalnej skrzynki prawidłowo usuwa".
-  it('threads() query excludes threads moved entirely to Trash/Spam (inAllMail filter, #124)', () => {
+  // #124 — KOREKTA KIERUNKU po QA usera (verbatim 2026-06-12): „Proponuje
+  // roziwązanie, że pokazuje wszystkie wrac z informacją w jakim folderze
+  // wystepuje." Widoki na listach id (tagi #119, ćwiartki #120, Snoozed, AI)
+  // pokazują WSZYSTKIE wątki z listy — także te w Koszu/Spamie — a informacja
+  // o folderze jest renderowana przy wierszu (MailLabelSet, widoki wirtualne).
+  // Dzięki temu licznik (np. tag „NotJunk 4") zgadza się z długością listy.
+  it('threads() query shows ALL listed threads incl. trashed (no inAllMail filter, #124)', () => {
     const p: any = MailboxPerspective.forThreadIds(['t1', 't2'], ['acc-1']);
     const sql = (p.threads()._query.sql() || '').toLowerCase();
-    expect(sql).toContain('inallmail');
+    expect(sql).not.toContain('inallmail');
+    expect(sql).toContain("in ('t1','t2')");
   });
 });

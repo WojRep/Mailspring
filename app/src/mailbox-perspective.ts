@@ -500,13 +500,11 @@ class ThreadIdListPerspective extends MailboxPerspective {
   threads() {
     const query = DatabaseStore.findAll<Thread>(Thread).limit(0);
     if (this._threadIds.length > 0) {
-      // #124: id wciąż spełnia kryterium widoku (tag/priorytet/snooze) po
-      // przeniesieniu wątku do Kosza/Spamu — bez tego filtra „Usuń" zostawia
-      // wątek na liście. inAllMail=false ⇔ wszystkie wiadomości w Trash/Spam.
-      query.where([
-        Thread.attributes.id.in(this._threadIds),
-        Thread.attributes.inAllMail.equal(true),
-      ]);
+      // #124 (decyzja usera): widok pokazuje WSZYSTKIE wątki z listy — także
+      // przeniesione do Kosza/Spamu; przynależność do folderu komunikuje chip
+      // folderu przy wierszu (MailLabelSet, widoki wirtualne). Licznik widoku
+      // zgadza się wtedy z długością listy.
+      query.where(Thread.attributes.id.in(this._threadIds));
     } else {
       // Never-matching condition — an empty virtual folder, no crash.
       query.where(Thread.attributes.id.equal('__actuna_none__'));

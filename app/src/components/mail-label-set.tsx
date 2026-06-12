@@ -44,6 +44,19 @@ export default class MailLabelSet extends React.Component<MailLabelSetProps> {
     const account = AccountStore.accountForId(thread.accountId);
     const labels = [];
 
+    if (account && !account.usesLabels()) {
+      // #124: w widokach wirtualnych (search, tagi, priorytety, Snoozed, AI —
+      // perspektywa bez przypisanych kategorii) wiersz musi pokazywać folder,
+      // w którym wątek się znajduje (wymaganie usera 2026-06-12). W zwykłym
+      // widoku folderu nic się nie zmienia.
+      const current = FocusedPerspectiveStore.current().categories();
+      if (!current || current.length === 0) {
+        for (const folder of thread.sortedCategories()) {
+          labels.push(<MailLabel label={folder} key={folder.id} />);
+        }
+      }
+    }
+
     if (account && account.usesLabels()) {
       const hidden = CategoryStore.hiddenCategories(thread.accountId);
       let current = FocusedPerspectiveStore.current().categories();
