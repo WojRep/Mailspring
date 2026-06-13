@@ -9,6 +9,35 @@ export const REPO_ROOT = path.resolve(__dirname, '..');
 export const APP_ROOT = path.join(REPO_ROOT, 'app');
 
 /**
+ * Built actuna-ai plugin package (produced by
+ * `node scripts/package-plugin.mjs` in the actunamail-ai submodule).
+ */
+export const AI_PLUGIN_DIST = path.resolve(
+  REPO_ROOT,
+  '..',
+  'actunamail-ai',
+  'dist-plugin',
+  'actuna-ai',
+);
+
+/**
+ * Copy the built actuna-ai plugin into a config dir's `packages/` folder so
+ * the app discovers and activates it on launch (#223). Throws with a build
+ * hint when the dist package is missing.
+ */
+export function installAIPlugin(configDir: string): void {
+  if (!fs.existsSync(path.join(AI_PLUGIN_DIST, 'package.json'))) {
+    throw new Error(
+      `actuna-ai plugin not built at ${AI_PLUGIN_DIST}. ` +
+        `Run \`node scripts/package-plugin.mjs\` in actunamail-ai/ first.`
+    );
+  }
+  const dest = path.join(configDir, 'packages', 'actuna-ai');
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.cpSync(AI_PLUGIN_DIST, dest, { recursive: true });
+}
+
+/**
  * Source config directory with the golden database and encrypted credentials
  * (Foundry376 upstream maintainer's fixture — present TYLKO na ich maszynach).
  * Jeśli FIXTURE_DIR nie istnieje, używamy synthetic fallback config z
@@ -198,12 +227,13 @@ export async function waitForMainWindow(
   );
 }
 
-export async function launchApp(): Promise<{
+export async function launchApp(opts: { installAIPlugin?: boolean } = {}): Promise<{
   electronApp: ElectronApplication;
   mainWindow: Page;
   configDir: string;
 }> {
   const configDir = prepareTestConfigDir();
+  if (opts.installAIPlugin) installAIPlugin(configDir);
   // Forward renderer console.error + uncaught pageerrors do test stdout — bardzo
   // pomocne dla diagnozowania plugin activation failures i React crashes.
   const setupDiag = (page: Page, label: string) => {
