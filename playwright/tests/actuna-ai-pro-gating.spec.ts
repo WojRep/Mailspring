@@ -93,3 +93,20 @@ test('Actuna AI engine health resolves through the bundled Rust engine (cutover 
   await expect(health).toContainText('Engine version');
   await expect(health).toContainText('0.1.0');
 });
+
+test('Actuna AI: activating a forged license key is rejected (fail-closed #147)', async () => {
+  await openPreferences(electronApp, mainWindow);
+  await switchPreferencesTab(electronApp, mainWindow, 'ActunaAI');
+  await mainWindow
+    .locator('.actuna-ai-preferences')
+    .waitFor({ state: 'attached', timeout: 10_000 });
+
+  // A forged token is rejected by the embedded vendor key → activation error,
+  // nothing persisted (the engine verifies before writing license.json).
+  await mainWindow.getByPlaceholder('actuna-pro-…').fill('bogus.token');
+  await mainWindow.getByRole('button', { name: 'Activate' }).click();
+
+  await expect(mainWindow.locator('.actuna-ai-error').first()).toBeVisible({
+    timeout: 15_000,
+  });
+});
