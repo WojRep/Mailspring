@@ -87,7 +87,8 @@ class SidebarStore extends ActunaMailStore {
       if (TagStore && typeof TagStore.list === 'function') {
         const accountIds = AccountStore.accountIds();
         items = TagStore.list()
-          .filter((t: any) => !t.systemManaged)
+          // source 'flag' (kolory flag Apple) ma własną sekcję „Flagi".
+          .filter((t: any) => !t.systemManaged && t.source !== 'flag')
           .map((t: any) => {
             const threadIds: string[] =
               typeof TagStore.threadIdsWithTag === 'function'
@@ -114,6 +115,46 @@ class SidebarStore extends ActunaMailStore {
       title: 'Tags',
       items,
       collapsed: isSectionCollapsed('Tags'),
+      onCollapseToggled: toggleSectionCollapsed,
+    };
+  }
+
+  /**
+   * Sekcja „Flagi / Flags" — kolory flag Apple Mail. Każdy obecny kolor =
+   * klikalny filtr w swoim kolorze (rozróżnia kolory; tag.source==='flag').
+   * Kropka/ikona w kolorze flagi (item.color → tinted mask w OutlineViewItem).
+   */
+  flagsSection(): ISidebarSection {
+    let items: ISidebarSection['items'] = [];
+    try {
+      const mod = require('../../tag-system/lib/tag-store');
+      const TagStore = mod.TagStore;
+      if (TagStore && typeof TagStore.list === 'function') {
+        const accountIds = AccountStore.accountIds();
+        items = TagStore.list()
+          .filter((t: any) => t.source === 'flag')
+          .map((t: any) => {
+            const threadIds: string[] =
+              typeof TagStore.threadIdsWithTag === 'function'
+                ? TagStore.threadIdsWithTag(t.id)
+                : [];
+            const perspective = MailboxPerspective.forThreadIds(threadIds, accountIds, t.name);
+            (perspective as any)._tagPerspectiveId = t.id;
+            return SidebarItem.forPerspective(`tag-${t.id}`, perspective, {
+              name: t.name,
+              iconName: 'tag.png',
+              color: t.color,
+              count: threadIds.length,
+            });
+          });
+      }
+    } catch (e) {
+      /* tag-system not active */
+    }
+    return {
+      title: 'Flags',
+      items,
+      collapsed: isSectionCollapsed('Flags'),
       onCollapseToggled: toggleSectionCollapsed,
     };
   }
@@ -169,6 +210,7 @@ class SidebarStore extends ActunaMailStore {
             return SidebarItem.forPerspective(`priority-${m.id}`, perspective, {
               name: m.name,
               iconName: 'tag.png',
+              color: m.color, // kwadranty w kolorach ISO (wcześniej szare)
               count: threadIds.length,
             });
           });

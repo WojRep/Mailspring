@@ -41,11 +41,13 @@ export const PRESETS: Record<string, PriorityPreset> = {
   eisenhower: {
     id: 'eisenhower',
     label: 'Matryca Eisenhowera (Q1–Q4) / Eisenhower matrix (Q1–Q4)',
+    // Kolory ISO 3864 signal + akcje wg WYTYCZNYCH usera (memory
+    // reference_iso3864_eisenhower_colors). Q4 = „Odłóż" (NIGDY „Usuń").
     members: [
-      { id: 'prio_q1', name: 'Q1 Pilne+Ważne', color: 'var(--danger-500)', rank: 1 },
-      { id: 'prio_q2', name: 'Q2 Ważne', color: 'var(--accent-500)', rank: 2 },
-      { id: 'prio_q3', name: 'Q3 Pilne', color: 'var(--warning-500)', rank: 3 },
-      { id: 'prio_q4', name: 'Q4 Reszta', color: 'var(--info-500)', rank: 4 },
+      { id: 'prio_q1', name: 'Q1 Zrób teraz (Pilne+Ważne)', color: 'var(--priority-do)', rank: 1 },
+      { id: 'prio_q2', name: 'Q2 Zaplanuj (Ważne)', color: 'var(--priority-schedule)', rank: 2 },
+      { id: 'prio_q3', name: 'Q3 Deleguj (Pilne)', color: 'var(--priority-delegate)', rank: 3 },
+      { id: 'prio_q4', name: 'Q4 Odłóż (Reszta)', color: 'var(--priority-defer)', rank: 4 },
     ],
   },
   abc: {
@@ -59,6 +61,10 @@ export const PRESETS: Record<string, PriorityPreset> = {
   },
 };
 
+// Marker jednorazowej inicjalizacji — domyślna aktywacja Eisenhowera tylko przy
+// pierwszym uruchomieniu (potem szanujemy wybór usera, w tym wyłączenie).
+const INIT_KEY = 'actuna.priority.initialized';
+
 class PriorityPresetStoreImpl {
   private _active: string | null = null;
   private _loaded = false;
@@ -66,6 +72,16 @@ class PriorityPresetStoreImpl {
 
   init(): void {
     this._ensureLoaded();
+    // Decyzja usera: mapowanie flag→Eisenhower domyślnie ON → preset musi być
+    // aktywny od pierwszego startu. Jednorazowo (INIT_KEY), nie nadpisuje wyboru.
+    try {
+      if (typeof localStorage !== 'undefined' && !localStorage.getItem(INIT_KEY)) {
+        localStorage.setItem(INIT_KEY, '1');
+        if (this._active === null) this.activatePreset('eisenhower');
+      }
+    } catch (e) {
+      /* node env */
+    }
   }
 
   activePreset(): string | null {
@@ -120,7 +136,7 @@ class PriorityPresetStoreImpl {
     this._ensureLoaded();
     const preset = this._active ? PRESETS[this._active] : null;
     if (!preset || !threadId) return;
-    if (!preset.members.some(m => m.id === tagId)) return;
+    if (!preset.members.some((m) => m.id === tagId)) return;
     for (const m of preset.members) {
       if (m.id !== tagId && TagStore.hasTag(threadId, m.id)) {
         TagStore.remove(threadId, m.id);
@@ -156,7 +172,7 @@ class PriorityPresetStoreImpl {
     this._ensureLoaded();
     const preset = this._active ? PRESETS[this._active] : null;
     if (!preset) return null;
-    const m = preset.members.find(x => x.id === tagId);
+    const m = preset.members.find((x) => x.id === tagId);
     return m ? m.rank : null;
   }
 
@@ -170,7 +186,10 @@ class PriorityPresetStoreImpl {
     this._loaded = false;
     this._listeners.clear();
     try {
-      if (typeof localStorage !== 'undefined') localStorage.removeItem(ACTIVE_KEY);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(ACTIVE_KEY);
+        localStorage.removeItem(INIT_KEY);
+      }
     } catch (e) {
       /* node env */
     }
@@ -193,7 +212,7 @@ class PriorityPresetStoreImpl {
 
   private _registerPresetTags(preset: PriorityPreset): void {
     TagStore.registerAll(
-      preset.members.map(m => ({
+      preset.members.map((m) => ({
         id: m.id,
         name: m.name,
         color: m.color,

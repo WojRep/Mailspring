@@ -13,6 +13,7 @@
  */
 
 import { ComponentRegistry, WorkspaceStore, PreferencesUIStore } from 'actunamail-exports';
+import { setFlagColorOrder } from '../../../src/flag-colors';
 import { TagStore, Tag } from './tag-store';
 import { TagSystemUIBus } from './tag-system-ui-bus';
 import TagPicker from './tag-picker';
@@ -32,16 +33,20 @@ let deltaWiringRetry: ReturnType<typeof setTimeout> | null = null;
 // Liczniki diagnostyczne handlera delt (#117) — tanie, trwałe, czytane z
 // AppEnv.tagSystem.deltaStats (e2e + debugging w devtools).
 const deltaStats = {
-  threadDeltas: 0, threadsSeen: 0, withCk: 0, errors: 0,
+  threadDeltas: 0,
+  threadsSeen: 0,
+  withCk: 0,
+  errors: 0,
   lastError: null as string | null,
   sweepThreads: -1, // -1 = sweep jeszcze nie wykonany
   activatedAt: 0, // diagnostyka wyścigu bootu (#122)
 };
 // Diagnostyka podwójnego załadowania modułu (obserwacja z e2e 2026-06-11:
 // dwie żywe kopie tag-system w jednym oknie — patrz backlog #122).
-const moduleLoadIndex = typeof window !== 'undefined'
-  ? ((window as any).__tagSystemLoads = ((window as any).__tagSystemLoads || 0) + 1)
-  : 0;
+const moduleLoadIndex =
+  typeof window !== 'undefined'
+    ? ((window as any).__tagSystemLoads = ((window as any).__tagSystemLoads || 0) + 1)
+    : 0;
 
 /**
  * #117: inbound sync — delty Thread z silnika C++ niosą customKeywords
@@ -63,16 +68,23 @@ function wireDeltaListener(attempt = 0): void {
     dbUnlisten = DatabaseStore.listen((change: any) => {
       if (!change || change.objectClass !== 'Thread' || !Array.isArray(change.objects)) return;
       deltaStats.threadDeltas++;
-      for (const t of change.objects) {
-        deltaStats.threadsSeen++;
-        if (t && Array.isArray(t.customKeywords) && t.customKeywords.length) deltaStats.withCk++;
-        try {
-          TagStore.syncFromThread(t);
-        } catch (e) {
-          deltaStats.errors++;
-          deltaStats.lastError = String((e as any)?.message || e);
-          console.warn('[tag-system] syncFromThread failed for delta thread:', e);
+      // Batch: jeden flush localStorage/emit na całą deltę (nie per wątek).
+      TagStore.beginBatch();
+      try {
+        for (const t of change.objects) {
+          deltaStats.threadsSeen++;
+          if (t && Array.isArray(t.customKeywords) && t.customKeywords.length) deltaStats.withCk++;
+          try {
+            TagStore.syncFromThread(t);
+            TagStore.syncFlagColorFromThread(t); // kolor flagi Apple ($MailFlagBit*)
+          } catch (e) {
+            deltaStats.errors++;
+            deltaStats.lastError = String((e as any)?.message || e);
+            console.warn('[tag-system] syncFromThread failed for delta thread:', e);
+          }
         }
+      } finally {
+        TagStore.endBatch();
       }
     });
     deltaWiringStatus = 'ok';
@@ -108,16 +120,47 @@ function initialReconcileSweep(): void {
     Promise.resolve(limited)
       .then((threads: any[]) => {
         if (!Array.isArray(threads)) return;
-        for (const t of threads) {
-          try {
-            TagStore.syncFromThread(t);
-          } catch (e) { /* pojedynczy wątek nie wywraca sweepa */ }
+        // Batch: do 5000 wątków → jeden flush localStorage/emit zamiast tysięcy.
+        TagStore.beginBatch();
+        try {
+          for (const t of threads) {
+            try {
+              TagStore.syncFromThread(t);
+              TagStore.syncFlagColorFromThread(t); // kolor flagi Apple ($MailFlagBit*)
+            } catch (e) {
+              /* pojedynczy wątek nie wywraca sweepa */
+            }
+          }
+        } finally {
+          TagStore.endBatch();
         }
         deltaStats.sweepThreads = threads.length;
       })
-      .catch(() => { /* DB jeszcze niegotowa — delty pokryją resztę */ });
+      .catch(() => {
+        /* DB jeszcze niegotowa — delty pokryją resztę */
+      });
   } catch (e) {
     /* exports unavailable (test/node context) */
+  }
+}
+
+// Kalibracja mapowania bity→kolor (decyzja usera „IETF + korekta później").
+// Czyta core.flags.colorOrder (7 kluczy kolorów w kolejności wartości 0..6)
+// i ustawia override; reaguje na zmianę w configu.
+function wireFlagColorOrder(): void {
+  try {
+    const env = (window as any).AppEnv;
+    if (!env || !env.config) return;
+    const apply = () => {
+      const order = env.config.get('core.flags.colorOrder');
+      setFlagColorOrder(Array.isArray(order) && order.length === 7 ? order : null);
+    };
+    apply();
+    if (typeof env.config.onDidChange === 'function') {
+      env.config.onDidChange('core.flags.colorOrder', apply);
+    }
+  } catch (e) {
+    /* config unavailable (test/node) */
   }
 }
 
@@ -125,11 +168,14 @@ export function activate() {
   deltaStats.activatedAt = Date.now();
   TagStore.init();
   registerSystemTags();
+  wireFlagColorOrder();
 
   // #120: odtwórz aktywny preset priorytetów (re-rejestracja tagów presetu).
   try {
     require('./priority-preset-store').PriorityPresetStore.init();
-  } catch (e) { /* preset store unavailable */ }
+  } catch (e) {
+    /* preset store unavailable */
+  }
 
   wireDeltaListener();
   initialReconcileSweep();
@@ -149,7 +195,11 @@ export function activate() {
   // WRONG pattern (plain object z `component:`) renderuje undefined → biały
   // ekran (zgłoszone 2026-05-30 user: "ustawienia Tagi nadal biały ekran").
   try {
-    if (PreferencesUIStore && PreferencesUIStore.TabItem && typeof PreferencesUIStore.registerPreferencesTab === 'function') {
+    if (
+      PreferencesUIStore &&
+      PreferencesUIStore.TabItem &&
+      typeof PreferencesUIStore.registerPreferencesTab === 'function'
+    ) {
       PreferencesUIStore.registerPreferencesTab(
         new PreferencesUIStore.TabItem({
           tabId: 'Tags',
@@ -246,7 +296,9 @@ export function deactivate() {
       if (typeof (PreferencesUIStore as any).unregisterPreferencesTab === 'function') {
         (PreferencesUIStore as any).unregisterPreferencesTab('Tags');
       }
-    } catch (e) { /* no-op */ }
+    } catch (e) {
+      /* no-op */
+    }
     preferencesTabRegistered = false;
   }
   if (shortcutDisposable) {
@@ -269,15 +321,50 @@ function registerSystemTags(): void {
   const ti = (window as any).AppEnv?.timeIntent;
   if (ti?.TAG_TODAY) {
     TagStore.registerAll([
-      { id: ti.TAG_TODAY, name: 'Today', color: 'var(--danger-500)', source: 'system', systemManaged: true, description: '#96 time-intent: do dzisiaj' },
-      { id: ti.TAG_UPCOMING, name: 'Upcoming', color: 'var(--warning-500)', source: 'system', systemManaged: true, description: '#96 time-intent: zaplanowane' },
-      { id: ti.TAG_ANYTIME, name: 'Anytime', color: 'var(--success-500)', source: 'system', systemManaged: true, description: '#96 time-intent: brak urgency' },
+      {
+        id: ti.TAG_TODAY,
+        name: 'Today',
+        color: 'var(--danger-500)',
+        source: 'system',
+        systemManaged: true,
+        description: '#96 time-intent: do dzisiaj',
+      },
+      {
+        id: ti.TAG_UPCOMING,
+        name: 'Upcoming',
+        color: 'var(--warning-500)',
+        source: 'system',
+        systemManaged: true,
+        description: '#96 time-intent: zaplanowane',
+      },
+      {
+        id: ti.TAG_ANYTIME,
+        name: 'Anytime',
+        color: 'var(--success-500)',
+        source: 'system',
+        systemManaged: true,
+        description: '#96 time-intent: brak urgency',
+      },
     ]);
   }
   // Priority overrides (#93)
   TagStore.registerAll([
-    { id: '__system_priority', name: 'Priority (override)', color: 'var(--accent-500)', source: 'system', systemManaged: true, description: '#93 manual Priority Inbox override' },
-    { id: '__system_other', name: 'Other (override)', color: 'var(--text-muted)', source: 'system', systemManaged: true, description: '#93 manual demote to Other' },
+    {
+      id: '__system_priority',
+      name: 'Priority (override)',
+      color: 'var(--accent-500)',
+      source: 'system',
+      systemManaged: true,
+      description: '#93 manual Priority Inbox override',
+    },
+    {
+      id: '__system_other',
+      name: 'Other (override)',
+      color: 'var(--text-muted)',
+      source: 'system',
+      systemManaged: true,
+      description: '#93 manual demote to Other',
+    },
   ]);
 }
 
@@ -286,7 +373,9 @@ function openPicker(): void {
     const thread = (window as any).$m?.FocusedContentStore?.focused?.('thread');
     if (!thread?.id) return;
     TagSystemUIBus.openPicker(thread.id);
-  } catch (e) { /* no thread */ }
+  } catch (e) {
+    /* no thread */
+  }
 }
 
 function closePicker(): void {
@@ -303,7 +392,9 @@ function setPriorityOnFocused(rank: number): void {
     if (!active) return;
     const member = PRESETS[active].members.find((m: any) => m.rank === rank);
     if (member) PriorityPresetStore.setPriority(thread.id, member.id);
-  } catch (e) { /* no thread / preset inactive */ }
+  } catch (e) {
+    /* no thread / preset inactive */
+  }
 }
 
 function clearPriorityOnFocused(): void {
@@ -312,7 +403,9 @@ function clearPriorityOnFocused(): void {
     if (!thread?.id) return;
     const { PriorityPresetStore } = require('./priority-preset-store');
     PriorityPresetStore.clearPriority(thread.id);
-  } catch (e) { /* no thread */ }
+  } catch (e) {
+    /* no thread */
+  }
 }
 
 function openManager(): void {

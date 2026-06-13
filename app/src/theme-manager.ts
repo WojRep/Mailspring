@@ -6,11 +6,13 @@ import { localized } from './intl';
 import LessCompileCache from './compile-cache-less';
 import PackageManager from './package-manager';
 import { createLogger } from './logger';
+import { applyEyeStrainStylesheet } from './eye-strain';
 
 const log = createLogger('ThemeManager');
 
 const CONFIG_THEME_KEY = 'core.theme';
 const CONFIG_USE_SYSTEM_ACCENT_KEY = 'core.appearance.useSystemAccent';
+const CONFIG_EYE_STRAIN_KEY = 'core.appearance.eyeStrainReduction';
 const SYSTEM_ACCENT_SOURCE_PATH = 'system-accent:dynamic';
 const AUTOMATIC_THEME_NAME = 'ui-automatic';
 const LIGHT_THEME_NAME = 'ui-light';
@@ -52,6 +54,7 @@ export default class ThemeManager {
   private _systemAccentColor: string | null = null;
   private _systemAccentDisposable: Disposable | null = null;
   private _systemDarkMode = false;
+  private _eyeStrainDisposable: { dispose: () => void } | null = null;
 
   constructor({ packageManager, resourcePath, configDirPath, safeMode }) {
     this.packageManager = packageManager;
@@ -88,6 +91,22 @@ export default class ThemeManager {
         this.updateThemePackageAndRecomputeLESS();
       }
     });
+
+    // Tryb redukcji zmęczenia oczu — ciepła nakładka filtra (off/low/high),
+    // komponowalna z każdym motywem. Obserwuj klucz i zastosuj na starcie.
+    AppEnv.config.onDidChange(CONFIG_EYE_STRAIN_KEY, () => this.applyEyeStrainReduction());
+    this.applyEyeStrainReduction();
+  }
+
+  // Wstrzykuje/usuwa nakładkę ciepłego filtra na root (html) wg poziomu
+  // z konfiguracji. Wzorzec jak applySystemAccent(); logika w ./eye-strain.
+  applyEyeStrainReduction() {
+    const level = AppEnv.config.get(CONFIG_EYE_STRAIN_KEY) || 'off';
+    this._eyeStrainDisposable = applyEyeStrainStylesheet(
+      AppEnv.styles,
+      level,
+      this._eyeStrainDisposable
+    );
   }
 
   // New users (no `core.theme` saved in config) default to automatic mode so

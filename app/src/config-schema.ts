@@ -45,6 +45,33 @@ export default {
             default: true,
             title: localized('Use system accent color'),
           },
+          // Tryb redukcji zmęczenia oczu — ciepła, regulowana nakładka filtra
+          // (off/low/high). Parametry per poziom: app/src/eye-strain.ts.
+          eyeStrainReduction: {
+            type: 'string',
+            default: 'off',
+            enum: ['off', 'low', 'high'],
+            title: localized('Reduce eye strain (warm, low blue light)'),
+          },
+        },
+      },
+      // Kolorowe flagi Apple Mail ($MailFlagBit*) — patrz app/src/flag-colors.ts.
+      flags: {
+        type: 'object',
+        properties: {
+          mapToPriority: {
+            type: 'boolean',
+            default: true,
+            title: localized('Map flag colors to Eisenhower priorities'),
+          },
+          // Kalibracja: 7 kluczy kolorów (red/orange/yellow/green/blue/purple/grey)
+          // w kolejności wartości bitów 0..6. Pusta = domyślne IETF. Pozwala
+          // skorygować mapowanie, jeśli serwer/Apple Mail używa innej kolejności.
+          colorOrder: {
+            type: 'array',
+            default: [],
+            title: localized('Flag color calibration (advanced)'),
+          },
         },
       },
       workspace: {

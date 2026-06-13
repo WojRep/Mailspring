@@ -1,5 +1,11 @@
 import React from 'react';
 import { localized, PropTypes, Actions, TaskFactory, ExtensionRegistry } from 'actunamail-exports';
+import {
+  flagColorValue,
+  flagColorToken,
+  flagColorNameKey,
+  flagMeaningKey,
+} from '../../../src/flag-colors';
 import { ThreadWithMessagesMetadata } from './types';
 
 class ThreadListIcon extends React.Component<{ thread: ThreadWithMessagesMetadata }> {
@@ -62,7 +68,45 @@ class ThreadListIcon extends React.Component<{ thread: ThreadWithMessagesMetadat
   }
 
   render() {
-    const starred = this.props.thread && this.props.thread.starred;
+    const thread = this.props.thread;
+    // Kolorowa flaga Apple ($MailFlagBit* + \Flagged): render flagi w jej kolorze
+    // (1:1 jak Apple Mail). Czysta gwiazdka (bez bitów) → poniżej, zwykła ikona.
+    const flagVal = thread ? flagColorValue(thread.customKeywords, thread.starred) : null;
+    if (flagVal !== null) {
+      const token = flagColorToken(flagVal) || 'var(--flag-red)';
+      // a11y + znaczenie: nazwa koloru + akcja kwadrantu (np. „Czerwona — Zrób teraz").
+      const colorName = flagColorNameKey(flagVal);
+      const meaningKey = flagMeaningKey(flagVal);
+      const parts: string[] = [];
+      if (colorName) parts.push(localized(colorName));
+      if (meaningKey) parts.push(localized(meaningKey));
+      const label = parts.length ? parts.join(' — ') : localized('Flag');
+      return (
+        <div
+          className="thread-icon thread-icon-flagcolor"
+          role="button"
+          tabIndex={-1}
+          aria-label={label}
+          aria-pressed={true}
+          title={label}
+          onClick={this._onToggleStar}
+          onKeyDown={this._onKeyDown}
+        >
+          <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M4 1.5v13"
+              stroke={token}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              fill="none"
+            />
+            <path d="M4.8 2.2h7.2l-2.1 2.6 2.1 2.6H4.8z" fill={token} />
+          </svg>
+        </div>
+      );
+    }
+
+    const starred = thread && thread.starred;
     const ariaLabel = starred ? localized('Unstar') : localized('Star');
     return (
       <div

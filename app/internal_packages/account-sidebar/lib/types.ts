@@ -11,6 +11,8 @@ export interface ISidebarItem {
   selected: boolean;
   collapsed: boolean;
   counterStyle: string;
+  /** Opcjonalny kolor ikony pozycji (np. kolor flagi Apple) — tinted mask. */
+  color?: string;
   onDelete?: () => void;
   onEdited?: (item, name: string) => void;
   onExport?: () => void;

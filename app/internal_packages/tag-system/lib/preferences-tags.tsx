@@ -31,6 +31,106 @@ interface State {
   confirmDelete: boolean;
 }
 
+// Poradnik in-app: macierz Eisenhowera + kolory ISO 3864 + linki do wolnych
+// (CC BY-SA) źródeł. Pełny opis: docs/eisenhower-priorities.md.
+const EISENHOWER_GUIDE_ROWS = [
+  {
+    token: 'var(--priority-do)',
+    q: 'Q1',
+    actionKey: 'Do now',
+    axis: 'Pilne i ważne / Urgent + important',
+  },
+  {
+    token: 'var(--priority-schedule)',
+    q: 'Q2',
+    actionKey: 'Schedule',
+    axis: 'Ważne, niepilne / Important, not urgent',
+  },
+  {
+    token: 'var(--priority-delegate)',
+    q: 'Q3',
+    actionKey: 'Delegate',
+    axis: 'Pilne, nieważne / Urgent, not important',
+  },
+  {
+    token: 'var(--priority-defer)',
+    q: 'Q4',
+    actionKey: 'Defer',
+    axis: 'Niepilne i nieważne / Neither urgent nor important',
+  },
+];
+const EISENHOWER_GUIDE_LINKS = [
+  {
+    label: 'Wikipedia: Eisenhower method',
+    url: 'https://en.wikipedia.org/wiki/Time_management#Eisenhower_method',
+  },
+  { label: 'Wikipedia: ISO 3864', url: 'https://en.wikipedia.org/wiki/ISO_3864' },
+];
+
+function openExternalLink(url: string) {
+  try {
+    require('electron').shell.openExternal(url);
+  } catch (e) {
+    /* poza Electronem */
+  }
+}
+
+const EisenhowerGuide = () => (
+  <details className="eisenhower-guide" style={{ marginBottom: 16 }}>
+    <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+      {localized('Jak działa macierz Eisenhowera? / How the Eisenhower matrix works')}
+    </summary>
+    <div style={{ paddingTop: 8, fontSize: '0.9em', lineHeight: 1.5 }}>
+      <p>
+        {localized(
+          'Zadania ocenia się wg ważności i pilności → cztery ćwiartki, każda z akcją. Kolor flagi Apple automatycznie wpada do właściwej ćwiartki. / Tasks are rated by importance and urgency into four quadrants, each with an action; an Apple flag color maps to its quadrant automatically.'
+        )}
+      </p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0' }}>
+        {EISENHOWER_GUIDE_ROWS.map((r) => (
+          <li key={r.q} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 3,
+                background: r.token,
+                flexShrink: 0,
+                display: 'inline-block',
+              }}
+            />
+            <strong>
+              {r.q} · {localized(r.actionKey)}
+            </strong>
+            <span style={{ opacity: 0.7 }}>— {localized(r.axis)}</span>
+          </li>
+        ))}
+      </ul>
+      <p style={{ opacity: 0.8 }}>
+        {localized(
+          'Q4 = „Odłóż", nie „Usuń" — nic nie kasujemy, bo zadania z czasem migrują. Kolory wg standardu ISO 3864. / Q4 = "Defer", not "Delete" — nothing is deleted; tasks migrate over time. Colors follow the ISO 3864 standard.'
+        )}
+      </p>
+      <div style={{ marginTop: 8 }}>
+        {EISENHOWER_GUIDE_LINKS.map((l) => (
+          <a
+            key={l.url}
+            href={l.url}
+            onClick={(e) => {
+              e.preventDefault();
+              openExternalLink(l.url);
+            }}
+            style={{ display: 'block' }}
+          >
+            {l.label} ↗
+          </a>
+        ))}
+      </div>
+    </div>
+  </details>
+);
+
 export default class PreferencesTags extends React.Component<{}, State> {
   static displayName = 'PreferencesTags';
 
@@ -157,6 +257,8 @@ export default class PreferencesTags extends React.Component<{}, State> {
             ))}
           </select>
         </div>
+
+        <EisenhowerGuide />
 
         <div className="preferences-tags-add">
           <input

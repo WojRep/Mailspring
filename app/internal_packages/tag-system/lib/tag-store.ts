@@ -26,12 +26,20 @@
  * Mockup: design/mockups/04-tag-picker.html.
  */
 
-export type TagSource = 'user' | 'system' | 'imap';
+import {
+  flagColorValue,
+  flagColorFor,
+  flagTagId,
+  flagColorToQuadrant,
+} from '../../../src/flag-colors';
+
+// 'flag' = syntetyczny tag koloru flagi Apple (kombinacja $MailFlagBit0/1/2).
+export type TagSource = 'user' | 'system' | 'imap' | 'flag';
 
 export interface Tag {
-  id: string;             // unique tag id (slug)
-  name: string;           // display label
-  color: string;          // CSS color (hex / var(--*))
+  id: string; // unique tag id (slug)
+  name: string; // display label
+  color: string; // CSS color (hex / var(--*))
   source: TagSource;
   /** True dla system tags — NIE editable przez user (manager UI gray out). */
   systemManaged?: boolean;
@@ -49,17 +57,31 @@ const MIGRATED_KEY = 'actuna.tags.migrated-v117';
 // Keywordy IMAP innych mechanizmów / klientów — nigdy nie stają się tagami.
 const IGNORED_KEYWORDS = new Set([
   '$Pinned', // pin cross-device #93/#46 — osobny mechanizm
-  '$Forwarded', '$MDNSent', '$Junk', '$NotJunk', 'Junk', 'NonJunk', '$Phishing',
-  '$HasAttachment', '$HasNoAttachment',
+  '$Forwarded',
+  '$MDNSent',
+  '$Junk',
+  '$NotJunk',
+  'Junk',
+  'NonJunk',
+  'NotJunk',
+  '$Phishing',
+  '$HasAttachment',
+  '$HasNoAttachment',
+  // Kolory flag Apple Mail — obsługiwane jako jeden syntetyczny tag koloru
+  // (flag_<value>), NIE jako 3 surowe tagi bitowe. Patrz syncFlagColorFromThread.
+  '$MailFlagBit0',
+  '$MailFlagBit1',
+  '$MailFlagBit2',
 ]);
 
-// Wbudowane tagi Thunderbirda (interop): keyword → nazwa wyświetlana.
-const THUNDERBIRD_LABELS: Record<string, string> = {
-  $label1: 'Important',
-  $label2: 'Work',
-  $label3: 'Personal',
-  $label4: 'ToDo',
-  $label5: 'Later',
+// Wbudowane tagi Thunderbirda (interop): keyword → nazwa + domyślny kolor TB.
+// (Kolor TB jest lokalny po IMAP — odwzorowujemy domyślną paletę Thunderbirda.)
+const THUNDERBIRD_LABELS: Record<string, { name: string; color: string }> = {
+  $label1: { name: 'Important', color: 'var(--flag-red)' },
+  $label2: { name: 'Work', color: 'var(--flag-orange)' },
+  $label3: { name: 'Personal', color: 'var(--flag-green)' },
+  $label4: { name: 'ToDo', color: 'var(--flag-blue)' },
+  $label5: { name: 'Later', color: 'var(--flag-purple)' },
 };
 
 // Default color palette (WCAG-safe vs surfaces, design tokens recommended)
@@ -80,11 +102,31 @@ class TagStoreImpl {
   private _assignments: Map<string, Set<string>> = new Map(); // threadId → Set<tagId>
   private _listeners: Set<() => void> = new Set();
   private _loaded = false;
+  // Tryb wsadowy: podczas sweepu/delty (setki–tysiące wątków) odkładamy _save()/
+  // _emit() do jednego flushu na końcu (inaczej tysiące zapisów do localStorage
+  // = zacięcie UI na starcie). Patrz main.ts initialReconcileSweep + delta loop.
+  private _batch = false;
+  private _batchDirty = false;
+
+  beginBatch(): void {
+    this._batch = true;
+    this._batchDirty = false;
+  }
+
+  endBatch(): void {
+    this._batch = false;
+    if (this._batchDirty) {
+      this._save();
+      this._emit();
+    }
+    this._batchDirty = false;
+  }
 
   init(): void {
     if (this._loaded) return;
     this._load();
     this._loaded = true;
+    this.purgeIgnoredKeywordTags(); // sprzątnij surowe $MailFlagBit*/NotJunk z poprzednich wersji
     this._migrateLocalAssignmentsToServer();
   }
 
@@ -211,7 +253,7 @@ class TagStoreImpl {
     const ids = this._assignments.get(threadId);
     if (!ids) return [];
     return Array.from(ids)
-      .map(id => this._registry.get(id))
+      .map((id) => this._registry.get(id))
       .filter((t): t is Tag => !!t);
   }
 
@@ -313,16 +355,17 @@ class TagStoreImpl {
     const presentTagIds = new Set<string>();
     for (const kw of thread.customKeywords) {
       if (!kw || IGNORED_KEYWORDS.has(kw)) continue;
-      const displayName = THUNDERBIRD_LABELS[kw] || kw;
+      const tbLabel = THUNDERBIRD_LABELS[kw];
+      const displayName = tbLabel ? tbLabel.name : kw;
       const wanted = keywordForTagName(displayName);
       let tag = Array.from(this._registry.values()).find(
-        t => keywordForTagName(t.name) === wanted
+        (t) => keywordForTagName(t.name) === wanted
       );
       if (!tag) {
         tag = this.register({
           id: `imap_${wanted}`,
           name: displayName,
-          color: DEFAULT_COLORS[0],
+          color: tbLabel ? tbLabel.color : DEFAULT_COLORS[0],
           source: 'imap',
         });
       }
@@ -333,8 +376,96 @@ class TagStoreImpl {
     for (const tagId of this.getTagIds(thread.id)) {
       if (presentTagIds.has(tagId)) continue;
       if (tagId.startsWith('__system_')) continue; // lokalne nakładki — nie z serwera
+      if (tagId.startsWith('flag_')) continue; // kolor flagi zarządza syncFlagColorFromThread
       this._removeLocal(thread.id, tagId);
     }
+  }
+
+  /**
+   * Kolorowe flagi Apple Mail: kombinacja $MailFlagBit0/1/2 (+ \Flagged=starred)
+   * = JEDEN syntetyczny tag koloru `flag_<value>` (NIE 3 surowe tagi bitowe).
+   * Reconcile per wątek; niezależne od adaptera (keywordy są już w deltcie).
+   * Wołane z tej samej ścieżki delt co syncFromThread (main.ts).
+   */
+  syncFlagColorFromThread(thread: {
+    id: string;
+    customKeywords?: string[];
+    starred?: boolean;
+  }): void {
+    if (!thread || !thread.id) return;
+    // reconcile: zdejmij dotychczasowy kolor flagi z tego wątku; zapamiętaj go,
+    // by mapować priorytet TYLKO przy realnej zmianie koloru.
+    let prevValue: number | null = null;
+    for (const tagId of this.getTagIds(thread.id)) {
+      if (tagId.startsWith('flag_')) {
+        const n = parseInt(tagId.slice('flag_'.length), 10);
+        if (!Number.isNaN(n)) prevValue = n;
+        this._removeLocal(thread.id, tagId);
+      }
+    }
+    const value = flagColorValue(thread.customKeywords, !!thread.starred);
+    if (value === null) return;
+    const fc = flagColorFor(value);
+    if (!fc) return;
+    const id = flagTagId(value);
+    if (!this._registry.has(id)) {
+      this.register({ id, name: this._flagColorName(fc.nameKey), color: fc.token, source: 'flag' });
+    }
+    this._applyLocal(thread.id, id);
+    // Mapowanie na priorytet tylko gdy kolor się ZMIENIŁ — nie na każdym sync
+    // tego samego koloru (inaczej nadpisywałoby ręczny priorytet co deltę).
+    if (value !== prevValue) this._maybeMapFlagToPriority(thread.id, value);
+  }
+
+  /**
+   * Mapowanie kolor flagi → kwadrant Eisenhowera (#120). Domyślnie ON
+   * (core.flags.mapToPriority), tylko gdy aktywny preset 'eisenhower'.
+   * Jednokierunkowo (flaga → priorytet); ręczna zmiana priorytetu nie rusza flagi.
+   */
+  private _maybeMapFlagToPriority(threadId: string, value: number): void {
+    try {
+      const env = (window as any).AppEnv;
+      if (!env || !env.config || env.config.get('core.flags.mapToPriority') === false) return;
+      const presetMod = require('./priority-preset-store');
+      const PriorityPresetStore = presetMod.PriorityPresetStore;
+      if (!PriorityPresetStore || PriorityPresetStore.activePreset() !== 'eisenhower') return;
+      const quadrant = flagColorToQuadrant(value);
+      if (quadrant) PriorityPresetStore.setPriority(threadId, quadrant);
+    } catch (e) {
+      /* preset/config niedostępne */
+    }
+  }
+
+  private _flagColorName(nameKey: string): string {
+    try {
+      const { localized } = require('actunamail-exports');
+      return typeof localized === 'function' ? localized(nameKey) : nameKey;
+    } catch (e) {
+      return nameKey;
+    }
+  }
+
+  /**
+   * Migracja jednorazowa: usuń surowe tagi $MailFlagBit* zaciągnięte zanim
+   * dodaliśmy je do IGNORED. ZAWĘŻONE do rodziny $MailFlagBit\d+ (jednoznacznie
+   * techniczne) — NIE czyścimy gołego „Junk"/„NotJunk", bo to mógłby być legalny
+   * keyword użytkownika/serwera (ryzyko utraty danych — przegląd).
+   */
+  purgeIgnoredKeywordTags(): number {
+    let n = 0;
+    const isRawFlagBit = (name: string) => /^\$MailFlagBit\d+$/.test(name);
+    for (const [id, tag] of Array.from(this._registry)) {
+      if (tag.source === 'imap' && isRawFlagBit(tag.name)) {
+        this._registry.delete(id);
+        for (const set of this._assignments.values()) set.delete(id);
+        n++;
+      }
+    }
+    if (n > 0) {
+      this._save();
+      this._emit();
+    }
+    return n;
   }
 
   private _adapterForAccountId(accountId?: string) {
@@ -435,7 +566,9 @@ class TagStoreImpl {
       localStorage.removeItem(STORAGE_REGISTRY);
       localStorage.removeItem(STORAGE_ASSIGNMENTS);
       localStorage.removeItem(MIGRATED_KEY);
-    } catch (e) { /* node env */ }
+    } catch (e) {
+      /* node env */
+    }
   }
 
   // === internals ===
@@ -462,10 +595,16 @@ class TagStoreImpl {
   }
 
   private _save(): void {
+    if (this._batch) {
+      this._batchDirty = true;
+      return;
+    }
     try {
       if (typeof localStorage === 'undefined') return;
       localStorage.setItem(STORAGE_REGISTRY, JSON.stringify(Array.from(this._registry.values())));
-      const arr = Array.from(this._assignments.entries()).map(([tid, set]) => [tid, Array.from(set)] as [string, string[]]);
+      const arr = Array.from(this._assignments.entries()).map(
+        ([tid, set]) => [tid, Array.from(set)] as [string, string[]]
+      );
       localStorage.setItem(STORAGE_ASSIGNMENTS, JSON.stringify(arr));
     } catch (e) {
       console.error('[TagStore] save failed:', e);
@@ -473,8 +612,16 @@ class TagStoreImpl {
   }
 
   private _emit(): void {
+    if (this._batch) {
+      this._batchDirty = true;
+      return;
+    }
     for (const cb of this._listeners) {
-      try { cb(); } catch (e) { console.error('[TagStore] listener error', e); }
+      try {
+        cb();
+      } catch (e) {
+        console.error('[TagStore] listener error', e);
+      }
     }
   }
 }

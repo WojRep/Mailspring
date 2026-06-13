@@ -19,6 +19,14 @@ import {
 } from 'actunamail-exports';
 
 import ThreadListStore from './thread-list-store';
+import {
+  FLAG_COLORS,
+  flagColorValue,
+  flagColorToken,
+  flagColorNameKey,
+  flagMeaningKey,
+} from '../../../src/flag-colors';
+import { setFlagColor, clearFlag } from './flag-actions';
 
 export class ArchiveButton extends React.Component<{ items: Thread[] }> {
   static displayName = 'ArchiveButton';
@@ -485,6 +493,166 @@ class ThreadArrowButton extends React.Component<
   }
 }
 
+// Kolorowa flaga Apple Mail: przycisk + menu 7 kolorów (1:1 jak Apple) +
+// „Wymaż flagę". Wybór koloru zapisuje bity $MailFlagBit* + \Flagged (cross-device).
+export class ColoredFlagButton extends React.Component<{ items: Thread[] }, { open: boolean }> {
+  static displayName = 'ColoredFlagButton';
+  static containerRequired = false;
+  static propTypes = { items: PropTypes.array.isRequired };
+
+  state = { open: false };
+  _closeListener: (() => void) | null = null;
+  _timer: any = null;
+
+  componentDidUpdate(_prevProps, prevState: { open: boolean }) {
+    if (this.state.open && !prevState.open) {
+      this._closeListener = () => this.setState({ open: false });
+      // setTimeout(0): nie łap klika otwierającego; once: zamknij po kliknięciu poza.
+      this._timer = setTimeout(() => {
+        this._timer = null;
+        if (this._closeListener) {
+          document.addEventListener('click', this._closeListener, { once: true } as any);
+        }
+      }, 0);
+    } else if (!this.state.open && prevState.open) {
+      this._detach(); // menu zamknięte — sprzątnij timer/listener (przegląd: leak/race)
+    }
+  }
+
+  componentWillUnmount() {
+    this._detach();
+  }
+
+  _detach() {
+    if (this._timer) {
+      clearTimeout(this._timer);
+      this._timer = null;
+    }
+    if (this._closeListener) {
+      document.removeEventListener('click', this._closeListener);
+      this._closeListener = null;
+    }
+  }
+
+  _commonFlagValue(): number | null {
+    const items = this.props.items || [];
+    if (!items.length) return null;
+    const vals = items.map((t: any) => flagColorValue(t.customKeywords, t.starred));
+    return vals.every((v) => v === vals[0]) ? vals[0] : null;
+  }
+
+  _toggleOpen = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState((s) => ({ open: !s.open }));
+  };
+
+  _pick = (value: number) => (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFlagColor(this.props.items, value);
+    this.setState({ open: false });
+  };
+
+  _clear = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    clearFlag(this.props.items);
+    this.setState({ open: false });
+  };
+
+  // Escape zamyka menu (WAI-ARIA); klawiatura na pozycjach: Enter/Spacja aktywuje.
+  _onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape' && this.state.open) {
+      e.stopPropagation();
+      this.setState({ open: false });
+    }
+  };
+
+  _itemKeyDown = (fn: (e: React.SyntheticEvent) => void) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fn(e);
+    }
+  };
+
+  render() {
+    const title = localized('Flag');
+    const common = this._commonFlagValue();
+    const iconColor =
+      common !== null ? flagColorToken(common) || 'var(--text-muted)' : 'var(--text-muted)';
+    return (
+      <div
+        className="flag-color-button"
+        style={{ position: 'relative', display: 'inline-block' }}
+        onKeyDown={this._onKeyDown}
+      >
+        <Tooltip content={title}>
+          <button
+            tabIndex={-1}
+            className="btn btn-toolbar"
+            aria-label={title}
+            aria-haspopup="true"
+            aria-expanded={this.state.open}
+            onClick={this._toggleOpen}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M4 1.5v13"
+                stroke={iconColor}
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path d="M4.8 2.2h7.2l-2.1 2.6 2.1 2.6H4.8z" fill={iconColor} />
+            </svg>
+          </button>
+        </Tooltip>
+        {this.state.open && (
+          <div className="flag-color-menu" role="menu">
+            {FLAG_COLORS.map((c) => {
+              // override-aware: kolor i nazwa wg ewentualnej kalibracji (setFlagColorOrder).
+              const token = flagColorToken(c.value) || c.token;
+              const colorLabel = localized(flagColorNameKey(c.value) || c.nameKey);
+              const meaningKey = flagMeaningKey(c.value);
+              // Znaczenie (akcja kwadrantu) obok koloru, np. „Czerwona · Zrób teraz".
+              const label = meaningKey ? `${colorLabel} · ${localized(meaningKey)}` : colorLabel;
+              return (
+                <div
+                  key={c.value}
+                  role="menuitemradio"
+                  aria-checked={common === c.value}
+                  aria-label={label}
+                  tabIndex={0}
+                  className="flag-color-menu-item"
+                  onClick={this._pick(c.value)}
+                  onKeyDown={this._itemKeyDown(this._pick(c.value))}
+                >
+                  <span
+                    className="flag-color-swatch"
+                    style={{ background: token }}
+                    aria-hidden="true"
+                  />
+                  {label}
+                </div>
+              );
+            })}
+            <div
+              role="menuitem"
+              tabIndex={0}
+              className="flag-color-menu-item flag-color-menu-clear"
+              onClick={this._clear}
+              onKeyDown={this._itemKeyDown(this._clear)}
+            >
+              {localized('Clear Flag')}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
 export const FlagButtons = (props: { items: Thread[] }) => (
   <RovingTabIndexToolbar
     label={localized('Flag Actions')}
@@ -492,6 +660,7 @@ export const FlagButtons = (props: { items: Thread[] }) => (
     style={{ order: -103 } as React.CSSProperties}
   >
     <ToggleStarredButton {...props} />
+    <ColoredFlagButton {...props} />
     <HiddenToggleImportantButton {...props} />
     <ToggleUnreadButton {...props} />
   </RovingTabIndexToolbar>

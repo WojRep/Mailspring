@@ -349,6 +349,106 @@ AppearanceModeOption.propTypes = {
   onClick: PropTypes.func,
 };
 
+// Pojedynczy segment przełącznika (klikalny, dostępny z klawiatury).
+const SegmentedOption = function SegmentedOption(props: {
+  active: boolean;
+  label: string;
+  onSelect: () => void;
+}) {
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      props.onSelect();
+    }
+  };
+  return (
+    <div
+      className={'appearance-mode' + (props.active ? ' active' : '')}
+      role="button"
+      tabIndex={-1}
+      aria-pressed={props.active}
+      aria-label={props.label}
+      onClick={props.onSelect}
+      onKeyDown={onKeyDown}
+    >
+      <div>{props.label}</div>
+    </div>
+  );
+};
+
+// Jawny przełącznik trybu motywu: Systemowy (domyślny) / Jasny / Ciemny.
+// Mapuje na istniejący core.theme (ui-automatic/ui-light/ui-dark) — ThemeManager
+// obserwuje ten klucz i rekompiluje LESS. "Systemowy" podąża za trybem OS.
+export class AppearanceThemeModeSwitch extends React.Component<{ config: ConfigLike }> {
+  static displayName = 'AppearanceThemeModeSwitch';
+
+  static propTypes = { config: PropTypes.object.isRequired };
+
+  kp = 'core.theme';
+
+  options: Array<[string, () => string]> = [
+    ['ui-automatic', () => localized('System (default)')],
+    ['ui-light', () => localized('Light')],
+    ['ui-dark', () => localized('Dark')],
+  ];
+
+  render() {
+    const current = this.props.config.get(this.kp);
+    return (
+      <RovingTabIndexToolbar
+        label={localized('Theme')}
+        className="item appearance-mode-switch"
+        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+      >
+        {this.options.map(([value, label]) => (
+          <SegmentedOption
+            key={value}
+            label={label()}
+            active={current === value}
+            onSelect={() => this.props.config.set(this.kp, value)}
+          />
+        ))}
+      </RovingTabIndexToolbar>
+    );
+  }
+}
+
+// Regulowany tryb redukcji zmęczenia oczu: Off / Gentle / Strong.
+// Ciepła nakładka filtra (off/low/high) — ThemeManager.applyEyeStrainReduction().
+export class EyeStrainSwitch extends React.Component<{ config: ConfigLike }> {
+  static displayName = 'EyeStrainSwitch';
+
+  static propTypes = { config: PropTypes.object.isRequired };
+
+  kp = 'core.appearance.eyeStrainReduction';
+
+  options: Array<[string, () => string]> = [
+    ['off', () => localized('Off')],
+    ['low', () => localized('Gentle')],
+    ['high', () => localized('Strong')],
+  ];
+
+  render() {
+    const current = this.props.config.get(this.kp) || 'off';
+    return (
+      <RovingTabIndexToolbar
+        label={localized('Reduce eye strain (warm, low blue light)')}
+        className="item appearance-mode-switch"
+        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+      >
+        {this.options.map(([value, label]) => (
+          <SegmentedOption
+            key={value}
+            label={label()}
+            active={current === value}
+            onSelect={() => this.props.config.set(this.kp, value)}
+          />
+        ))}
+      </RovingTabIndexToolbar>
+    );
+  }
+}
+
 class PreferencesAppearance extends React.Component<{ config: ConfigLike; configSchema: any }> {
   static displayName = 'PreferencesAppearance';
 
@@ -370,7 +470,8 @@ class PreferencesAppearance extends React.Component<{ config: ConfigLike; config
         </section>
         <section>
           <h6 style={{ marginTop: 10 }}>{localized('Theme and Style')}</h6>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <AppearanceThemeModeSwitch config={this.props.config} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 10 }}>
             <button className="btn btn-large" style={{ flexShrink: 0 }} onClick={this.onPickTheme}>
               {localized('Change Theme...')}
             </button>
@@ -381,6 +482,15 @@ class PreferencesAppearance extends React.Component<{ config: ConfigLike; config
               keyPath="core.appearance.useSystemAccent"
               config={this.props.config}
             />
+          </div>
+        </section>
+        <section>
+          <h6>{localized('Eye comfort')}</h6>
+          <EyeStrainSwitch config={this.props.config} />
+          <div className="platform-note">
+            {localized(
+              'Reduce eye strain applies a warm, low-blue-light tint over the whole interface to ease eye fatigue. Because it is applied equally to text and background, it preserves your existing text contrast. It works with any theme (light, dark, or system).'
+            )}
           </div>
         </section>
         <MenubarStylePicker config={this.props.config} />

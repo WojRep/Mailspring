@@ -13,6 +13,7 @@ interface AccountSidebarState {
   attentionLayersSection: ISidebarSection;
   smartFoldersSection: ISidebarSection;
   tagsSection: ISidebarSection;
+  flagsSection: ISidebarSection;
   prioritySection: ISidebarSection;
 }
 
@@ -68,6 +69,9 @@ export default class AccountSidebar extends React.Component<
       tagsSection: (SidebarStore as any).tagsSection
         ? (SidebarStore as any).tagsSection()
         : { title: 'Tags', items: [] },
+      flagsSection: (SidebarStore as any).flagsSection
+        ? (SidebarStore as any).flagsSection()
+        : { title: 'Flags', items: [] },
       prioritySection: (SidebarStore as any).prioritySection
         ? (SidebarStore as any).prioritySection()
         : { title: 'Priorytety / Priority', items: [] },
@@ -87,6 +91,7 @@ export default class AccountSidebar extends React.Component<
       attentionLayersSection,
       smartFoldersSection,
       tagsSection,
+      flagsSection,
       prioritySection,
     } = this.state;
 
@@ -110,6 +115,12 @@ export default class AccountSidebar extends React.Component<
                 z SidebarStore). */}
             {/* Tags (#98) user tags only — render gdy są tagi. */}
             {tagsSection.items.length > 0 && <OutlineView {...tagsSection} />}
+
+            {/* Flagi (kolory Apple): pokazujemy TYLKO gdy mapowanie na Eisenhowera
+                jest WYŁĄCZONE — inaczej duplikowałoby kolorowe kwadranty Priorytetów.
+                Domyślnie mapToPriority=ON → flagi widać na wierszach, panel = Eisenhower. */}
+            {AppEnv.config.get('core.flags.mapToPriority') === false &&
+              flagsSection.items.length > 0 && <OutlineView {...flagsSection} />}
 
             {/* Smart Folders (#99) — render zawsze (empty section = section header
                 + 0 items, user widzi że może je tworzyć przez Cmd+Shift+N). */}

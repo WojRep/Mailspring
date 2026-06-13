@@ -402,6 +402,7 @@ class OutlineViewItem extends Component<OutlineViewItemProps, OutlineViewItemSta
               name={item.iconName}
               fallback={'folder.png'}
               mode={RetinaImg.Mode.ContentIsMask}
+              style={item.color ? { backgroundColor: item.color } : undefined}
             />
           </div>
         )}
