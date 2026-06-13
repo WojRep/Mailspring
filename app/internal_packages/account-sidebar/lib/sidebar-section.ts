@@ -18,7 +18,7 @@ import SidebarItem, { createCategory } from './sidebar-item';
 import * as SidebarActions from './sidebar-actions';
 import { ISidebarSection, ISidebarItem } from './types';
 
-function isSectionCollapsed(title) {
+export function isSectionCollapsed(title) {
   if (AppEnv.savedState.sidebarKeysCollapsed[title] !== undefined) {
     return AppEnv.savedState.sidebarKeysCollapsed[title];
   } else {
@@ -26,7 +26,7 @@ function isSectionCollapsed(title) {
   }
 }
 
-function toggleSectionCollapsed(section) {
+export function toggleSectionCollapsed(section) {
   if (!section) {
     return;
   }

@@ -104,14 +104,18 @@ export default class AccountSidebar extends React.Component<
                 preset aktywny (items > 0). */}
             {prioritySection.items.length > 0 && <OutlineView {...prioritySection} />}
 
-            <OutlineView {...standardSection} />
+            {/* Porządkowanie panelu (decyzja usera "Warstwy organizacyjne na górze"):
+                Tagi i Smart Folders nad folderami kont, żeby przy wielu kontach
+                nie znikały poza ekran. Obie sekcje zwijalne (collapsed/onCollapseToggled
+                z SidebarStore). */}
+            {/* Tags (#98) user tags only — render gdy są tagi. */}
+            {tagsSection.items.length > 0 && <OutlineView {...tagsSection} />}
 
             {/* Smart Folders (#99) — render zawsze (empty section = section header
                 + 0 items, user widzi że może je tworzyć przez Cmd+Shift+N). */}
             <OutlineView {...smartFoldersSection} />
 
-            {/* Tags (#98) user tags only — render gdy są tagi. */}
-            {tagsSection.items.length > 0 && <OutlineView {...tagsSection} />}
+            <OutlineView {...standardSection} />
 
             {this._renderUserSections(userSections)}
           </nav>

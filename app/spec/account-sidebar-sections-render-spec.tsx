@@ -16,7 +16,9 @@ import { render, cleanup } from '@testing-library/react';
 import AccountSidebar from '../internal_packages/account-sidebar/lib/components/account-sidebar';
 
 describe('AccountSidebar — plan v1.0 sections render (Attention Layers + Smart Folders + Tags)', () => {
-  afterEach(() => { cleanup(); });
+  afterEach(() => {
+    cleanup();
+  });
 
   it('renderuje sekcję "Attention Layers"', () => {
     const { container } = render(<AccountSidebar />);
@@ -52,5 +54,28 @@ describe('AccountSidebar — plan v1.0 sections render (Attention Layers + Smart
     expect(html).toMatch(/Focused/);
     expect(html).toMatch(/Pinned/);
     expect(html).toMatch(/Snoozed/);
+  });
+
+  // Porządkowanie panelu (decyzja usera "Warstwy organizacyjne na górze"):
+  // warstwy przekrojowe nad kontami → kolejność Attention → Tagi → Smart Folders
+  // → (skrzynki kont). Dyskryminatorem reorderu jest odwrócenie pary
+  // Tagi/Smart Folders: wcześniej Smart Folders renderowało się PRZED Tags.
+  it('renderuje Tagi NAD Smart Folders (warstwy organizacyjne na górze)', () => {
+    const TagStore = require('../internal_packages/tag-system/lib/tag-store').TagStore;
+    TagStore.register({
+      id: 'utag-order-test',
+      name: 'OrderTag',
+      color: '#3b6bdb',
+      source: 'user',
+    });
+    const { container } = render(<AccountSidebar />);
+    const html = container.innerHTML;
+    const iAttention = html.indexOf('Attention Layers');
+    const iTags = html.indexOf('Tags');
+    const iSmart = html.indexOf('Smart Folders');
+    expect(iAttention).toBeGreaterThan(-1);
+    expect(iTags).toBeGreaterThan(iAttention);
+    expect(iSmart).toBeGreaterThan(iTags);
+    TagStore.delete('utag-order-test');
   });
 });

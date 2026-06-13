@@ -56,4 +56,76 @@ describe('SidebarStore — Smart Folders section integration (plan v1.0 mockup 0
     expect(names).toContain('Klient X');
     expect(names).toContain('Newsletter');
   });
+
+  // Porządkowanie panelu: sekcja Smart Folders zwijalna (jak Tagi).
+  it('jest zwijalna — onCollapseToggled (function) + collapsed (boolean)', () => {
+    const section = (SidebarStore as any).smartFoldersSection();
+    expect(typeof section.onCollapseToggled).toBe('function');
+    expect(typeof section.collapsed).toBe('boolean');
+  });
+
+  it('collapsed odzwierciedla AppEnv.savedState.sidebarKeysCollapsed["Smart Folders"]', () => {
+    AppEnv.savedState.sidebarKeysCollapsed['Smart Folders'] = true;
+    expect((SidebarStore as any).smartFoldersSection().collapsed).toBe(true);
+    delete AppEnv.savedState.sidebarKeysCollapsed['Smart Folders'];
+  });
+});
+
+// Punkt 3 użytkownika: regułowy filtr w panelu. Pozycje Smart Folders były
+// martwe (bez perspective/onSelect). Teraz każda = klikalny widok filtrowany
+// regułami (snapshot ThreadIdListPerspective — wzorzec jak Tagi/Snoozed).
+describe('SidebarStore — Smart Folders jako klikalny filtr regułowy (punkt 3)', () => {
+  let Store: any;
+
+  beforeEach(() => {
+    const sfMod = require('../internal_packages/smart-folder/lib/smart-folder-store');
+    Store = sfMod.SmartFolderStore;
+    Store._reset();
+    Store.init();
+  });
+
+  afterEach(() => {
+    Store._reset();
+  });
+
+  it('pozycja niesie ThreadIdListPerspective (placeholder) + onSelect', () => {
+    Store.create({ name: 'Klient X', match: 'all', rules: [] });
+    const section = (SidebarStore as any).smartFoldersSection();
+    const item = section.items[0];
+    expect(item.perspective).toBeDefined();
+    expect(item.perspective.constructor.name).toBe('ThreadIdListPerspective');
+    expect(typeof item.onSelect).toBe('function');
+  });
+
+  it('klik filtruje okno wątków regułami i dispatchuje focusMailboxPerspective z dopasowanymi id', () => {
+    Store.create({
+      name: 'Od Jana',
+      match: 'all',
+      rules: [{ field: 'from', op: 'contains', value: 'jan@' }],
+    });
+    const exp = require('actunamail-exports');
+    const { Actions, DatabaseStore } = exp;
+    const sampleThreads = [
+      { id: 'tA', subject: 'Hej', participants: [{ email: 'jan@firma.pl' }] },
+      { id: 'tB', subject: 'Inne', participants: [{ email: 'ola@firma.pl' }] },
+    ];
+    spyOn(DatabaseStore, 'findAll').andReturn({
+      limit: () => ({
+        then: (cb: any) => {
+          cb(sampleThreads);
+          return Promise.resolve();
+        },
+      }),
+    });
+    spyOn(Actions, 'focusMailboxPerspective');
+
+    const section = (SidebarStore as any).smartFoldersSection();
+    const item = section.items[0];
+    item.onSelect(item);
+
+    expect(Actions.focusMailboxPerspective).toHaveBeenCalled();
+    const persp = (Actions.focusMailboxPerspective as any).mostRecentCall.args[0];
+    expect(persp.constructor.name).toBe('ThreadIdListPerspective');
+    expect(persp.toJSON().threadIds).toEqual(['tA']);
+  });
 });

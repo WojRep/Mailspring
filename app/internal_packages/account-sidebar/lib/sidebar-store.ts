@@ -10,9 +10,11 @@ import {
   FocusedPerspectiveStore,
   CategoryStore,
   MailboxPerspective,
+  DatabaseStore,
+  Thread,
 } from 'actunamail-exports';
 
-import SidebarSection from './sidebar-section';
+import SidebarSection, { isSectionCollapsed, toggleSectionCollapsed } from './sidebar-section';
 import SidebarItem from './sidebar-item';
 import * as SidebarActions from './sidebar-actions';
 import * as AccountCommands from './account-commands';
@@ -23,6 +25,11 @@ const Sections = {
   Standard: 'Standard',
   User: 'User',
 };
+
+// Smart Folder filtr regułowy (punkt 3): snapshot okna N najnowszych wątków
+// filtrowany regułami po stronie JS (wzorzec jak Tagi). Nie skaluje się na całą
+// bazę — patrz analysis/ note; ścieżka docelowa to query strukturalny.
+const SMART_FOLDER_WINDOW = 5000;
 
 class SidebarStore extends ActunaMailStore {
   _sections: {
@@ -101,9 +108,13 @@ class SidebarStore extends ActunaMailStore {
     } catch (e) {
       /* tag-system not active */
     }
+    // Sekcja zwijalna (porządkowanie panelu): collapsed/onCollapseToggled jak
+    // sekcje folderów — stan trzymany pod tytułem w savedState.sidebarKeysCollapsed.
     return {
       title: 'Tags',
       items,
+      collapsed: isSectionCollapsed('Tags'),
+      onCollapseToggled: toggleSectionCollapsed,
     };
   }
 
@@ -254,22 +265,78 @@ class SidebarStore extends ActunaMailStore {
     } catch (e) {
       // smart-folder package not activated jeszcze lub disabled — empty section
     }
+    // Punkt 3: każda pozycja = klikalny filtr regułowy. Placeholder perspektywa
+    // (forThreadIds([])) daje podświetlenie `selected`; onSelect liczy snapshot
+    // dopasowanych wątków regułami na klik (wzorzec jak Tagi/Snoozed).
+    const accountIds = AccountStore.accountIds();
     return {
       title: 'Smart Folders',
-      items: folders.map(
-        (f) =>
-          ({
-            id: `smart-folder-${f.id}`,
-            name: f.name,
-            iconName: 'tag.png',
-            accountIds: [],
-            children: [],
-            collapsed: false,
-            unreadCount: 0,
-          }) as any
-      ),
+      collapsed: isSectionCollapsed('Smart Folders'),
+      onCollapseToggled: toggleSectionCollapsed,
+      items: folders.map((f) => {
+        const placeholder = MailboxPerspective.forThreadIds([], accountIds, f.name);
+        (placeholder as any)._smartFolderId = f.id;
+        return SidebarItem.forPerspective(`smart-folder-${f.id}`, placeholder, {
+          name: f.name,
+          iconName: 'tag.png',
+          onSelect: () => this._focusSmartFolder(f),
+        });
+      }),
     };
   }
+
+  /**
+   * Punkt 3: na klik Smart Foldera wczytaj okno najnowszych wątków, zmapuj na
+   * ThreadMeta, przefiltruj regułami (SmartFolderStore.match) i pokaż wynik jako
+   * ThreadIdListPerspective. Snapshot — odświeża się przy ponownym kliku oraz po
+   * CRUD reguł (listen → _updateSections). Live-update na nową pocztę odłożony
+   * (zbyt kosztowny przy pełnym oknie wątków — patrz nota w planie).
+   */
+  _focusSmartFolder = (folder: { id: string; name: string }) => {
+    try {
+      const mod = require('../../smart-folder/lib/smart-folder-store');
+      const Store = mod.SmartFolderStore;
+      if (!Store || typeof Store.match !== 'function') {
+        return;
+      }
+      const accountIds = AccountStore.accountIds();
+      DatabaseStore.findAll(Thread)
+        .limit(SMART_FOLDER_WINDOW)
+        .then((threads: any[]) => {
+          const metas = (threads || []).map((t) => this._threadToSmartFolderMeta(t));
+          const ids = Store.match(folder.id, metas).map((m: any) => m.id);
+          const perspective = MailboxPerspective.forThreadIds(ids, accountIds, folder.name);
+          (perspective as any)._smartFolderId = folder.id;
+          Actions.focusMailboxPerspective(perspective);
+        });
+    } catch (e) {
+      /* smart-folder not active */
+    }
+  };
+
+  /** Mapuje model Thread na ThreadMeta akceptowane przez rule-engine (#99). */
+  _threadToSmartFolderMeta = (t: any) => {
+    const emails = (t.participants || []).map((p: any) => (p && p.email) || '').filter(Boolean);
+    const cats = (t.categories || t.folders || t.labels || [])
+      .map((c: any) => (c && (c.displayName || c.name)) || '')
+      .filter(Boolean);
+    const ts = t.lastMessageReceivedTimestamp || t.firstMessageTimestamp;
+    return {
+      id: t.id,
+      from: emails.join(' '),
+      to: emails,
+      subject: t.subject || '',
+      tags: Array.isArray(t.tags) ? t.tags : Object.keys(t.customKeywords || {}),
+      hasAttachment: (t.attachmentCount || 0) > 0,
+      attachmentCount: t.attachmentCount || 0,
+      date: ts instanceof Date ? ts.getTime() : typeof ts === 'number' ? ts : 0,
+      read: t.unread === undefined ? undefined : !t.unread,
+      folder: cats.join(' '),
+      account: t.accountId,
+      starred: t.starred,
+      pinned: t.pinned,
+    };
+  };
 
   _registerListeners() {
     this.listenTo(Actions.setCollapsedSidebarItem, this._onSetCollapsedByName);
@@ -293,6 +360,18 @@ class SidebarStore extends ActunaMailStore {
       }
     } catch (e) {
       /* tag-system not active */
+    }
+
+    // Punkt 3: CRUD Smart Folderów (create/update/delete) odświeża sekcję.
+    try {
+      const sfMod = require('../../smart-folder/lib/smart-folder-store');
+      if (sfMod.SmartFolderStore && typeof sfMod.SmartFolderStore.listen === 'function') {
+        sfMod.SmartFolderStore.listen(() => {
+          this._updateSections();
+        });
+      }
+    } catch (e) {
+      /* smart-folder not active */
     }
 
     this.configSubscription = AppEnv.config.onDidChange(

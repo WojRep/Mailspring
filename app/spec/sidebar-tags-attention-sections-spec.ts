@@ -29,6 +29,22 @@ describe('SidebarStore — Tags + Attention Layers sections (plan v1.0)', () => 
       expect(Array.isArray(section.items)).toBe(true);
     });
 
+    // Porządkowanie panelu: sekcja Tagi musi być zwijalna (zwijanie/rozwijanie
+    // jako pozycja) — prop onCollapseToggled + collapsed sterowany savedState.
+    it('jest zwijalna — zwraca onCollapseToggled (function) + collapsed (boolean)', () => {
+      const section = (SidebarStore as any).tagsSection();
+      expect(typeof section.onCollapseToggled).toBe('function');
+      expect(typeof section.collapsed).toBe('boolean');
+    });
+
+    it('collapsed odzwierciedla AppEnv.savedState.sidebarKeysCollapsed["Tags"]', () => {
+      AppEnv.savedState.sidebarKeysCollapsed['Tags'] = true;
+      expect((SidebarStore as any).tagsSection().collapsed).toBe(true);
+      AppEnv.savedState.sidebarKeysCollapsed['Tags'] = false;
+      expect((SidebarStore as any).tagsSection().collapsed).toBe(false);
+      delete AppEnv.savedState.sidebarKeysCollapsed['Tags'];
+    });
+
     it('items array reflects user tags from TagStore.list() (system tags filtered out)', () => {
       const tagMod = require('../internal_packages/tag-system/lib/tag-store');
       const TagStore = tagMod.TagStore;
