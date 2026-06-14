@@ -1185,5 +1185,14 @@
   "Favorite folders": "Ulubione foldery",
   "No favorite folders yet.": "Brak ulubionych folderów.",
   "Save to…": "Zapisz do…",
-  "Choose folder…": "Wybierz folder…"
+  "Choose folder…": "Wybierz folder…",
+  "AI providers": "Dostawcy AI",
+  "No providers configured. Claude (BASIC) is always available.": "Brak skonfigurowanych dostawców. Claude (BASIC) jest zawsze dostępny.",
+  "Provider id (e.g. openai-main)": "Identyfikator dostawcy (np. openai-main)",
+  "Base URL (https://… ; http only for localhost)": "Adres bazowy (https://… ; http tylko dla localhost)",
+  "Model": "Model",
+  "API key (stored encrypted, never on disk in clear)": "Klucz API (przechowywany zaszyfrowany, nigdy jawnie na dysku)",
+  "Add provider": "Dodaj dostawcę",
+  "Provider id and model are required.": "Identyfikator dostawcy i model są wymagane.",
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Klucze API są szyfrowane przez Twój system operacyjny i nigdy nie są zapisywane jawnie na dysku ani wysyłane gdziekolwiek poza skonfigurowany przez Ciebie endpoint dostawcy."
 }

@@ -1078,5 +1078,14 @@
   "Favorite folders": "Carpetas favoritas",
   "No favorite folders yet.": "Aún no hay carpetas favoritas.",
   "Save to…": "Guardar en…",
-  "Choose folder…": "Elegir carpeta…"
+  "Choose folder…": "Elegir carpeta…",
+  "AI providers": "Proveedores de IA",
+  "No providers configured. Claude (BASIC) is always available.": "No hay proveedores configurados. Claude (BASIC) siempre está disponible.",
+  "Provider id (e.g. openai-main)": "ID del proveedor (p. ej. openai-main)",
+  "Base URL (https://… ; http only for localhost)": "URL base (https://… ; http solo para localhost)",
+  "Model": "Modelo",
+  "API key (stored encrypted, never on disk in clear)": "Clave API (almacenada cifrada, nunca en claro en disco)",
+  "Add provider": "Añadir proveedor",
+  "Provider id and model are required.": "El ID del proveedor y el modelo son obligatorios.",
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Las claves API las cifra tu sistema operativo y nunca se escriben en claro en el disco ni se envían a ningún sitio salvo al endpoint del proveedor que configuraste."
 }

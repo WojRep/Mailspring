@@ -1079,5 +1079,14 @@
   "Favorite folders": "Улюблені теки",
   "No favorite folders yet.": "Ще немає улюблених тек.",
   "Save to…": "Зберегти в…",
-  "Choose folder…": "Виберіть теку…"
+  "Choose folder…": "Виберіть теку…",
+  "AI providers": "Постачальники ШІ",
+  "No providers configured. Claude (BASIC) is always available.": "Постачальників не налаштовано. Claude (BASIC) завжди доступний.",
+  "Provider id (e.g. openai-main)": "Ідентифікатор постачальника (напр. openai-main)",
+  "Base URL (https://… ; http only for localhost)": "Базова URL-адреса (https://… ; http лише для localhost)",
+  "Model": "Модель",
+  "API key (stored encrypted, never on disk in clear)": "Ключ API (зберігається зашифровано, ніколи у відкритому вигляді на диску)",
+  "Add provider": "Додати постачальника",
+  "Provider id and model are required.": "Ідентифікатор постачальника та модель обовʼязкові.",
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Ключі API шифруються вашою операційною системою та ніколи не записуються у відкритому вигляді на диск і не надсилаються нікуди, окрім налаштованого вами endpoint постачальника."
 }
