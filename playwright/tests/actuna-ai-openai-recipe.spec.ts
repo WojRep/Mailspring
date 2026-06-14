@@ -14,11 +14,13 @@ import { AI_PLUGIN_DIST } from '../helpers';
  * forbidden host.
  *
  * Drives the real bundled engine binary directly (the GPL boundary is a process),
- * so it needs no Electron window. A dev-signed PRO token (#145) activates PRO.
+ * so it needs no Electron window. A vendor-signed PRO token (#145+) activates PRO.
+ * Engine-only test: PRO gating here is tier-based; the email binding is enforced
+ * plugin-side (not exercised here), so an unbound token is sufficient.
  */
 
-const DEV_PRO_TOKEN =
-  'eyJ0aWVyIjoicHJvIiwiZXhwIjo0MTAyNDQ0ODAwfQ.ZWrPv0x5wGpvY7sIgLxdi-7MsnEJ-0UIb7jS-ZoLWqzgm3LdBR8gdXP1GALe4wk0KNwXP44ARpXIl1-8ZK7uDQ';
+const PRO_TOKEN =
+  'eyJ0aWVyIjoicHJvIiwiZXhwIjo0MTAyNDQ0ODAwfQ.Nv-S8qTT2YTcZ5wFOuaYtpLZdSNK64bP3lBnp0Oa60f53dzvVlP61qIbIygLbKIBipLhrEVbV5vYrn17GdtOCg';
 
 const ENGINE = path.join(
   AI_PLUGIN_DIST,
@@ -51,7 +53,7 @@ test.beforeAll(async () => {
   xdg = path.join(os.tmpdir(), `actuna-openai-e2e-${Date.now()}`);
   const eng = path.join(xdg, 'actuna-engine');
   fs.mkdirSync(eng, { recursive: true });
-  fs.writeFileSync(path.join(eng, 'license.json'), JSON.stringify({ token: DEV_PRO_TOKEN }));
+  fs.writeFileSync(path.join(eng, 'license.json'), JSON.stringify({ token: PRO_TOKEN }));
   fs.writeFileSync(
     path.join(eng, 'providers.json'),
     JSON.stringify({

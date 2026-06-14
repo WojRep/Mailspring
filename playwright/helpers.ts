@@ -38,11 +38,15 @@ export function installAIPlugin(configDir: string): void {
 }
 
 /**
- * A PRO license token signed by the DEV vendor key (#145 unblock; same fixture as
- * the Rust test). Valid only against the dev build's embedded key. exp = 2100.
+ * A PRO license token signed by the vendor key (#145+), BOUND to the default test
+ * account email (sffsw323@actuna.pl) and exp = 2100. Verifies against the embedded
+ * production key; the binding + 7-day liveness pass because the synthetic test
+ * config provisions that account with syncState='ok' and authedAt=now.
+ * NOTE: if you override TEST_ACCOUNT_EMAIL, regenerate this token bound to that
+ * address: `actuna-runtime mint-license <seed> pro 4102444800 <email>`.
  */
-const DEV_PRO_TOKEN =
-  'eyJ0aWVyIjoicHJvIiwiZXhwIjo0MTAyNDQ0ODAwfQ.ZWrPv0x5wGpvY7sIgLxdi-7MsnEJ-0UIb7jS-ZoLWqzgm3LdBR8gdXP1GALe4wk0KNwXP44ARpXIl1-8ZK7uDQ';
+const PRO_TOKEN =
+  'eyJ0aWVyIjoicHJvIiwiZXhwIjo0MTAyNDQ0ODAwLCJlbWFpbCI6InNmZnN3MzIzQGFjdHVuYS5wbCJ9.xFqsnncvIyxD7mZ3rTctb_0GmJ9EbXvf-6hi6Ny4eU7OA9h-0V5YyUlHmkizL_NVj4ubnvNqCLRF9w6_QcftDg';
 
 /**
  * Create a temp XDG_CONFIG_HOME containing `actuna-engine/license.json` with a dev
@@ -57,7 +61,7 @@ export function prepareProEngineConfig(extra?: {
   fs.mkdirSync(engDir, { recursive: true });
   fs.writeFileSync(
     path.join(engDir, 'license.json'),
-    JSON.stringify({ token: DEV_PRO_TOKEN })
+    JSON.stringify({ token: PRO_TOKEN })
   );
   if (extra?.providers) {
     fs.writeFileSync(
