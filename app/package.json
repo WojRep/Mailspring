@@ -2,7 +2,7 @@
   "name": "actunamail",
   "productName": "ActunaMail",
   "desktopName": "ActunaMail.desktop",
-  "version": "0.5.22",
+  "version": "0.5.23",
   "repository": {
     "type": "git",
     "url": "git://github.com/WojRep/ActunaMail.git"
