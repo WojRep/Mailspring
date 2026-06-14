@@ -1102,5 +1102,13 @@
   "Mark as not priority (Other)": "Позначити як не пріоритет («Інше»)",
   "Tags": "Теги",
   "Apply": "Застосувати",
-  "AI classification suggestion": "Пропозиція класифікації ШІ"
+  "AI classification suggestion": "Пропозиція класифікації ШІ",
+  "Provider ID": "Ідентифікатор постачальника",
+  "Type": "Тип",
+  "Base URL": "Базова URL-адреса",
+  "API key": "Ключ API",
+  "e.g. openai-main": "напр. openai-main",
+  "https://… ; http only for localhost": "https://… ; http лише для localhost",
+  "e.g. gpt-4o-mini": "напр. gpt-4o-mini",
+  "stored encrypted, never on disk in clear": "зберігається зашифровано, ніколи у відкритому вигляді на диску"
 }

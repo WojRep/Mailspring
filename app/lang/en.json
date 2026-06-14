@@ -1208,5 +1208,13 @@
   "Mark as not priority (Other)": "Mark as not priority (Other)",
   "Tags": "Tags",
   "Apply": "Apply",
-  "AI classification suggestion": "AI classification suggestion"
+  "AI classification suggestion": "AI classification suggestion",
+  "Provider ID": "Provider ID",
+  "Type": "Type",
+  "Base URL": "Base URL",
+  "API key": "API key",
+  "e.g. openai-main": "e.g. openai-main",
+  "https://… ; http only for localhost": "https://… ; http only for localhost",
+  "e.g. gpt-4o-mini": "e.g. gpt-4o-mini",
+  "stored encrypted, never on disk in clear": "stored encrypted, never on disk in clear"
 }
