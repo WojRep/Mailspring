@@ -1087,5 +1087,13 @@
   "API key (stored encrypted, never on disk in clear)": "Clave API (almacenada cifrada, nunca en claro en disco)",
   "Add provider": "Añadir proveedor",
   "Provider id and model are required.": "El ID del proveedor y el modelo son obligatorios.",
-  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Las claves API las cifra tu sistema operativo y nunca se escriben en claro en el disco ni se envían a ningún sitio salvo al endpoint del proveedor que configuraste."
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Las claves API las cifra tu sistema operativo y nunca se escriben en claro en el disco ni se envían a ningún sitio salvo al endpoint del proveedor que configuraste.",
+  "Licensed to": "Licencia para",
+  "PRO active": "PRO activo",
+  "PRO paused": "PRO en pausa",
+  "account not set up": "cuenta no configurada",
+  "no sign-in in 7 days": "sin inicio de sesión en 7 días",
+  "Order": "Pedido",
+  "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "Esta licencia está vinculada a una dirección de correo que no está configurada en la aplicación. Añade esa cuenta para usar las funciones PRO.",
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO está en pausa: la cuenta con licencia no ha iniciado sesión correctamente durante más de 7 días. Vuelve a iniciar sesión en esa cuenta para restaurar PRO."
 }

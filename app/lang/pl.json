@@ -1194,5 +1194,13 @@
   "API key (stored encrypted, never on disk in clear)": "Klucz API (przechowywany zaszyfrowany, nigdy jawnie na dysku)",
   "Add provider": "Dodaj dostawcę",
   "Provider id and model are required.": "Identyfikator dostawcy i model są wymagane.",
-  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Klucze API są szyfrowane przez Twój system operacyjny i nigdy nie są zapisywane jawnie na dysku ani wysyłane gdziekolwiek poza skonfigurowany przez Ciebie endpoint dostawcy."
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Klucze API są szyfrowane przez Twój system operacyjny i nigdy nie są zapisywane jawnie na dysku ani wysyłane gdziekolwiek poza skonfigurowany przez Ciebie endpoint dostawcy.",
+  "Licensed to": "Licencja dla",
+  "PRO active": "PRO aktywne",
+  "PRO paused": "PRO wstrzymane",
+  "account not set up": "konto nieskonfigurowane",
+  "no sign-in in 7 days": "brak logowania od 7 dni",
+  "Order": "Zamówienie",
+  "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "Ta licencja jest przypisana do adresu e-mail, który nie jest skonfigurowany w aplikacji. Dodaj to konto, aby korzystać z funkcji PRO.",
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO wstrzymane: licencjonowane konto nie zalogowało się pomyślnie od ponad 7 dni. Zaloguj się ponownie do tego konta, aby przywrócić PRO."
 }

@@ -1088,5 +1088,13 @@
   "API key (stored encrypted, never on disk in clear)": "Ключ API (зберігається зашифровано, ніколи у відкритому вигляді на диску)",
   "Add provider": "Додати постачальника",
   "Provider id and model are required.": "Ідентифікатор постачальника та модель обовʼязкові.",
-  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Ключі API шифруються вашою операційною системою та ніколи не записуються у відкритому вигляді на диск і не надсилаються нікуди, окрім налаштованого вами endpoint постачальника."
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "Ключі API шифруються вашою операційною системою та ніколи не записуються у відкритому вигляді на диск і не надсилаються нікуди, окрім налаштованого вами endpoint постачальника.",
+  "Licensed to": "Ліцензія для",
+  "PRO active": "PRO активно",
+  "PRO paused": "PRO призупинено",
+  "account not set up": "обліковий запис не налаштовано",
+  "no sign-in in 7 days": "немає входу 7 днів",
+  "Order": "Замовлення",
+  "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "Ця ліцензія прив’язана до адреси електронної пошти, яка не налаштована в застосунку. Додайте цей обліковий запис, щоб користуватися функціями PRO.",
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO призупинено: ліцензований обліковий запис не входив успішно понад 7 днів. Увійдіть знову до цього облікового запису, щоб відновити PRO."
 }

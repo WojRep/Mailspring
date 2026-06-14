@@ -1194,5 +1194,13 @@
   "API key (stored encrypted, never on disk in clear)": "API key (stored encrypted, never on disk in clear)",
   "Add provider": "Add provider",
   "Provider id and model are required.": "Provider id and model are required.",
-  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured."
+  "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.": "API keys are encrypted by your operating system and are never written to disk in clear text or sent anywhere except the provider endpoint you configured.",
+  "Licensed to": "Licensed to",
+  "PRO active": "PRO active",
+  "PRO paused": "PRO paused",
+  "account not set up": "account not set up",
+  "no sign-in in 7 days": "no sign-in in 7 days",
+  "Order": "Order",
+  "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.",
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO."
 }

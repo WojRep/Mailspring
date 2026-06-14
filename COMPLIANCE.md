@@ -47,7 +47,16 @@ Every "what upstream does" claim is sourced from the audit in the parent project
 
 **Actuna Mail.** Identity polling is removed. `SendFeatureUsageEventTask` is removed. The streaming connection is removed (the Mailspring ID concept is removed entirely; see Article 7).
 
-**Verification.** `grep -rn "fetchIdentity\|SendFeatureUsageEventTask\|MetadataWorker" app/ mailsync/MailSync/` returns nothing relevant.
+The optional PRO AI license (#145+) binds to a specific email: the offline,
+vendor-signed token carries the licensee's **own** email plus an order reference and
+purchase date — **no** name, device id, or account id. It is stored **locally**
+(`license.json`) and **never transmitted**; verification, binding and the 7-day
+liveness check are fully offline (zero egress). Lawful basis is Article 6(1)(b)
+(performance of the PRO contract). This **supersedes** the Faza 1 "no personal data
+in token" memo; the email is a deliberate, minimal, locally-held datum. No Article 35
+DPIA trigger. Full assessment: repo root `analysis/25-license-email-binding-memo.md`.
+
+**Verification.** `grep -rn "fetchIdentity\|SendFeatureUsageEventTask\|MetadataWorker" app/ mailsync/MailSync/` returns nothing relevant. License-binding logic is unit-tested (`actuna-runtime` cargo tests; plugin `node --test`); KROK 5 egress regression confirms the binding adds zero egress.
 
 ### Article 6 — Lawful basis
 
