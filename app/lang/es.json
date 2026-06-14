@@ -1095,5 +1095,11 @@
   "no sign-in in 7 days": "sin inicio de sesión en 7 días",
   "Order": "Pedido",
   "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "Esta licencia está vinculada a una dirección de correo que no está configurada en la aplicación. Añade esa cuenta para usar las funciones PRO.",
-  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO está en pausa: la cuenta con licencia no ha iniciado sesión correctamente durante más de 7 días. Vuelve a iniciar sesión en esa cuenta para restaurar PRO."
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO está en pausa: la cuenta con licencia no ha iniciado sesión correctamente durante más de 7 días. Vuelve a iniciar sesión en esa cuenta para restaurar PRO.",
+  "AI suggests for this conversation:": "La IA sugiere para esta conversación:",
+  "Mark as priority": "Marcar como prioridad",
+  "Mark as not priority (Other)": "Marcar como no prioritario («Otros»)",
+  "Tags": "Etiquetas",
+  "Apply": "Aplicar",
+  "AI classification suggestion": "Sugerencia de clasificación de IA"
 }

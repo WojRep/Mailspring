@@ -1202,5 +1202,11 @@
   "no sign-in in 7 days": "no sign-in in 7 days",
   "Order": "Order",
   "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.",
-  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO."
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.",
+  "AI suggests for this conversation:": "AI suggests for this conversation:",
+  "Mark as priority": "Mark as priority",
+  "Mark as not priority (Other)": "Mark as not priority (Other)",
+  "Tags": "Tags",
+  "Apply": "Apply",
+  "AI classification suggestion": "AI classification suggestion"
 }

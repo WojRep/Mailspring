@@ -1096,5 +1096,11 @@
   "no sign-in in 7 days": "немає входу 7 днів",
   "Order": "Замовлення",
   "This license is bound to an email address that is not set up in the app. Add that account to use PRO features.": "Ця ліцензія прив’язана до адреси електронної пошти, яка не налаштована в застосунку. Додайте цей обліковий запис, щоб користуватися функціями PRO.",
-  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO призупинено: ліцензований обліковий запис не входив успішно понад 7 днів. Увійдіть знову до цього облікового запису, щоб відновити PRO."
+  "PRO is paused: the licensed account has not signed in successfully for over 7 days. Sign in to that account again to restore PRO.": "PRO призупинено: ліцензований обліковий запис не входив успішно понад 7 днів. Увійдіть знову до цього облікового запису, щоб відновити PRO.",
+  "AI suggests for this conversation:": "ШІ пропонує для цієї розмови:",
+  "Mark as priority": "Позначити як пріоритет",
+  "Mark as not priority (Other)": "Позначити як не пріоритет («Інше»)",
+  "Tags": "Теги",
+  "Apply": "Застосувати",
+  "AI classification suggestion": "Пропозиція класифікації ШІ"
 }
