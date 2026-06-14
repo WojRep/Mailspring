@@ -38,6 +38,37 @@ export function installAIPlugin(configDir: string): void {
 }
 
 /**
+ * A PRO license token signed by the DEV vendor key (#145 unblock; same fixture as
+ * the Rust test). Valid only against the dev build's embedded key. exp = 2100.
+ */
+const DEV_PRO_TOKEN =
+  'eyJ0aWVyIjoicHJvIiwiZXhwIjo0MTAyNDQ0ODAwfQ.ZWrPv0x5wGpvY7sIgLxdi-7MsnEJ-0UIb7jS-ZoLWqzgm3LdBR8gdXP1GALe4wk0KNwXP44ARpXIl1-8ZK7uDQ';
+
+/**
+ * Create a temp XDG_CONFIG_HOME containing `actuna-engine/license.json` with a dev
+ * PRO token, so the engine subprocess reports a valid PRO license (#156/#162 e2e).
+ * Returns the XDG dir to pass via env.
+ */
+export function prepareProEngineConfig(extra?: {
+  providers?: unknown;
+}): string {
+  const xdg = path.join(os.tmpdir(), `actuna-xdg-${Date.now()}`);
+  const engDir = path.join(xdg, 'actuna-engine');
+  fs.mkdirSync(engDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(engDir, 'license.json'),
+    JSON.stringify({ token: DEV_PRO_TOKEN })
+  );
+  if (extra?.providers) {
+    fs.writeFileSync(
+      path.join(engDir, 'providers.json'),
+      JSON.stringify(extra.providers)
+    );
+  }
+  return xdg;
+}
+
+/**
  * Source config directory with the golden database and encrypted credentials
  * (Foundry376 upstream maintainer's fixture — present TYLKO na ich maszynach).
  * Jeśli FIXTURE_DIR nie istnieje, używamy synthetic fallback config z
@@ -227,13 +258,19 @@ export async function waitForMainWindow(
   );
 }
 
-export async function launchApp(opts: { installAIPlugin?: boolean } = {}): Promise<{
+export async function launchApp(
+  opts: { installAIPlugin?: boolean; proLicense?: boolean } = {}
+): Promise<{
   electronApp: ElectronApplication;
   mainWindow: Page;
   configDir: string;
 }> {
   const configDir = prepareTestConfigDir();
   if (opts.installAIPlugin) installAIPlugin(configDir);
+  // Redirect the engine's config dir (XDG_CONFIG_HOME) to a temp dir carrying a
+  // dev PRO license, so the engine reports tier=pro (unlocks PRO UI / providers).
+  const engineEnv: Record<string, string> = {};
+  if (opts.proLicense) engineEnv.XDG_CONFIG_HOME = prepareProEngineConfig();
   // Forward renderer console.error + uncaught pageerrors do test stdout — bardzo
   // pomocne dla diagnozowania plugin activation failures i React crashes.
   const setupDiag = (page: Page, label: string) => {
@@ -260,7 +297,7 @@ export async function launchApp(opts: { installAIPlugin?: boolean } = {}): Promi
     // deterministic regardless of the host system locale (matches the
     // jasmine `npm test` script setup).
     args: [APP_ROOT, '--enable-logging', '--dev', '--lang=en', '--config-dir-path', configDir],
-    env: { ...cleanEnv, PLAYWRIGHT: '1' },
+    env: { ...cleanEnv, PLAYWRIGHT: '1', ...engineEnv },
     timeout: 30_000,
   });
 
